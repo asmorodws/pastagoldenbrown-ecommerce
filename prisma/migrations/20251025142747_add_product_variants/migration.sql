@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `brand` VARCHAR(191) NULL,
+    ADD COLUMN `dimensions` VARCHAR(191) NULL,
+    ADD COLUMN `sku` VARCHAR(191) NULL,
+    ADD COLUMN `variants` TEXT NULL,
+    ADD COLUMN `weight` DECIMAL(10, 2) NULL;

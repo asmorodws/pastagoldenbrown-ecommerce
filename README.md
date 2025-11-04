@@ -1,36 +1,161 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Commerce Website dengan Next.js
 
-## Getting Started
+Website e-commerce lengkap dengan fitur authentication, checkout, dan admin dashboard.
 
-First, run the development server:
+## Fitur
+
+### User Features
+- ✅ Login & Register dengan verifikasi email
+- ✅ Browse produk berdasarkan kategori
+- ✅ Detail produk dengan gambar dan deskripsi
+- ✅ Keranjang belanja (shopping cart)
+- ✅ Checkout & pembayaran
+- ✅ Riwayat pesanan
+- ✅ Profile management
+
+### Admin Features
+- ✅ Dashboard dengan statistik
+- ✅ Kelola produk (CRUD)
+- ✅ Kelola kategori
+- ✅ Kelola pesanan & update status
+- ✅ Lihat semua pengguna
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Database**: MySQL dengan Prisma ORM
+- **Authentication**: NextAuth.js v5
+- **State Management**: Zustand
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Email**: Nodemailer
+
+## Setup
+
+### 1. Install Dependencies
+
+```bash
+npm install --legacy-peer-deps
+```
+
+### 2. Konfigurasi Database
+
+Edit file `.env` dan sesuaikan dengan konfigurasi MySQL Anda:
+
+```env
+DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE_NAME"
+```
+
+Contoh:
+```env
+DATABASE_URL="mysql://root:password@localhost:3306/ecommerce_db"
+```
+
+### 3. Setup Email (Optional)
+
+Untuk verifikasi email, edit `.env`:
+
+```env
+EMAIL_SERVER_HOST="smtp.gmail.com"
+EMAIL_SERVER_PORT="587"
+EMAIL_SERVER_USER="your-email@gmail.com"
+EMAIL_SERVER_PASSWORD="your-app-password"
+EMAIL_FROM="noreply@yourdomain.com"
+```
+
+**Cara mendapatkan Gmail App Password:**
+1. Buka [Google Account Settings](https://myaccount.google.com/)
+2. Security → 2-Step Verification → App passwords
+3. Generate password untuk "Mail"
+
+### 4. Generate NextAuth Secret
+
+```bash
+openssl rand -base64 32
+```
+
+Masukkan hasilnya ke `.env`:
+```env
+NEXTAUTH_SECRET="hasil-dari-command-di-atas"
+```
+
+### 5. Migrate Database
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Ini akan membuat database dan tabel-tabel yang diperlukan.
+
+### 6. Generate Prisma Client
+
+```bash
+npx prisma generate
+```
+
+### 7. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struktur Folder
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+├── app/
+│   ├── admin/              # Admin dashboard
+│   ├── api/                # API routes
+│   ├── auth/               # Authentication pages
+│   ├── cart/               # Shopping cart
+│   ├── checkout/           # Checkout page
+│   ├── orders/             # Order history
+│   ├── products/           # Product pages
+│   └── page.tsx            # Landing page
+├── components/             # Reusable components
+├── lib/                    # Utilities
+├── prisma/                 # Prisma schema & migrations
+├── store/                  # Zustand stores
+└── types/                  # TypeScript types
+```
 
-## Learn More
+## API Endpoints
 
-To learn more about Next.js, take a look at the following resources:
+### Public
+- `GET /api/products` - List all products
+- `GET /api/products/[slug]` - Get product by slug
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Authenticated
+- `POST /api/auth/register` - Register new user
+- `GET /api/auth/verify-email` - Verify email
+- `POST /api/orders` - Create order
+- `GET /api/orders` - Get user orders
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Admin Only
+- `GET /api/admin/products` - List all products (admin)
+- `POST /api/admin/products` - Create product
+- `PATCH /api/admin/products/[id]` - Update product
+- `DELETE /api/admin/products/[id]` - Delete product
+- `GET /api/admin/orders` - List all orders
+- `PATCH /api/admin/orders/[id]` - Update order status
 
-## Deploy on Vercel
+## Troubleshooting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Error: P1001 Can't reach database server
+- Pastikan MySQL server running
+- Check connection string di `.env`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Error: Module not found
+```bash
+npm install --legacy-peer-deps
+```
+
+### Email tidak terkirim
+- Pastikan EMAIL_* environment variables sudah benar
+- Gunakan Gmail App Password, bukan password biasa
+- Check spam folder
+
+## License
+
+MIT
