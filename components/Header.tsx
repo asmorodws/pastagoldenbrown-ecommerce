@@ -1,101 +1,139 @@
+// header.tsx - Fixed
 "use client"
 
 import Link from "next/link"
-import { ShoppingCart, User, Search, Menu } from "lucide-react"
+import { ShoppingCart, User, Menu, ChevronDown } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useCartStore } from "@/store/cart"
+import { useState } from "react"
 
 export default function Header() {
   const { data: session } = useSession()
   const cartItems = useCartStore((state) => state.items)
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   return (
-    <header className="bg-[#05347e] border-b border-[#032252] sticky top-0 z-50 shadow-lg backdrop-blur-sm bg-[#05347e]/95">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+    <header className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="bg-[#c49c0f] text-[#05347e] w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shadow-md">
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="w-8 h-8 flex items-center justify-center font-bold text-sm bg-[#c49c0f] text-[#05347e]">
               GB
             </div>
-            <span className="text-xl lg:text-2xl font-bold text-white">
-              Golden Brown Pasta
-            </span>
+            <div className="flex flex-col text-gray-900">
+              <span className="text-lg font-bold leading-tight">Golden Brown</span>
+              <span className="text-xs opacity-80">Pasta & Bahan Makanan</span>
+            </div>
           </Link>
 
-          
-          {/* Navigation */}
-          <nav className="flex items-center space-x-2 lg:space-x-4">
-            {session?.user?.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                className="px-4 py-2 text-white hover:text-[#c49c0f] font-medium transition-colors rounded-lg hover:bg-white/10"
-              >
-                Admin
-              </Link>
-            )}
-            
-            <Link href="/products" className="px-4 py-2 text-white hover:text-[#c49c0f] font-medium transition-colors rounded-lg hover:bg-white/10">
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            <Link
+              href="/products"
+              className="px-4 py-2 font-medium transition-colors text-sm text-gray-700 hover:text-[#05347e]"
+            >
               Produk
             </Link>
 
-            <Link href="/cart" className="relative p-2 text-white hover:text-[#c49c0f] transition-colors rounded-lg hover:bg-white/10">
-              <ShoppingCart size={24} />
+            <Link
+              href="#tentang-kami"
+              className="px-4 py-2 font-medium transition-colors text-sm text-gray-700 hover:text-[#05347e]"
+            >
+              Tentang Kami
+            </Link>
+
+            <Link
+              href="/contact"
+              className="px-4 py-2 font-medium transition-colors text-sm text-gray-700 hover:text-[#05347e]"
+            >
+              Kontak
+            </Link>
+          </nav>
+
+          {/* Right Section */}
+          <div className="flex items-center space-x-4">
+            {/* Cart */}
+            <Link
+              href="/cart"
+              className="p-2 transition-colors relative text-gray-700 hover:text-[#05347e]"
+            >
+              <ShoppingCart size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#db0705] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-md">
+                <span className="absolute -top-1 -right-1 bg-[#db0705] text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
                   {cartCount}
                 </span>
               )}
             </Link>
 
+            {/* User Menu */}
             {session ? (
-              <div className="relative group/profile">
-                <button className="flex items-center space-x-2 px-4 py-2 text-white hover:text-[#c49c0f] font-medium transition-colors rounded-lg hover:bg-white/10">
-                  <div className="w-8 h-8 bg-[#c49c0f] rounded-full flex items-center justify-center text-[#05347e] font-semibold text-sm shadow-md">
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 p-2 transition-colors text-gray-700"
+                >
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm bg-[#05347e] text-white">
                     {session.user.name?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <span className="hidden lg:inline text-white">{session.user.name}</span>
                 </button>
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all duration-200">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-[#05347e]">{session.user.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 shadow-lg py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{session.user.name}</p>
+                      <p className="text-xs text-gray-500 truncate mt-1">{session.user.email}</p>
+                    </div>
+                    <Link
+                      href="/orders"
+                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Pesanan Saya
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <hr className="my-2 border-gray-100" />
+                    <button
+                      onClick={() => {
+                        setIsProfileOpen(false)
+                        signOut()
+                      }}
+                      className="block w-full text-left px-4 py-2.5 text-sm text-[#db0705] hover:bg-gray-50 transition-colors"
+                    >
+                      Keluar
+                    </button>
                   </div>
-                  <Link
-                    href="/orders"
-                    className="block px-4 py-2.5 text-[#05347e] hover:bg-gray-50 hover:text-[#db0705] transition-colors"
-                  >
-                    Pesanan Saya
-                  </Link>
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2.5 text-[#05347e] hover:bg-gray-50 hover:text-[#db0705] transition-colors"
-                  >
-                    Profile
-                  </Link>
-                  <hr className="my-2 border-gray-100" />
-                  <button
-                    onClick={() => signOut()}
-                    className="block w-full text-left px-4 py-2.5 text-[#db0705] hover:bg-gray-100 transition-colors font-medium"
-                  >
-                    Logout
-                  </button>
-                </div>
+                )}
               </div>
             ) : (
-              <Link
-                href="/auth/login"
-                className="bg-[#db0705] text-white px-6 py-2.5 rounded-lg hover:bg-[#a60504] transition-colors shadow-md"
-              >
-                Login
-              </Link>
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/auth/login"
+                  className="transition-colors text-sm text-gray-700 hover:text-[#05347e]"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="bg-[#db0705] hover:bg-[#a60504] text-white px-4 py-2 text-sm transition-colors"
+                >
+                  Daftar
+                </Link>
+              </div>
             )}
 
-            <button className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg">
-              <Menu size={24} />
+            {/* Mobile Menu Button */}
+            <button className="lg:hidden p-2 transition-colors text-gray-700">
+              <Menu size={20} />
             </button>
-          </nav>
+          </div>
         </div>
       </div>
     </header>

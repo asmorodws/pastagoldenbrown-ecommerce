@@ -1,92 +1,77 @@
+// footer.tsx - Redesigned
 import Link from "next/link"
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, CheckCircle2 } from "lucide-react"
+import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="bg-[#032252] text-gray-300 border-t border-[#05347e]">
-      <div className="container mx-auto px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="bg-gray-900 text-gray-400">
+      <div className="container mx-auto px-4 lg:px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="bg-[#c49c0f] text-[#05347e] w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shadow-md">
+            <div className="flex items-center space-x-3">
+              <div className="bg-[#c49c0f] text-[#05347e] w-10 h-10 flex items-center justify-center font-bold text-lg">
                 GB
               </div>
-              <span className="text-xl font-bold text-white">Golden Brown Pasta</span>
+              <div>
+                <span className="text-lg font-bold text-white">Golden Brown</span>
+                <p className="text-sm text-gray-500">Pasta & Bahan Makanan</p>
+              </div>
             </div>
-            <p className="text-sm leading-relaxed text-gray-400">
-              Produsen pasta dan bahan makanan berkualitas sejak 1980. Bersertifikat Halal MUI dan BPOM 
-              dengan standar Food Grade untuk mendukung bisnis UMKM Indonesia.
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Produsen pasta dan bahan makanan berkualitas sejak 1980. 
+              Bersertifikat Halal MUI dan BPOM dengan standar Food Grade.
             </p>
-            <div className="flex space-x-3 pt-2">
-              <a href="#" className="bg-[#05347e] hover:bg-[#db0705] p-3 rounded-lg transition-all group shadow-md">
-                <Facebook size={20} className="text-white" />
-              </a>
-              <a href="#" className="bg-[#05347e] hover:bg-[#db0705] p-3 rounded-lg transition-all group shadow-md">
-                <Twitter size={20} className="text-white" />
-              </a>
-              <a href="#" className="bg-[#05347e] hover:bg-[#db0705] p-3 rounded-lg transition-all group shadow-md">
-                <Instagram size={20} className="text-white" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6">Navigasi Cepat</h4>
-            <ul className="space-y-3">
+            <h4 className="text-white font-semibold text-lg mb-4">Navigasi</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/products" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
-                  Semua Produk
+                <Link href="/products" className="hover:text-white transition-colors">
+                  Produk
                 </Link>
               </li>
               <li>
-                <Link href="/#tentang-kami" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
+                <Link href="#tentang-kami" className="hover:text-white transition-colors">
                   Tentang Kami
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
-                  Hubungi Kami
+                <Link href="/contact" className="hover:text-white transition-colors">
+                  Kontak
                 </Link>
               </li>
               <li>
-                <Link href="/auth/register" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
+                <Link href="/auth/register" className="hover:text-white transition-colors">
                   Daftar Mitra
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Customer Service */}
+          {/* Support */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6">Layanan Pelanggan</h4>
-            <ul className="space-y-3">
+            <h4 className="text-white font-semibold text-lg mb-4">Bantuan</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/orders" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
-                  Lacak Pesanan
+                <Link href="/shipping" className="hover:text-white transition-colors">
+                  Pengiriman
                 </Link>
               </li>
               <li>
-                <Link href="/cart" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
-                  Keranjang Belanja
+                <Link href="/returns" className="hover:text-white transition-colors">
+                  Retur & Pengembalian
                 </Link>
               </li>
               <li>
-                <Link href="/shipping" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
-                  Info Pengiriman
+                <Link href="/faq" className="hover:text-white transition-colors">
+                  FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-gray-400 hover:text-[#c49c0f] transition-colors flex items-center group">
-                  <span className="mr-2 group-hover:translate-x-1 transition-transform">→</span>
+                <Link href="/terms" className="hover:text-white transition-colors">
                   Syarat & Ketentuan
                 </Link>
               </li>
@@ -95,55 +80,39 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-bold text-lg mb-6">Kontak Kami</h4>
-            <ul className="space-y-4">
-              <li className="flex items-start space-x-3 group">
-                <div className="bg-[#05347e] p-2 rounded-lg mt-0.5 group-hover:bg-[#db0705] transition-colors shadow-md">
-                  <MapPin size={18} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Alamat Pabrik</div>
-                  <span className="text-sm text-gray-300 leading-relaxed">
-                    Jl. Raya Industri No. 123<br/>Jakarta, Indonesia
-                  </span>
-                </div>
+            <h4 className="text-white font-semibold text-lg mb-4">Kontak</h4>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start space-x-3">
+                <MapPin size={16} className="text-[#c49c0f] mt-0.5 flex-shrink-0" />
+                <span className="text-gray-400">
+                  Jl. Raya Industri No. 123<br />
+                  Jakarta, Indonesia
+                </span>
               </li>
-              <li className="flex items-start space-x-3 group">
-                <div className="bg-[#05347e] p-2 rounded-lg group-hover:bg-[#db0705] transition-colors shadow-md">
-                  <Phone size={18} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Telepon</div>
-                  <span className="text-sm text-gray-300">+62 21-xxxx-xxxx</span>
-                </div>
+              <li className="flex items-center space-x-3">
+                <Phone size={16} className="text-[#c49c0f] flex-shrink-0" />
+                <span className="text-gray-400">+62 21-xxxx-xxxx</span>
               </li>
-              <li className="flex items-start space-x-3 group">
-                <div className="bg-[#05347e] p-2 rounded-lg group-hover:bg-[#db0705] transition-colors shadow-md">
-                  <Mail size={18} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 mb-1">Email</div>
-                  <span className="text-sm text-gray-300">info@goldenbrownpasta.com</span>
-                </div>
+              <li className="flex items-center space-x-3">
+                <Mail size={16} className="text-[#c49c0f] flex-shrink-0" />
+                <span className="text-gray-400">info@goldenbrown.co.id</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-[#05347e] mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-gray-400">
-              &copy; {new Date().getFullYear()} <span className="text-[#c49c0f] font-semibold">Golden Brown Pasta</span>. Sejak 1980. Semua hak cipta dilindungi.
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-gray-500 text-center lg:text-left">
+              © {new Date().getFullYear()} Golden Brown Pasta. All rights reserved.
             </p>
-            <div className="flex items-center gap-6 text-sm text-gray-400">
-              <Link href="/privacy" className="hover:text-[#c49c0f] transition-colors">Kebijakan Privasi</Link>
-              <span className="text-gray-700">•</span>
-              <Link href="/terms" className="hover:text-[#c49c0f] transition-colors">Syarat & Ketentuan</Link>
-              <span className="text-gray-700">•</span>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-green-500" />
-                <span className="text-green-400 font-semibold">Halal MUI & BPOM</span>
-              </div>
+            <div className="flex items-center space-x-6 text-xs text-gray-500">
+              <Link href="/privacy" className="hover:text-white transition-colors">
+                Kebijakan Privasi
+              </Link>
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Syarat & Ketentuan
+              </Link>
             </div>
           </div>
         </div>
