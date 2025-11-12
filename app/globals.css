@@ -1,12 +1,18 @@
 /* globals.css */
 @import "tailwindcss";
 
+/* app/globals.css */
 :root {
   --primary: #05347e;
-  --primary-dark: #032252;
+  --primary-dark: #04255c;
+  --primary-light: #0745a8;
   --accent: #db0705;
-  --accent-dark: #a60504;
+  --accent-dark: #a80504;
+  --accent-light: #f53634;
   --gold: #c49c0f;
+  --gold-dark: #9c7d0c;
+  --gold-light: #e6b82a;
+  --white: #ffffff;
 }
 
 body {
@@ -43,4 +49,106 @@ a:focus-visible {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Floating animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-30px) rotate(3deg);
+    opacity: 0.4;
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(-35px) rotate(-3deg);
+    opacity: 0.35;
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 9s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+/* Masonry layout utilities */
+.masonry-grid {
+  column-gap: 1rem;
+  column-fill: balance;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 1rem;
+}
+
+/* Image optimization for various aspect ratios */
+img[loading="lazy"] {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Video Player Custom Slider */
+input[type="range"].slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #60a5fa;
+}
+
+input[type="range"].slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type="range"].slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #60a5fa;
+}
+
+img[loading="lazy"]:not([src]) {
+  opacity: 0;
+}
+
+/* Prevent column layout jump during load */
+.columns-2,
+.columns-3,
+.columns-4 {
+  column-gap: 1rem;
 }

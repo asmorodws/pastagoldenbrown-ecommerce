@@ -112,7 +112,7 @@ export default async function AdminPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Revenue */}
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
               <DollarSign className="w-6 h-6 text-slate-700" />

@@ -137,7 +137,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-white/80 text-sm mb-1">Total Pembayaran</p>
-                        <p className="text-2xl font-bold">
+                        <p className="text-2xl font-bold text-white">
                           Rp {parseFloat(order.total).toLocaleString("id-ID")}
                         </p>
                       </div>

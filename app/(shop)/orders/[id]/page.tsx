@@ -133,7 +133,7 @@ export default function OrderDetailPage() {
             </div>
             <div className="text-right">
               <p className="text-white/80 text-sm mb-1">Total Pembayaran</p>
-              <p className="text-3xl font-bold">
+              <p className="text-3xl font-bold text-white">
                 Rp {parseFloat(order.total).toLocaleString("id-ID")}
               </p>
             </div>
@@ -195,11 +195,15 @@ export default function OrderDetailPage() {
                   <span>Ongkos Kirim</span>
                   <span className="font-semibold text-green-600">Gratis</span>
                 </div>
-                <div className="border-t border-slate-200 pt-3 flex justify-between">
-                  <span className="text-lg font-bold text-slate-900">Total</span>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Rp {parseFloat(order.total).toLocaleString("id-ID")}
-                  </span>
+                <div className="border-t border-slate-200 pt-3">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold text-blue-900">Total Pembayaran</span>
+                      <span className="text-2xl font-bold text-blue-900">
+                        Rp {parseFloat(order.total).toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

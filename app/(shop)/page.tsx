@@ -1,409 +1,426 @@
-// page.tsx - Fixed with Indonesian language and Best Seller section
+// page.tsx
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, CheckCircle, Factory, Truck, Award, Users, Shield, Star, FileText, Scale, ChevronRight, ShoppingBag } from "lucide-react"
+import { motion } from "framer-motion"
+import {
+  ArrowRight,
+  CheckCircle,
+  ShieldCheck,
+  FlaskConical,
+  Blend,
+  Factory,
+  Truck,
+  Star,
+  Award,
+  Handshake,
+  BadgeCheck,
+} from "lucide-react"
+import { AdvantageCard } from "@/components/ui/AdvantageCard"
+import ProductCoverage from "@/components/ui/ProductCoverage"
+import ProductCard from "@/components/ProductCard"
+import VideoGallery from "@/components/VideoGallery"
+
+const featured = [
+  { id: "p1", name: "Pasta Pandan", price: 38500, discount: 5, discountPrice: 36575, image: "/assets/best_product/Pandan.png", slug: "pasta-pandan" },
+  { id: "p2", name: "Pasta Vanila Crown", price: 40000, discount: 5, discountPrice: 38000, image: "/assets/best_product/Vanilla Crown.png", slug: "pasta-vanila-crown" },
+  { id: "p3", name: "Pasta Red Velvet", price: 41000, discount: 5, discountPrice: 38950, image: "/assets/best_product/Red Velvet.png", slug: "pasta-red-velvet" },
+  { id: "p4", name: "Pasta Moka", price: 39000, discount: 5, discountPrice: 37050, image: "/assets/best_product/Moka.png", slug: "pasta-moka" },
+  { id: "p5", name: "Pasta Mangga", price: 37500, discount: 5, discountPrice: 35625, image: "/assets/best_product/Mangga.png", slug: "pasta-mangga" },
+  { id: "p6", name: "Pasta Moka Hopyes", price: 42000, discount: 5, discountPrice: 39900, image: "/assets/best_product/Moka Hopyes.png", slug: "pasta-moka-hopyes" },
+  { id: "p7", name: "Pasta Susu", price: 36000, discount: 5, discountPrice: 34200, image: "/assets/best_product/Susu.PNG", slug: "pasta-susu" },
+  { id: "p8", name: "Pasta Cokelat", price: 39500, discount: 5, discountPrice: 37525, image: "/assets/best_product/Cokelat.png", slug: "pasta-cokelat" },
+  { id: "p9", name: "Pasta Vanila", price: 38000, discount: 5, discountPrice: 36100, image: "/assets/best_product/Vanila.png", slug: "pasta-vanila" },
+  { id: "p10", name: "Pasta Cokelat Blackforest", price: 43000, discount: 5, discountPrice: 40850, image: "/assets/best_product/Cokelat Blackforest.png", slug: "pasta-cokelat-blackforest" },
+]
+
+const advantages = [
+  { icon: <ShieldCheck className="w-6 h-6" />, title: "Sertifikasi Lengkap", desc: "Halal MUI & BPJPH, terdaftar BPOM + NIB – keamanan, legalitas, dan kehalalan terjamin." },
+  { icon: <FlaskConical className="w-6 h-6" />, title: "Inovasi Berbasis Kebutuhan Pasar", desc: "Tim R&D berpengalaman menghadirkan solusi rasa, warna, dan formulasi terkini." },
+  { icon: <Blend className="w-6 h-6" />, title: "Formulasi Rasa Sesuai Permintaan", desc: "Layanan custom flavoring & blending untuk kebutuhan klien. *Syarat dan ketentuan berlaku." },
+  { icon: <Factory className="w-6 h-6" />, title: "Skalabilitas Produksi", desc: "Tersedia untuk skala UMKM hingga industri manufaktur dalam berbagai volume." },
+  { icon: <Truck className="w-6 h-6" />, title: "Jaringan Distribusi Nasional", desc: "Sistem distribusi dan agen efisien menjangkau seluruh Indonesia." },
+]
+
+// Data dari gambar
+const brandValues = [
+  {
+    icon: <Star className="w-8 h-8" />,
+    title: "Kualitas Produk #1",
+    desc: "Kualitas produk menjadi prioritas utama Golden Brown Pasta. Setiap batch melalui kontrol ketat untuk konsistensi rasa dan standar tertinggi."
+  },
+  {
+    icon: <Handshake className="w-8 h-8" />,
+    title: "Pelayanan Terbaik",
+    desc: "Pelayanan yang ramah, bersahabat, dan terbaik untuk setiap pelanggan. Kami siap membantu kebutuhan Anda dengan cepat dan profesional."
+  },
+  {
+    icon: <ShieldCheck className="w-8 h-8" />,
+    title: "Produk Higienis & Berkualitas",
+    desc: "Produk yang higienis dengan bahan berkualitas premium namun tetap terjangkau. Keseimbangan sempurna untuk bisnis Anda."
+  },
+  {
+    icon: <Award className="w-8 h-8" />,
+    title: "Standar Internasional",
+    desc: "Dapat bersaing dengan produk sejenis dari luar negeri. Kami membuktikan kualitas Indonesia bisa setara global."
+  }
+]
 
 export default function Home() {
-  // Sample best seller products data
-  const bestSellerProducts = [
-    {
-      id: 1,
-      name: "Pasta Spaghetti Premium",
-      price: "Rp 45.000",
-      image: "/api/placeholder/300/300",
-      category: "Pasta Kering"
-    },
-    {
-      id: 2,
-      name: "Bumbu Pasta Carbonara",
-      price: "Rp 32.000",
-      image: "/api/placeholder/300/300",
-      category: "Bumbu Instan"
-    },
-    {
-      id: 3,
-      name: "Pasta Fusilli Organik",
-      price: "Rp 38.000",
-      image: "/api/placeholder/300/300",
-      category: "Pasta Organik"
-    },
-    {
-      id: 4,
-      name: "Pasta Penne Whole Wheat",
-      price: "Rp 42.000",
-      image: "/api/placeholder/300/300",
-      category: "Pasta Gandum"
-    }
-  ]
-
   return (
-    <div className="min-h-screen overflow-hidden">
-      {/* Modern Hero Section */}
-      <section className="relative bg-white overflow-hidden">
-        {/* Geometric Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-96 bg-[#05347e]/5 transform -skew-y-3 origin-top-right"></div>
-          <div className="absolute bottom-0 right-0 w-full h-64 bg-[#c49c0f]/10 transform skew-y-3 origin-bottom-left"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 lg:px-6 py-32 lg:py-40 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            {/* Main Headline */}
-            <div className="space-y-6 mb-8">
-              <h1 className="text-5xl lg:text-7xl font-black text-gray-900 leading-tight tracking-tight">
-                GOLDEN BROWN
-                <span className="block text-[#05347e] text-4xl lg:text-6xl font-bold mt-2">PASTA</span>
-              </h1>
-              
-              {/* Quality Slogan */}
-              <div className="relative inline-block">
-                <div className="absolute -inset-4 bg-[#c49c0f]/10 transform -skew-x-6"></div>
-                <p className="relative text-2xl lg:text-3xl font-bold text-[#05347e] px-6 py-3">
-                  QUALITY IS OUR PRIORITY
-                </p>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto mb-12">
-              Produsen pasta dan bahan makanan premium dengan sertifikasi lengkap Halal MUI & BPOM. 
-              Mendukung bisnis UMKM Indonesia dengan standar kualitas tertinggi sejak 1980.
+    <>
+      {/* ===== 1. HERO SECTION ===== */}
+      <section className="bg-slate-50 py-20">
+        <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 gap-10">
+          
+          {/* Text Section */}
+          <motion.div 
+            className="text-center md:text-left max-w-xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-bold text-blue-900 leading-tight">
+              Quality is Our Priority
+            </h1>
+            <p className="text-slate-600 mt-4 text-lg">
+              Nikmati Pasta Terbaik dari <span className="font-semibold text-amber-500">Golden Brown</span>
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center md:justify-start">
+              <Link
+                href="/products"
+                className="px-6 py-3 rounded-xl bg-blue-800 text-white font-semibold hover:bg-blue-900 transition-all shadow-lg hover:shadow-xl"
+              >
+                Belanja Sekarang
+              </Link>
               <Link
                 href="#tentang-kami"
-                className="group bg-[#05347e] hover:bg-[#032252] text-white px-10 py-4 font-bold text-lg transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="px-6 py-3 rounded-xl border-2 border-blue-200 bg-white text-blue-900 font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all"
               >
-                <span>JELAJAHI CERITA KAMI</span>
-                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <Link
-                href="/products"
-                className="group border-2 border-gray-800 hover:border-[#05347e] text-gray-800 hover:text-[#05347e] px-10 py-4 font-bold text-lg transition-all duration-300 flex items-center space-x-3"
-              >
-                <span>LIHAT PRODUK</span>
-                <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                Hubungi Kami
               </Link>
             </div>
+          </motion.div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto border-t border-gray-200 pt-12">
-              <div className="text-center">
-                <div className="text-3xl font-black text-[#05347e] mb-2">40+</div>
-                <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">Tahun Pengalaman</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black text-[#05347e] mb-2">1000+</div>
-                <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">Mitra Bisnis</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black text-[#05347e] mb-2">100%</div>
-                <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">Kualitas Bersertifikat</div>
-              </div>
+          {/* Image Section */}
+          <motion.div 
+            className="relative flex justify-center"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <div className="relative w-72 md:w-96 h-auto">
+              <img
+                src="/hero-product.png"
+                alt="Golden Brown Pasta - Bahan Tambahan Pangan Campuran"
+                className="rounded-lg drop-shadow-lg w-full h-auto"
+              />
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== 2. TENTANG KAMI ===== */}
+<section id="tentang-kami" className="py-20 bg-white">
+  <div className="container mx-auto px-6 max-w-6xl">
+    <div className="grid md:grid-cols-2 gap-12 items-start">
+      {/* Left Content */}
+      <div className="flex flex-col">
+        <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Tentang Kami</h2>
+        <p className="mt-4 text-gray-700 leading-relaxed">
+          Golden Brown Pasta berdiri sejak 1980, menghadirkan bahan tambahan makanan berstandar internasional. Semua produk menggunakan pewarna Food Grade terbaik dan telah dinyatakan layak oleh BPOM R.I serta bersertifikat HALAL MUI.
+        </p>
+        <p className="mt-4 text-gray-700 leading-relaxed">
+          Komitmen kami: memberikan kenyamanan & keamanan bagi customer maupun reseller, terus berinovasi agar produk kami tetap berkualitas dan sesuai selera konsumen Indonesia.
+        </p>
+        
+        {/* Visual Stats */}
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          <MetricCard value="35+" label="Tahun Pengalaman" />
+          <MetricCard value="30+" label="Distributor dan Agen" />
+          <CertCard label="Halal MUI" />
+          <CertCard label="BPOM RI" />
+        </div>
+      </div>
+      
+      {/* Right Content - Images */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-rows-2 gap-4">
+          <div className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <img 
+              src="/assets/img/Rainbow Cake Kukus.png" 
+              alt="Rainbow Cake Kukus"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <div className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <img 
+              src="/assets/img/Martabak Red Velvet.png" 
+              alt="Martabak Red Velvet"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+        </div>
+        <div className="grid grid-rows-2 gap-4">
+          <div className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <img 
+              src="/assets/img/Pandan Mocca Layer Cake.png" 
+              alt="Pandan Mocca Layer Cake"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <div className="aspect-square rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <img 
+              src="/assets/img/Bolu Green Tea.png" 
+              alt="Bolu Green Tea"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      {/* ===== 3. KEUNGGULAN KAMI ===== */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-6 max-w-7xl text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Keunggulan Kami</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-12">
+            {advantages.map((a, i) => (
+              <AdvantageCard key={i} icon={a.icon} title={a.title} desc={a.desc} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Produk Unggulan Section */}
-      <section className="py-20 lg:py-28 bg-gray-50">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center space-x-2 text-sm font-bold text-[#c49c0f] uppercase tracking-wider mb-4">
-                <div className="w-8 h-0.5 bg-[#c49c0f]"></div>
-                <span>Pilihan Terbaik</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-black text-gray-900 mb-6">
-                PRODUK UNGGULAN
-              </h2>
-              <div className="w-20 h-1 bg-[#db0705] mx-auto"></div>
-              <p className="text-gray-600 mt-6 text-lg">
-                Produk terlaris kami dengan kualitas terjamin untuk bisnis Anda
-              </p>
-            </div>
+      {/* ===== 4. PRODUK UNGGULAN ===== */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <motion.div 
+            className="text-center max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-extrabold text-blue-900">Produk Unggulan</h2>
+            <p className="mt-3 text-slate-600 text-base md:text-lg">10 varian best-seller yang sudah dipercaya ribuan pelanggan.</p>
+          </motion.div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {bestSellerProducts.map((product) => (
-                <div key={product.id} className="group bg-white border border-gray-200 hover:border-[#05347e] transition-all duration-300 hover:-translate-y-2">
-                  <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                      <ShoppingBag size={48} className="text-gray-400" />
-                    </div>
-                    <div className="absolute top-4 left-4 bg-[#05347e] text-white px-3 py-1 text-xs font-bold">
-                      BEST SELLER
-                    </div>
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mt-12 auto-rows-fr"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            {featured.map((p, index) => (
+              <motion.div
+                key={p.id}
+                className="h-full"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <ProductCard 
+                  id={p.id}
+                  name={p.name}
+                  price={p.price}
+                  discount={p.discount}
+                  discountPrice={p.discountPrice}
+                  image={p.image}
+                  slug={p.slug}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div 
+            className="text-center mt-14"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <Link href="/products" className="inline-flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow hover:shadow-lg">
+              Lihat Semua Produk <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== 6. MENGAPA GOLDEN BROWN ===== */}
+      <section id="mengapa-kami" className="py-20 bg-slate-50">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Mengapa Golden Brown?</h2>
+            <p className="mt-3 text-slate-600 text-base md:text-lg">Empat alasan utama mengapa ribuan pelanggan mempercayakan bahan baku mereka kepada kami.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {brandValues.map((value, i) => (
+              <div 
+                key={i}
+                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-blue-200 group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-100 text-blue-800 p-3 rounded-lg group-hover:bg-blue-800 group-hover:text-white transition-colors">
+                    {value.icon}
                   </div>
-                  <div className="p-6">
-                    <div className="text-sm text-gray-500 mb-2">{product.category}</div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-3 group-hover:text-[#05347e] transition-colors">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black text-[#05347e]">{product.price}</span>
-                      <button className="bg-[#db0705] hover:bg-[#a60504] text-white p-2 transition-colors">
-                        <ShoppingBag size={20} />
-                      </button>
-                    </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg text-gray-900 mb-2">{value.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{value.desc}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* View All Products Button */}
-            <div className="text-center mt-12">
-              <Link
-                href="/products"
-                className="inline-flex items-center space-x-3 bg-[#05347e] hover:bg-[#032252] text-white px-8 py-4 font-bold transition-colors"
-              >
-                <span>LIHAT SEMUA PRODUK</span>
-                <ChevronRight size={20} />
-              </Link>
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Tentang Kami Section - Fixed Background */}
-      <section id="tentang-kami" className="py-24 lg:py-32 bg-white relative overflow-hidden">
-        {/* Background Pattern - Fixed */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white overflow-hidden">
-          <div className="absolute top-0 right-0 w-full max-w-[50%] h-full bg-[#05347e]/3 transform skew-x-12 origin-top-right"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 lg:px-6 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-              {/* Left Column - Visual */}
-              <div className="relative">
-                <div className="bg-[#05347e] p-8 lg:p-12 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#c49c0f] transform translate-x-16 -translate-y-16 rotate-45"></div>
-                  <div className="relative z-10">
-                    <h3 className="text-2xl lg:text-3xl font-black mb-6">WARISAN KAMI</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-4">
-                        <div className="bg-[#c49c0f] p-2 flex-shrink-0 mt-1">
-                          <Award className="text-[#05347e]" size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-lg mb-2">Pendekatan Kualitas Utama</h4>
-                          <p className="text-blue-100 text-sm leading-relaxed">
-                            Setiap produk melalui proses quality control ketat dengan standar internasional
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-4">
-                        <div className="bg-[#c49c0f] p-2 flex-shrink-0 mt-1">
-                          <Shield className="text-[#05347e]" size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-lg mb-2">Keunggulan Bersertifikat</h4>
-                          <p className="text-blue-100 text-sm leading-relaxed">
-                            Halal MUI, BPOM, dan sertifikasi food grade untuk keamanan maksimal
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start space-x-4">
-                        <div className="bg-[#c49c0f] p-2 flex-shrink-0 mt-1">
-                          <Users className="text-[#05347e]" size={20} />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-lg mb-2">Dukungan UMKM</h4>
-                          <p className="text-blue-100 text-sm leading-relaxed">
-                            Harga kompetitif dan konsultasi gratis untuk pengembangan bisnis
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+      {/* ===== 7. TESTIMONI ===== */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Testimoni Pelanggan</h2>
+            <p className="mt-3 text-slate-600 text-base md:text-lg">
+              Apa kata pelanggan kami tentang Golden Brown Pasta
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 max-w-6xl mx-auto">
+            {/* Testimoni 1 - Distributor */}
+            <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group">
+              <div className="p-8">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="bg-blue-100 p-3 rounded-lg flex-shrink-0 group-hover:bg-blue-800 transition-colors">
+                    <Handshake className="w-7 h-7 text-blue-800 group-hover:text-white transition-colors" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900">Deni Setia Erawan</h3>
+                    <p className="text-sm text-blue-800 font-semibold mt-1">Distributor</p>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    ))}
                   </div>
                 </div>
                 
-                {/* Accent Element */}
-                <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-[#db0705]"></div>
-              </div>
-
-              {/* Right Column - Content */}
-              <div className="space-y-8">
-                {/* Section Header */}
-                <div className="space-y-4">
-                  <div className="inline-flex items-center space-x-2 text-sm font-bold text-[#c49c0f] uppercase tracking-wider">
-                    <div className="w-8 h-0.5 bg-[#c49c0f]"></div>
-                    <span>Sejak 1980</span>
-                  </div>
-                  <h2 className="text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
-                    TENTANG<br />GOLDEN BROWN PASTA
-                  </h2>
-                  <div className="w-20 h-1 bg-[#db0705]"></div>
-                </div>
-
-                {/* Content */}
-                <div className="space-y-6 text-gray-700 leading-relaxed">
-                  <p className="text-lg font-medium">
-                    Golden Brown Pasta terbuat dari bahan-bahan pilihan dengan standar internasional 
-                    untuk jenis bahan tambahan makanan dengan pewarna terbaik yang sudah dinyatakan 
-                    layak makan (Food Grade) oleh BPOM R.I dan bersertifikat HALAL dari M.U.I.
+                <div className="relative">
+                  <div className="absolute -top-3 -left-2 text-6xl text-blue-200 opacity-50 font-serif leading-none">"</div>
+                  <p className="text-gray-700 leading-relaxed relative z-10 pl-6 text-sm">
+                    Sebagai distributor, kami sangat senang dan bangga telah bekerja sama dalam hal memasarkan produk GOLDEN BROWN selama ini. Produk GOLDEN BROWN sampai saat ini, masih menjadi spesialis handal perisa dan aroma pasta untuk Cake & Bakery. Produk GOLDEN BROWN sangat banyak diminati pelaku Bisnis Cake & Bakery, terbukti dari banyaknya Customer kami yang tersebar di JABODETABEK bahkan diluar kota seperti Bandung, Surabaya, Palembang, dan kota lainnya. Banyak keunggulan yang kami dapat dari GOLDEN BROWN. Misalnya, banyak varian rasa yang tersedia, harga yang terjangkau dan bersaing, lengkapnya ukuran kemasan, cara penggunaan yang sangat mudah. Dan mudah didapat.
                   </p>
-                  
-                  <p>
-                    Oleh karena itu, produk-produk kami memberikan kenyamanan dan keamanan bagi para 
-                    customer dan reseller. Kami akan selalu berusaha untuk berkembang agar produk kami 
-                    dapat lebih berkualitas dan unggul, sesuai dengan selera konsumen Indonesia.
-                  </p>
-
-                  <p className="font-bold text-[#05347e] text-lg">
-                    Berdiri sejak tahun 1980, kami berkomitmen selalu memberikan kenyamanan dan keamanan 
-                    bagi para customer dan reseller.
-                  </p>
-                </div>
-
-                {/* Certifications */}
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="flex items-center space-x-3 p-4 bg-gray-50 border-l-4 border-[#05347e]">
-                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                    <span className="text-sm font-bold text-gray-900">Halal MUI</span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-4 bg-gray-50 border-l-4 border-[#05347e]">
-                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                    <span className="text-sm font-bold text-gray-900">BPOM RI</span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-4 bg-gray-50 border-l-4 border-[#05347e]">
-                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                    <span className="text-sm font-bold text-gray-900">Food Grade</span>
-                  </div>
-                  <div className="flex items-center space-x-3 p-4 bg-gray-50 border-l-4 border-[#05347e]">
-                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                    <span className="text-sm font-bold text-gray-900">40+ Tahun</span>
-                  </div>
                 </div>
               </div>
             </div>
+
+            
           </div>
         </div>
       </section>
 
-      {/* Keunggulan Kami Section - Fixed */}
-      <section className="py-24 lg:py-32 bg-gray-900 text-white relative overflow-hidden">
-        {/* Background Pattern - Fixed */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#032252] to-[#05347e] overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-32 bg-[#c49c0f]/10 transform -skew-y-3 origin-top-left"></div>
-          <div className="absolute bottom-0 right-0 w-full h-32 bg-[#db0705]/10 transform skew-y-3 origin-bottom-right"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 lg:px-6 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            {/* Section Header */}
-            <div className="text-center max-w-3xl mx-auto mb-20">
-              <div className="inline-flex items-center space-x-2 text-sm font-bold text-[#c49c0f] uppercase tracking-wider mb-4">
-                <div className="w-8 h-0.5 bg-[#c49c0f]"></div>
-                <span>Keunggulan Kami</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-black mb-6 leading-tight">
-                MENGAPA MEMILIH<br />PRODUK KAMI
-              </h2>
-              <div className="w-20 h-1 bg-[#db0705] mx-auto"></div>
-            </div>
+      {/* ===== 8. INSPIRASI KREASI ===== */}
+      <section className="py-20 bg-slate-50">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <motion.div 
+            className="text-center max-w-3xl mx-auto mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Inspirasi Kreasi</h2>
+            <p className="mt-3 text-slate-600 text-base md:text-lg">
+              Lihat berbagai kreasi lezat yang bisa Anda buat dengan pasta Golden Brown
+            </p>
+          </motion.div>
 
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <FileText className="text-white" size={28} />
+          {/* Gallery Grid - Masonry Layout */}
+          <motion.div 
+            className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            {[
+              { img: "/assets/img/Rainbow Pudding.png", name: "Rainbow Pudding" },
+              { img: "/assets/img/Moka Hopyes Roll Cake.png", name: "Moka Hopyes Roll Cake" },
+              { img: "/assets/img/Putu Ayu Red Velvet.png", name: "Putu Ayu Red Velvet" },
+              { img: "/assets/img/Martabak Manis Green Tea.png", name: "Martabak Green Tea" },
+              { img: "/assets/img/Kue Lumpur Lapindo.png", name: "Kue Lumpur" },
+              { img: "/assets/img/Coffee Boy Petite Fours.png", name: "Coffee Petite Fours" },
+              { img: "/assets/img/Kue Mangkok Gula Aren.png", name: "Kue Mangkok" },
+              { img: "/assets/img/Lemon Butter Cheese Cake.png", name: "Lemon Cheese Cake" },
+              { img: "/assets/img/Red Velvet Oreo Pudding.png", name: "Red Velvet Pudding" },
+              { img: "/assets/img/Bolu Gulung Rainbow.png", name: "Bolu Gulung Rainbow" },
+            ].map((item, i) => (
+              <motion.div 
+                key={i}
+                className="break-inside-avoid mb-4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+              >
+                <div className="relative rounded-xl overflow-hidden shadow-lg group cursor-pointer hover:shadow-2xl transition-all duration-300">
+                  <img 
+                    src={item.img} 
+                    alt={item.name}
+                    className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <p className="text-white font-semibold p-4 text-sm">{item.name}</p>
                   </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Sertifikasi Lengkap</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Produk kami telah tersertifikasi oleh Halal MUI dan BPJPH, serta terdaftar di BPOM 
-                    dan memiliki NIB, sehingga menjamin keamanan, legalitas, dan kehalalan produk.
-                  </p>
                 </div>
-              </div>
+              </motion.div>
+            ))}
+          </motion.div>
 
-              {/* Feature 2 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <Users className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Inovasi Berbasis Kebutuhan Pasar</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Didukung tim R&D berpengalaman yang terus menghadirkan solusi rasa, warna, dan 
-                    formulasi sesuai tren dan permintaan industri makanan.
-                  </p>
-                </div>
-              </div>
 
-              {/* Feature 3 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <Scale className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Formulasi Rasa Kustom</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Layanan formulasi khusus (custom flavoring & blending) untuk memenuhi kebutuhan 
-                    setiap klien. *Syarat dan ketentuan berlaku.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 4 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <Factory className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Skalabilitas Produksi</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Produk tersedia dalam berbagai ukuran dan volume, mulai dari skala kecil (UMKM) 
-                    hingga besar (industri manufaktur).
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 5 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <Truck className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Jaringan Distribusi Nasional</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Didukung sistem distribusi dan agen yang luas serta efisien untuk menjangkau 
-                    pelanggan di seluruh Indonesia.
-                  </p>
-                </div>
-              </div>
-
-              {/* Feature 6 */}
-              <div className="group bg-white/10 backdrop-blur-sm border border-white/20 hover:border-[#c49c0f] transition-all duration-500 p-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#c49c0f] transform translate-x-8 -translate-y-8 rotate-45"></div>
-                <div className="relative z-10">
-                  <div className="bg-[#05347e] p-4 w-16 h-16 flex items-center justify-center mb-6 group-hover:bg-[#c49c0f] transition-colors">
-                    <Award className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-xl font-black mb-4 text-white">Pengalaman 40+ Tahun</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Didukung oleh pengalaman lebih dari 4 dekade dalam industri makanan, memahami 
-                    kebutuhan dan tren pasar Indonesia.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
+
+      {/* ===== 9. VIDEO TUTORIAL ===== */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Video</h2>
+            <p className="mt-3 text-slate-600 text-base md:text-lg">
+              Pelajari cara membuat berbagai kreasi lezat dengan pasta Golden Brown
+            </p>
+          </div>
+
+          <VideoGallery />
+        </div>
+      </section>
+
+      {/* ===== 10. PRODUCT COVERAGE ===== */}
+    </>
+  )
+}
+
+/* ---------- helpers ---------- */
+function MetricCard({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-4 text-center border border-gray-100">
+      <p className="text-2xl font-bold text-blue-900">{value}</p>
+      <p className="text-sm text-gray-600 mt-1">{label}</p>
+    </div>
+  )
+}
+
+function CertCard({ label }: { label: string }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
+      <CheckCircle className="text-green-600 w-7 h-7 mb-2" />
+      <p className="text-sm font-semibold text-blue-900">{label}</p>
     </div>
   )
 }
