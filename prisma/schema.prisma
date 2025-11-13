@@ -14,6 +14,7 @@ model User {
   emailVerified DateTime?
   password      String
   image         String?
+  phone         String?   // Add phone field
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -22,6 +23,7 @@ model User {
   sessions      Session[]
   orders        Order[]
   cart          CartItem[]
+  addresses     Address[]
   verificationTokens VerificationToken[]
 }
 
@@ -63,6 +65,29 @@ model VerificationToken {
   @@unique([email, token])
 }
 
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  label       String   // e.g., "Rumah", "Kantor", "Alamat Utama"
+  recipientName String
+  phone       String
+  address     String   @db.Text
+  city        String
+  cityId      String?  // RajaOngkir city_id for shipping calculation
+  province    String
+  provinceId  String?  // RajaOngkir province_id
+  zipCode     String
+  country     String   @default("Indonesia")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders      Order[]
+  
+  @@index([userId])
+}
+
 model Category {
   id          String    @id @default(cuid())
   name        String
@@ -81,19 +106,17 @@ model Product {
   name        String
   slug        String     @unique
   description String?    @db.Text
-  price       Decimal    @db.Decimal(10, 2)
+  price       Decimal    @db.Decimal(10, 2) // Base price (can be overridden by variant)
   image       String?
   images      String?    @db.Text // JSON array of image URLs
-  stock       Int        @default(0)
   categoryId  String
   featured    Boolean    @default(false)
   
   // Product details
   brand       String?
-  sku         String?
+  sku         String?    // Base SKU
   weight      Decimal?   @db.Decimal(10, 2)
   dimensions  String?
-  variants    String?    @db.Text // JSON string: [{"name": "Color", "options": ["Red", "Blue"]}, {"name": "Size", "options": ["S", "M", "L"]}]
   
   // Discount fields
   discount    Decimal?   @db.Decimal(5, 2) // Percentage discount (0-100)
@@ -102,32 +125,60 @@ model Product {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   
-  category    Category   @relation(fields: [categoryId], references: [id])
+  category    Category         @relation(fields: [categoryId], references: [id])
+  variants    ProductVariant[] // Product variants with individual stock, price, etc.
   orderItems  OrderItem[]
   cartItems   CartItem[]
 }
 
+model ProductVariant {
+  id           String   @id @default(cuid())
+  productId    String
+  name         String   // e.g., "30g", "100g", "1kg"
+  label        String?  // e.g., "Ukuran: 30g" - for display
+  sku          String?  // Unique SKU for this variant
+  price        Decimal? @db.Decimal(10, 2) // Override product price if set
+  stock        Int      @default(0)
+  image        String?  // Variant-specific image (override product image)
+  sortOrder    Int      @default(0) // For ordering variants in display
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  
+  @@unique([productId, name]) // Prevent duplicate variant names for same product
+  @@index([productId])
+}
+
 model CartItem {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String   @id @default(cuid())
+  userId           String
+  productId        String   // Keep for backward compatibility and product info
+  productVariantId String?  // Reference to specific variant
+  quantity         Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product          Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
   
-  @@unique([userId, productId])
+  @@unique([userId, productVariantId]) // One variant per user
+  @@index([userId])
+  @@index([productId])
 }
 
 model Order {
   id              String      @id @default(cuid())
   userId          String
+  addressId       String?     // Reference to selected address
   total           Decimal     @db.Decimal(10, 2)
   status          OrderStatus @default(PENDING)
   
-  // Shipping info
+  // Shipping info (denormalized for historical record)
   shippingName    String
   shippingEmail   String
   shippingPhone   String?
@@ -147,18 +198,27 @@ model Order {
   updatedAt       DateTime    @updatedAt
   
   user            User        @relation(fields: [userId], references: [id])
+  address         Address?    @relation(fields: [addressId], references: [id])
   items           OrderItem[]
+  
+  @@index([addressId])
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  productId String
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2)
+  id               String  @id @default(cuid())
+  orderId          String
+  productId        String
+  productVariantId String? // Which variant was ordered
+  quantity         Int
+  price            Decimal @db.Decimal(10, 2)
+  variantName      String? // Store variant name for historical record
   
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product          Product        @relation(fields: [productId], references: [id])
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
 }
 
 enum Role {
@@ -172,4 +232,14 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([key])
 }

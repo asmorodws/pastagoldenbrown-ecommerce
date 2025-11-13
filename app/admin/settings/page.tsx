@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Settings, Globe, Mail, Bell, Shield, Database, Save } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Settings, Globe, Mail, Bell, Shield, Database, Save, MapPin, Truck, Search } from "lucide-react"
 import toast from "react-hot-toast"
 
 export default function AdminSettingsPage() {
@@ -16,6 +16,113 @@ export default function AdminSettingsPage() {
     stockAlerts: true,
     maintenanceMode: false,
   })
+
+  // Shipping origin states
+  const [shippingOrigin, setShippingOrigin] = useState({
+    cityId: "501", // Actual city ID for shipping calculation
+    subdistrictId: "", // Optional: for more accurate origin
+    cityName: "Jakarta Timur",
+    provinceName: "DKI Jakarta",
+  })
+  const [loadingOrigin, setLoadingOrigin] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+
+  useEffect(() => {
+    fetchShippingOrigin()
+  }, [])
+
+  const fetchShippingOrigin = async () => {
+    try {
+      setLoadingOrigin(true)
+      const res = await fetch("/api/admin/settings/shipping-origin")
+      if (res.ok) {
+        const data = await res.json()
+        if (data.originCityId) {
+          // Fetch city name from RajaOngkir if needed
+          setShippingOrigin(prev => ({
+            ...prev,
+            cityId: data.originCityId,
+          }))
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching shipping origin:", error)
+    } finally {
+      setLoadingOrigin(false)
+    }
+  }
+
+  const searchCities = async (query: string) => {
+    if (query.length < 3) {
+      setSearchResults([])
+      setShowSearchResults(false)
+      return
+    }
+
+    try {
+      setIsSearching(true)
+      const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(query)}&limit=10`)
+      if (res.ok) {
+        const data = await res.json()
+        setSearchResults(data)
+        setShowSearchResults(true)
+      }
+    } catch (error) {
+      console.error("Error searching cities:", error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSelectCity = async (city: any) => {
+    // Extract city_id from the data
+    // Search API returns subdistrict data with city information
+    const cityId = city.city_id || city.cityId || city.id
+    const subdistrictId = city.id // The full location ID (subdistrict level)
+    
+    const newOrigin = {
+      cityId: cityId.toString(),
+      subdistrictId: subdistrictId.toString(),
+      cityName: city.city || city.city_name || city.name,
+      provinceName: city.province || city.province_name || "",
+    }
+
+    setShippingOrigin(newOrigin)
+    setSearchQuery("")
+    setShowSearchResults(false)
+    setSearchResults([])
+
+    // Save immediately
+    try {
+      const res = await fetch("/api/admin/settings/shipping-origin", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originCityId: newOrigin.cityId,
+          originSubdistrictId: newOrigin.subdistrictId,
+          originCityName: `${newOrigin.cityName}, ${newOrigin.provinceName}`,
+        }),
+      })
+
+      if (res.ok) {
+        toast.success("Lokasi pengiriman berhasil diubah. Silakan restart server untuk menerapkan perubahan.")
+      } else {
+        toast.error("Gagal menyimpan pengaturan")
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan")
+    }
+  }
+
+  useEffect(() => {
+    if (searchQuery.length >= 3) {
+      const timer = setTimeout(() => searchCities(searchQuery), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [searchQuery])
 
   const handleSave = () => {
     toast.success("Pengaturan berhasil disimpan")
@@ -109,6 +216,122 @@ export default function AdminSettingsPage() {
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-slate-800"
             />
           </div>
+        </div>
+      </div>
+
+      {/* Shipping Origin Settings */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+          <div className="flex items-center gap-3 text-white">
+            <Truck className="w-5 h-5" />
+            <h2 className="text-xl font-bold">Pengaturan Pengiriman</h2>
+          </div>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-blue-900 mb-1">Lokasi Asal Pengiriman</p>
+                <p className="text-sm text-blue-700">
+                  Tentukan kota asal pengiriman untuk kalkulasi ongkir otomatis. 
+                  Perubahan akan diterapkan setelah restart server.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {loadingOrigin ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Lokasi Toko Saat Ini
+                </label>
+                <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-6 h-6 text-green-600" />
+                    <div>
+                      <p className="font-bold text-green-900">
+                        {shippingOrigin.cityName}
+                        {shippingOrigin.provinceName && `, ${shippingOrigin.provinceName}`}
+                      </p>
+                      <p className="text-sm text-green-700">
+                        City ID: {shippingOrigin.cityId}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Ubah Lokasi Toko
+                </label>
+                <div className="relative">
+                  <div className="absolute left-3 top-3.5">
+                    <Search className="w-5 h-5 text-slate-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchResults.length > 0 && setShowSearchResults(true)}
+                    placeholder="Cari kota/kabupaten... (min 3 karakter)"
+                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-3.5">
+                      <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  {showSearchResults && searchResults.length > 0 && (
+                    <div className="absolute z-10 w-full mt-2 bg-white border border-slate-300 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+                      {searchResults.map((result, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSelectCity(result)}
+                          className="w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-slate-100 last:border-b-0 transition-colors"
+                        >
+                          <div className="font-semibold text-slate-900">{result.name}</div>
+                          <div className="text-sm text-slate-600">
+                            {result.city && `${result.city}, `}
+                            {result.province}
+                            {result.postal_code && ` - ${result.postal_code}`}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {searchQuery.length > 0 && searchQuery.length < 3 && (
+                  <p className="text-sm text-slate-500 mt-2">
+                    Ketik minimal 3 karakter untuk mencari
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-amber-900 mb-1">⚠️ Penting!</p>
+                    <p className="text-sm text-amber-700 mb-2">
+                      Setelah mengubah lokasi asal pengiriman, Anda perlu <strong>restart server</strong> agar perubahan diterapkan:
+                    </p>
+                    <ul className="text-sm text-amber-700 list-disc list-inside space-y-1">
+                      <li>Development: Stop server (Ctrl+C) lalu jalankan <code className="bg-amber-100 px-1 rounded">npm run dev</code> lagi</li>
+                      <li>Production: Rebuild dan restart aplikasi</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

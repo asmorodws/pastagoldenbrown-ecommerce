@@ -67,7 +67,8 @@ async function getRecentOrders() {
 
 async function getLowStockProducts() {
   try {
-    const products = await prisma.product.findMany({
+    // Get variants with low stock
+    const lowStockVariants = await prisma.productVariant.findMany({
       where: {
         stock: {
           lte: 10,
@@ -78,10 +79,24 @@ async function getLowStockProducts() {
         stock: "asc",
       },
       include: {
-        category: true,
+        product: {
+          include: {
+            category: true,
+          }
+        }
       }
     })
-    return products
+    
+    // Transform to include variant info with product
+    return lowStockVariants.map(variant => ({
+      ...variant.product,
+      variantInfo: {
+        id: variant.id,
+        name: variant.name,
+        stock: variant.stock,
+        sku: variant.sku,
+      }
+    }))
   } catch (error) {
     console.error("Error fetching low stock products:", error)
     return []
@@ -257,13 +272,16 @@ export default async function AdminPage() {
           <div className="space-y-4">
             {lowStockProducts.length > 0 ? (
               lowStockProducts.map((product: any) => (
-                <div key={product.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-xl">
+                <div key={`${product.id}-${product.variantInfo.id}`} className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-xl">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-900 line-clamp-1">{product.name}</p>
-                    <p className="text-xs text-slate-500">{product.category.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-slate-500">{product.category.name}</p>
+                      <span className="text-xs text-blue-600 font-medium">• {product.variantInfo.name}</span>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-red-600">{product.stock}</p>
+                    <p className="text-sm font-bold text-red-600">{product.variantInfo.stock}</p>
                     <p className="text-xs text-slate-500">tersisa</p>
                   </div>
                 </div>

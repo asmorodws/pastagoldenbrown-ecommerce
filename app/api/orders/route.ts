@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
+            productVariantId: item.productVariantId || null,
+            variantName: item.variant || null, // Store variant name for historical record
             quantity: item.quantity,
             price: item.price,
           })),
@@ -61,16 +63,19 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Update product stock
+    // Update variant stock for each item
     for (const item of items) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          stock: {
-            decrement: item.quantity,
+      // If item has productVariantId, update that variant's stock
+      if (item.productVariantId) {
+        await prisma.productVariant.update({
+          where: { id: item.productVariantId },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
           },
-        },
-      })
+        })
+      }
     }
 
     return NextResponse.json({ order })

@@ -30,6 +30,11 @@ export async function GET(request: Request) {
         where,
         include: {
           category: true,
+          variants: {
+            orderBy: {
+              sortOrder: 'asc',
+            },
+          },
         },
         skip,
         take: limit,
@@ -47,6 +52,10 @@ export async function GET(request: Request) {
       discount: product.discount ? parseFloat(product.discount.toString()) : null,
       discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : null,
       weight: product.weight ? parseFloat(product.weight.toString()) : null,
+      variants: product.variants.map(v => ({
+        ...v,
+        price: v.price ? parseFloat(v.price.toString()) : null,
+      })),
     }))
 
     return NextResponse.json({

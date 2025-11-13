@@ -9,11 +9,6 @@ import { useCartStore } from "@/store/cart"
 import toast from "react-hot-toast"
 import ProductCard from "@/components/ProductCard"
 
-interface Variant {
-  name: string
-  options: string[]
-}
-
 export default function ProductDetailPage() {
   const params = useParams()
   const slug = params.slug as string
@@ -21,7 +16,7 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<any[]>([])
   const [quantity, setQuantity] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({})
+  const [selectedVariantId, setSelectedVariantId] = useState<string>("")
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const addItem = useCartStore((state: { addItem: any }) => state.addItem)
@@ -36,16 +31,9 @@ export default function ProductDetailPage() {
           setProduct(data.product)
           setRelatedProducts(data.relatedProducts)
           
-          // Initialize selected variants
-          if (data.product.variants) {
-            const variants = JSON.parse(data.product.variants) as Variant[]
-            const initial: Record<string, string> = {}
-            variants.forEach(v => {
-              if (v.options.length > 0) {
-                initial[v.name] = v.options[0]
-              }
-            })
-            setSelectedVariants(initial)
+          // Initialize with first variant
+          if (data.product.variants && data.product.variants.length > 0) {
+            setSelectedVariantId(data.product.variants[0].id)
           }
         }
       } catch (error) {
@@ -61,41 +49,39 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product) return
 
-    // Get selected variant (for display)
-    const variantText = selectedVariants['Ukuran'] || ''
-    const variantLabel = variantText ? `Ukuran: ${variantText}` : ''
+    // Get selected variant
+    const selectedVariant = product.variants?.find((v: any) => v.id === selectedVariantId)
+    
+    if (!selectedVariant) {
+      toast.error("Silakan pilih varian produk")
+      return
+    }
 
-    // Get all available variants
-    const variants = product.variants ? JSON.parse(product.variants) as Variant[] : []
-    const sizeVariant = variants.find(v => v.name === 'Ukuran')
-    const allVariants = sizeVariant?.options || []
+    // Get variant image or fallback to product image
+    const variantImage = selectedVariant.image || product.image || ""
+    
+    // Get variant price or fallback to product price
+    const variantPrice = selectedVariant.price || product.price
 
     addItem({
       id: product.id,
       productId: product.id,
+      productVariantId: selectedVariant.id, // Send variant ID
       name: product.name,
       slug: product.slug,
-      price: parseFloat(product.price),
-      image: product.image || "",
+      price: parseFloat(variantPrice),
+      image: variantImage,
       quantity,
-      variant: variantText,
-      variantLabel: variantLabel,
-      stock: product.stock,
-      allVariants: allVariants,
+      variant: selectedVariant.name, // e.g., "30g", "100g"
+      variantLabel: selectedVariant.label || `Ukuran: ${selectedVariant.name}`,
+      stock: selectedVariant.stock,
     })
-
-    const displayText = variantText 
-      ? `${product.name} (${variantText}) ditambahkan ke keranjang`
-      : `${product.name} ditambahkan ke keranjang`
     
-    toast.success(displayText)
+    toast.success(`${product.name} (${selectedVariant.name}) ditambahkan ke keranjang`)
   }
 
-  const handleVariantChange = (variantName: string, option: string) => {
-    setSelectedVariants(prev => ({
-      ...prev,
-      [variantName]: option
-    }))
+  const handleVariantChange = (variantId: string) => {
+    setSelectedVariantId(variantId)
   }
 
   if (loading) {
@@ -139,10 +125,19 @@ export default function ProductDetailPage() {
     )
   }
 
-  const variants = product.variants ? JSON.parse(product.variants) as Variant[] : []
-  const inStock = product.stock > 0
+  // Get variants array (now from database, not JSON)
+  const variants = product.variants || []
+  const selectedVariant = variants.find((v: any) => v.id === selectedVariantId)
+  
+  // Get product images
   const productImages = product.images ? JSON.parse(product.images) as string[] : [product.image || "/placeholder-product.jpg"]
-  const currentImage = productImages[selectedImageIndex] || productImages[0]
+  
+  // Use variant image if available, otherwise use gallery
+  const currentImage = selectedVariant?.image || productImages[selectedImageIndex] || productImages[0]
+  
+  // Get variant-specific stock
+  const currentStock = selectedVariant?.stock || 0
+  const inStock = currentStock > 0
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -262,7 +257,7 @@ export default function ProductDetailPage() {
               }`}>
                 <Package className="w-4 h-4" />
                 <span className="font-semibold text-sm">
-                  {inStock ? `Stok: ${product.stock} unit` : 'Stok Habis'}
+                  {inStock ? `Stok: ${currentStock} unit` : 'Stok Habis'}
                 </span>
               </div>
             </div>
@@ -270,28 +265,31 @@ export default function ProductDetailPage() {
             {/* Variants */}
             {variants.length > 0 && (
               <div className="space-y-4">
-                {variants.map((variant) => (
-                  <div key={variant.name}>
-                    <label className="block text-sm font-bold text-blue-900 mb-2">
-                      {variant.name}
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {variant.options.map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => handleVariantChange(variant.name, option)}
-                          className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
-                            selectedVariants[variant.name] === option
-                              ? 'border-blue-800 bg-blue-800 text-white shadow-sm'
-                              : 'border-gray-200 bg-white text-gray-700 hover:border-blue-400'
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
+                <div>
+                  <label className="block text-sm font-bold text-blue-900 mb-2">
+                    Pilih Ukuran
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {variants.map((variant: any) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => handleVariantChange(variant.id)}
+                        className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
+                          selectedVariantId === variant.id
+                            ? 'border-blue-800 bg-blue-800 text-white shadow-sm'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-blue-400'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <span>{variant.name}</span>
+                          <span className="text-xs opacity-75">
+                            Stok: {variant.stock}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             )}
 
@@ -307,7 +305,7 @@ export default function ProductDetailPage() {
                 </button>
                 <span className="text-2xl font-bold text-blue-900 w-14 text-center">{quantity}</span>
                 <button
-                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
                   disabled={!inStock}
                   className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -477,7 +475,8 @@ export default function ProductDetailPage() {
                   price={parseFloat(relatedProduct.price)}
                   image={relatedProduct.image || ""}
                   slug={relatedProduct.slug}
-                  stock={relatedProduct.stock}
+                  stock={relatedProduct.variants?.[0]?.stock || 0}
+                  variants={relatedProduct.variants || []}
                 />
               ))}
             </div>

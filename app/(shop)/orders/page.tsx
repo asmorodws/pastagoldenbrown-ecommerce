@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Package, Clock, Truck, CheckCircle, XCircle, ShoppingBag, Eye, Calendar, CreditCard } from "lucide-react"
+import { Package, Clock, Truck, CheckCircle, XCircle, ShoppingBag, Eye, Calendar, CreditCard, PackageCheck } from "lucide-react"
 
 const statusConfig = {
   PENDING: {
@@ -85,11 +85,11 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12">
       <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Pesanan Saya</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Pesanan Saya</h1>
           <p className="text-slate-600">Pantau status dan riwayat pesanan Anda</p>
         </div>
 
@@ -98,13 +98,13 @@ export default function OrdersPage() {
             <div className="w-24 h-24 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingBag className="w-12 h-12 text-slate-400" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-3">Belum Ada Pesanan</h2>
+            <h2 className="text-2xl font-bold text-blue-900 mb-3">Belum Ada Pesanan</h2>
             <p className="text-slate-600 mb-8 max-w-md mx-auto">
               Anda belum memiliki pesanan. Jelajahi koleksi produk kami dan mulai belanja sekarang!
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 transition-all shadow-lg hover:shadow-xl"
             >
               <ShoppingBag className="w-5 h-5" />
               Mulai Belanja
@@ -184,7 +184,16 @@ export default function OrdersPage() {
                             >
                               {item.product.name}
                             </Link>
-                            <p className="text-sm text-slate-600 mt-1">
+                            
+                            {/* Variant Badge */}
+                            {item.variantName && (
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-medium mt-2">
+                                <PackageCheck className="w-3.5 h-3.5" />
+                                {item.variantName}
+                              </div>
+                            )}
+                            
+                            <p className="text-sm text-slate-600 mt-2">
                               {item.quantity} item × Rp {parseFloat(item.price).toLocaleString("id-ID")}
                             </p>
                           </div>
@@ -213,7 +222,7 @@ export default function OrdersPage() {
                     {/* Action Button */}
                     <Link
                       href={`/orders/${order.id}`}
-                      className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-3 bg-blue-800 text-white rounded-xl font-bold hover:bg-blue-900 transition-all shadow-md hover:shadow-lg"
                     >
                       <Eye className="w-5 h-5" />
                       Lihat Detail Pesanan

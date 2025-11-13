@@ -61,7 +61,6 @@ export async function POST(req: NextRequest) {
         discountPrice: discountPrice,
         image: data.image,
         images: data.images || null,
-        stock: data.stock,
         categoryId: data.categoryId,
         featured: data.featured || false,
         brand: data.brand,
@@ -69,6 +68,7 @@ export async function POST(req: NextRequest) {
       },
       include: {
         category: true,
+        variants: true,
       },
     })
 

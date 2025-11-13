@@ -15,6 +15,12 @@ interface ProductCardProps {
   image?: string
   slug: string
   stock?: number
+  variants?: Array<{
+    id: string
+    name: string
+    stock: number
+    price?: number
+  }>
 }
 
 export default function ProductCard({
@@ -26,12 +32,23 @@ export default function ProductCard({
   image,
   slug,
   stock = 99,
+  variants = [],
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
   const hasDiscount = discount && discount > 0
   const displayPrice = hasDiscount ? discountPrice : price
-  const isLowStock = stock <= 5 && stock > 0
-  const isOutOfStock = stock === 0
+  
+  // Calculate total stock from all variants
+  const totalStock = variants.length > 0 
+    ? variants.reduce((sum, v) => sum + v.stock, 0)
+    : stock
+    
+  const isLowStock = totalStock <= 5 && totalStock > 0
+  const isOutOfStock = totalStock === 0
+  
+  // Get variant info for display
+  const variantNames = variants.map(v => v.name).join(', ')
+  const hasVariants = variants.length > 0
 
   return (
     <motion.article
@@ -83,7 +100,7 @@ export default function ProductCard({
           {isLowStock && !isOutOfStock && (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-amber-800 bg-amber-100 border border-amber-200">
               <Package size={10} />
-              Sisa {stock}
+              Sisa {totalStock}
             </span>
           )}
         </div>
@@ -102,12 +119,41 @@ export default function ProductCard({
       <div className="p-4 flex flex-col flex-grow">
         {/* Product Title - Fixed height dengan line-clamp */}
         <h3
-          className={`font-medium text-sm md:text-base leading-snug text-gray-800 group-hover:text-blue-800 transition-colors duration-200 mb-3 ${
+          className={`font-medium text-sm md:text-base leading-snug text-gray-800 group-hover:text-blue-800 transition-colors duration-200 mb-2 ${
             isOutOfStock ? "text-gray-400" : ""
           } line-clamp-2 min-h-[2.5rem]`}
         >
           {name}
         </h3>
+
+        {/* Variant Info */}
+        {hasVariants && (
+          <div className="mb-3">
+            <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-1">
+              <Package size={12} />
+              <span className="font-medium">Tersedia:</span>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {variants.slice(0, 3).map((variant) => (
+                <span
+                  key={variant.id}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+                    variant.stock > 0
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'bg-gray-100 text-gray-400 border border-gray-200 line-through'
+                  }`}
+                >
+                  {variant.name}
+                </span>
+              ))}
+              {variants.length > 3 && (
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600">
+                  +{variants.length - 3}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Price Section - Margin top auto untuk push ke bawah */}
         <div className="space-y-2 mt-auto">

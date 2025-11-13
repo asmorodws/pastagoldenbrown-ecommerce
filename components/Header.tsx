@@ -177,6 +177,24 @@ export default function Header() {
                     {item.label}
                   </Link>
                 ))}
+                {session && (
+                  <>
+                    <Link
+                      href="/orders"
+                      onClick={() => setIsMobileOpen(false)}
+                      className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition flex items-center gap-2"
+                    >
+                      <Package size={14} /> Pesanan Saya
+                    </Link>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMobileOpen(false)}
+                      className="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition flex items-center gap-2"
+                    >
+                      <User2 size={14} /> Profil
+                    </Link>
+                  </>
+                )}
                 {!session && (
                   <Link
                     href="/auth/register"

@@ -32,7 +32,12 @@ async function getProducts(searchParams: any) {
 
     const products = await prisma.product.findMany({
       where,
-      include: { category: true },
+      include: { 
+        category: true,
+        variants: {
+          orderBy: { sortOrder: 'asc' }
+        }
+      },
       orderBy,
     })
 
@@ -42,6 +47,10 @@ async function getProducts(searchParams: any) {
       discount: product.discount ? parseFloat(product.discount.toString()) : undefined,
       discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : undefined,
       weight: product.weight ? parseFloat(product.weight.toString()) : null,
+      variants: product.variants.map((v: any) => ({
+        ...v,
+        price: v.price ? parseFloat(v.price.toString()) : null,
+      })),
     }))
   } catch (error) {
     console.error("Error fetching products:", error)
@@ -276,7 +285,7 @@ export default async function ProductsPage({
                 )}
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 auto-rows-fr">
-                  {products.map((product) => (
+                  {products.map((product: any) => (
                     <div key={product.id} className="h-full">
                       <ProductCard
                         id={product.id}
@@ -286,7 +295,8 @@ export default async function ProductsPage({
                         discountPrice={product.discountPrice}
                         image={product.image || "/placeholder-product.jpg"}
                         slug={product.slug}
-                        stock={product.stock || 0}
+                        stock={product.variants?.[0]?.stock || 0}
+                        variants={product.variants || []}
                       />
                     </div>
                   ))}

@@ -14,6 +14,11 @@ export async function GET(
       },
       include: {
         category: true,
+        variants: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
       },
     })
 
@@ -30,6 +35,13 @@ export async function GET(
         categoryId: product.categoryId,
         id: { not: product.id },
       },
+      include: {
+        variants: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+      },
       take: 4,
     })
 
@@ -40,6 +52,10 @@ export async function GET(
       discount: product.discount ? parseFloat(product.discount.toString()) : null,
       discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : null,
       weight: product.weight ? parseFloat(product.weight.toString()) : null,
+      variants: product.variants.map(v => ({
+        ...v,
+        price: v.price ? parseFloat(v.price.toString()) : null,
+      })),
     }
 
     const serializedRelatedProducts = relatedProducts.map(p => ({
@@ -48,6 +64,10 @@ export async function GET(
       discount: p.discount ? parseFloat(p.discount.toString()) : null,
       discountPrice: p.discountPrice ? parseFloat(p.discountPrice.toString()) : null,
       weight: p.weight ? parseFloat(p.weight.toString()) : null,
+      variants: p.variants.map(v => ({
+        ...v,
+        price: v.price ? parseFloat(v.price.toString()) : null,
+      })),
     }))
 
     return NextResponse.json({

@@ -53,13 +53,6 @@ async function main() {
   const nonHalalCategory = categories.find(c => c.slug === 'pasta-non-halal')!
 
   // Helper functions
-  const buildVariants = (sizes: string[]) => {
-    return JSON.stringify([{
-      name: 'Ukuran',
-      options: sizes
-    }])
-  }
-
   const buildImages = (productName: string, sizes: string[]) => {
     return JSON.stringify(sizes.map(size => `/assets/products/${size}/${productName}.png`))
   }
@@ -145,14 +138,12 @@ async function main() {
       slug: def.slug,
       description: def.desc,
       price: basePrice,
-      stock: 100,
       featured: def.featured,
       brand: 'Golden Brown',
-      sku: `GB-${def.slug.toUpperCase()}-${def.sizes[0].toUpperCase()}`,
+      sku: `GB-${def.slug.toUpperCase()}-BASE`,
       weight: def.sizes[0] === '30g' ? 0.03 : def.sizes[0] === '100g' ? 0.1 : 1,
       image: `/assets/products/${def.sizes[0]}/${def.name}.png`,
       images: buildImages(def.name, def.sizes),
-      variants: buildVariants(def.sizes),
       categoryId: def.halal ? halalCategory.id : nonHalalCategory.id,
       discount: discount,
       discountPrice: discountPrice,
@@ -161,19 +152,21 @@ async function main() {
 
   let halalCount = 0
   let nonHalalCount = 0
+  let variantCount = 0
 
-  for (const product of products) {
-    await prisma.product.upsert({
+  for (let i = 0; i < products.length; i++) {
+    const product = products[i]
+    const productDef = productDefinitions[i]
+    
+    const createdProduct = await prisma.product.upsert({
       where: { slug: product.slug },
       update: {
         name: product.name,
         description: product.description,
         price: product.price,
-        stock: product.stock,
         featured: product.featured,
         image: product.image,
         images: product.images,
-        variants: product.variants,
         brand: product.brand,
         sku: product.sku,
         weight: product.weight,
@@ -183,6 +176,38 @@ async function main() {
       },
       create: product,
     })
+
+    // Create variants for this product
+    for (let j = 0; j < productDef.sizes.length; j++) {
+      const size = productDef.sizes[j]
+      const variantPrice = getPriceForSize(size)
+      const variantStock = size === '30g' ? 50 : size === '100g' ? 100 : 20
+      
+      await prisma.productVariant.upsert({
+        where: {
+          productId_name: {
+            productId: createdProduct.id,
+            name: size,
+          },
+        },
+        update: {
+          label: `Ukuran: ${size}`,
+          price: variantPrice,
+          stock: variantStock,
+          sortOrder: j,
+        },
+        create: {
+          productId: createdProduct.id,
+          name: size,
+          label: `Ukuran: ${size}`,
+          sku: `GB-${product.slug.toUpperCase()}-${size.toUpperCase()}`,
+          price: variantPrice,
+          stock: variantStock,
+          sortOrder: j,
+        },
+      })
+      variantCount++
+    }
 
     if (product.categoryId === halalCategory.id) {
       halalCount++
@@ -194,6 +219,7 @@ async function main() {
   console.log('Products created:', products.length)
   console.log('  - Halal products:', halalCount)
   console.log('  - Non-halal products:', nonHalalCount)
+  console.log('Product variants created:', variantCount)
   console.log('Seed completed successfully!')
 }
 

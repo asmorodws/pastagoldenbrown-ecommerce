@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware"
 export interface CartItem {
   id: string
   productId: string
+  productVariantId?: string // ID from ProductVariant table
   name: string
   slug?: string // Product slug for navigation
   price: number
@@ -13,6 +14,7 @@ export interface CartItem {
   variantLabel?: string // e.g., "Ukuran: 30g"
   stock?: number // Available stock for this variant
   allVariants?: string[] // All available variants for this product
+  allImages?: string[] // All available images for this product (to map with variants)
 }
 
 interface CartStore {
@@ -78,6 +80,17 @@ export const useCartStore = create<CartStore>()(
         const item = items.find((i) => i.id === id)
         if (!item) return
 
+        // Calculate new image based on variant
+        let newImage = item.image
+        if (item.allImages && item.allImages.length > 1 && item.allVariants) {
+          const variantIndex = item.allVariants.indexOf(newVariant)
+          if (variantIndex >= 0 && variantIndex < item.allImages.length) {
+            newImage = item.allImages[variantIndex]
+          } else if (item.allImages.length > 0) {
+            newImage = item.allImages[variantIndex % item.allImages.length] || item.allImages[0]
+          }
+        }
+
         // Check if the new variant already exists in cart
         const existingWithNewVariant = items.find((i) => 
           i.productId === item.productId && i.variant === newVariant
@@ -95,12 +108,12 @@ export const useCartStore = create<CartStore>()(
               ),
           })
         } else {
-          // Update variant and ID
+          // Update variant, ID, and image
           const newId = `${item.productId}-${newVariant}`
           set({
             items: items.map((i) =>
               i.id === id
-                ? { ...i, id: newId, variant: newVariant, variantLabel: newVariantLabel }
+                ? { ...i, id: newId, variant: newVariant, variantLabel: newVariantLabel, image: newImage }
                 : i
             ),
           })

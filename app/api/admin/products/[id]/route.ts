@@ -66,7 +66,6 @@ export async function PATCH(
         discountPrice: discountPrice,
         image: data.image,
         images: data.images || null,
-        stock: data.stock,
         categoryId: data.categoryId,
         featured: data.featured,
         brand: data.brand,
@@ -74,6 +73,7 @@ export async function PATCH(
       },
       include: {
         category: true,
+        variants: true,
       },
     })
 

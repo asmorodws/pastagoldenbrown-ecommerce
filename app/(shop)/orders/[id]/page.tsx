@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
-import { CheckCircle, Package, Truck, MapPin, Clock, CreditCard, Phone, Mail, ArrowLeft, Download } from "lucide-react"
+import { CheckCircle, Package, Truck, MapPin, Clock, CreditCard, Phone, Mail, ArrowLeft, Download, PackageCheck } from "lucide-react"
 
 const statusConfig = {
   PENDING: {
@@ -102,12 +102,12 @@ export default function OrderDetailPage() {
         <div className="mb-8">
           <Link
             href="/orders"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors"
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-700 mb-4 transition-colors font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
             Kembali ke Daftar Pesanan
           </Link>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Detail Pesanan</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Detail Pesanan</h1>
           <p className="text-slate-600">Order ID: #{order.id.slice(0, 8).toUpperCase()}</p>
         </div>
 
@@ -170,7 +170,16 @@ export default function OrderDetailPage() {
                       >
                         {item.product.name}
                       </Link>
-                      <p className="text-sm text-slate-600 mt-1">
+                      
+                      {/* Variant Badge */}
+                      {item.variantName && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-medium mt-2">
+                          <PackageCheck className="w-3.5 h-3.5" />
+                          {item.variantName}
+                        </div>
+                      )}
+                      
+                      <p className="text-sm text-slate-600 mt-2">
                         Jumlah: {item.quantity} x Rp {parseFloat(item.price).toLocaleString("id-ID")}
                       </p>
                     </div>
@@ -334,12 +343,12 @@ export default function OrderDetailPage() {
             </div>
 
             {/* Actions */}
-            <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+            <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-2xl shadow-lg p-6 text-white">
               <h3 className="text-lg font-bold mb-4">Butuh Bantuan?</h3>
               <p className="text-sm text-white/80 mb-4">
                 Hubungi customer service kami untuk informasi lebih lanjut
               </p>
-              <button className="w-full py-3 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-colors">
+              <button className="w-full py-3 bg-white text-blue-800 rounded-xl font-bold hover:bg-blue-50 transition-colors shadow-md">
                 Hubungi CS
               </button>
             </div>
