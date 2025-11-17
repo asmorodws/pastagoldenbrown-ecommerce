@@ -140,11 +140,11 @@ export async function GET(request: NextRequest) {
       success: true,
       statistics: {
         total_entries: totalEntries,
-        by_endpoint: cacheByEndpoint.map(item => ({
+        by_endpoint: cacheByEndpoint.map((item: any) => ({
           endpoint: item.endpoint,
           count: item._count.endpoint
         })),
-        recent_cache: recentCache.map(item => ({
+        recent_cache: recentCache.map((item: any) => ({
           endpoint: item.endpoint,
           updated_at: item.updatedAt,
           ttl_seconds: item.ttl,

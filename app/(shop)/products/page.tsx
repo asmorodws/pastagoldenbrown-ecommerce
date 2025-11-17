@@ -41,7 +41,7 @@ async function getProducts(searchParams: any) {
       orderBy,
     })
 
-    return products.map((product) => ({
+    return products.map((product: any) => ({
       ...product,
       price: parseFloat(product.price.toString()),
       discount: product.discount ? parseFloat(product.discount.toString()) : undefined,
@@ -153,7 +153,7 @@ export default async function ProductsPage({
                     Semua Produk
                   </a>
                 </li>
-                {categories.map((cat) => (
+                {categories.map((cat: any) => (
                   <li key={cat.id}>
                     <a
                       href={`?category=${cat.slug}`}
@@ -265,7 +265,7 @@ export default async function ProductsPage({
                     <span className="text-sm text-gray-600 font-medium">Filter aktif:</span>
                     {params.category && (
                       <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
-                        {categories.find(c => c.slug === params.category)?.name}
+                        {categories.find((c: any) => c.slug === params.category)?.name}
                         <a href={`?${new URLSearchParams({ ...params, category: undefined } as any).toString()}`} className="hover:text-blue-900">×</a>
                       </span>
                     )}

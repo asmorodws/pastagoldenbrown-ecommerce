@@ -52,19 +52,19 @@ export async function GET(
       discount: product.discount ? parseFloat(product.discount.toString()) : null,
       discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : null,
       weight: product.weight ? parseFloat(product.weight.toString()) : null,
-      variants: product.variants.map(v => ({
+      variants: product.variants.map((v: any) => ({
         ...v,
         price: v.price ? parseFloat(v.price.toString()) : null,
       })),
     }
 
-    const serializedRelatedProducts = relatedProducts.map(p => ({
+    const serializedRelatedProducts = relatedProducts.map((p: any) => ({
       ...p,
       price: parseFloat(p.price.toString()),
       discount: p.discount ? parseFloat(p.discount.toString()) : null,
       discountPrice: p.discountPrice ? parseFloat(p.discountPrice.toString()) : null,
       weight: p.weight ? parseFloat(p.weight.toString()) : null,
-      variants: p.variants.map(v => ({
+      variants: p.variants.map((v: any) => ({
         ...v,
         price: v.price ? parseFloat(v.price.toString()) : null,
       })),

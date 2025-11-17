@@ -61,7 +61,7 @@ export async function PUT(
     }
 
     // Use transaction for atomic operations
-    const address = await prisma.$transaction(async (tx) => {
+    const address = await prisma.$transaction(async (tx: any) => {
       // If setting as default, unset others in single operation
       if (body.isDefault && !existingAddress.isDefault) {
         await tx.address.updateMany({

@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     const { label, recipientName, phone, address, city, province, zipCode, country, isDefault, cityId, provinceId } = body
 
     // Use transaction for atomic operations
-    const newAddress = await prisma.$transaction(async (tx) => {
+    const newAddress = await prisma.$transaction(async (tx: any) => {
       // If this address is set as default, unset all other default addresses
       if (isDefault) {
         await tx.address.updateMany({

@@ -13,7 +13,7 @@ async function main() {
   })
 
   console.log('Checking variants in database:\n')
-  products.forEach(p => {
+  products.forEach((p: any) => {
     console.log('Product:', p.name)
     console.log('Brand:', p.brand)
     console.log('Variants:', p.variants)

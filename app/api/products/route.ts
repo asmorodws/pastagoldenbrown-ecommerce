@@ -46,13 +46,13 @@ export async function GET(request: Request) {
     ])
 
     // Convert Decimal to number for JSON serialization
-    const serializedProducts = products.map(product => ({
+    const serializedProducts = products.map((product: any) => ({
       ...product,
       price: parseFloat(product.price.toString()),
       discount: product.discount ? parseFloat(product.discount.toString()) : null,
       discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : null,
       weight: product.weight ? parseFloat(product.weight.toString()) : null,
-      variants: product.variants.map(v => ({
+      variants: product.variants.map((v: any) => ({
         ...v,
         price: v.price ? parseFloat(v.price.toString()) : null,
       })),

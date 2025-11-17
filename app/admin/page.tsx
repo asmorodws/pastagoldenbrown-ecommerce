@@ -88,7 +88,7 @@ async function getLowStockProducts() {
     })
     
     // Transform to include variant info with product
-    return lowStockVariants.map(variant => ({
+    return lowStockVariants.map((variant: any) => ({
       ...variant.product,
       variantInfo: {
         id: variant.id,
