@@ -243,3 +243,17 @@ model Settings {
   
   @@index([key])
 }
+
+// Cache model for storing API responses (e.g. RajaOngkir) to reduce external calls
+model ApiCache {
+  id        String   @id @default(cuid())
+  key       String   @unique                       // computed key: endpoint + params hash
+  endpoint  String                                   // e.g. "/destination/province" or "/calculate/domestic-cost"
+  params    String?  @db.Text                        // serialized params
+  response  Json                                     // stored JSON response
+  ttl       Int      @default(3600)                  // time-to-live in seconds
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([endpoint])
+}

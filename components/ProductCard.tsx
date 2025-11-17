@@ -5,6 +5,9 @@ import Link from "next/link"
 import { ShoppingCart, Percent, Eye, Package } from "lucide-react"
 import { motion } from "framer-motion"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useCartStore } from "@/store/cart"
+import toast from "react-hot-toast"
 
 interface ProductCardProps {
   id: string
@@ -35,6 +38,9 @@ export default function ProductCard({
   variants = [],
 }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
+  const router = useRouter()
+  const addItem = useCartStore((state) => state.addItem)
+  
   const hasDiscount = discount && discount > 0
   const displayPrice = hasDiscount ? discountPrice : price
   
@@ -49,6 +55,40 @@ export default function ProductCard({
   // Get variant info for display
   const variantNames = variants.map(v => v.name).join(', ')
   const hasVariants = variants.length > 0
+
+  // Handle add to cart
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (isOutOfStock) return
+
+    // Jika produk punya variant, arahkan ke halaman detail
+    if (hasVariants) {
+      toast.success("Silakan pilih variant terlebih dahulu", {
+        icon: "📦",
+        duration: 2000,
+      })
+      router.push(`/products/${slug}`)
+      return
+    }
+
+    // Jika tidak ada variant, langsung tambahkan ke cart
+    addItem({
+      id: id,
+      productId: id,
+      name: name,
+      slug: slug,
+      price: displayPrice || price,
+      image: image || "/placeholder-product.jpg",
+      stock: stock,
+    })
+
+    toast.success(`${name} ditambahkan ke keranjang`, {
+      icon: "🛒",
+      duration: 2000,
+    })
+  }
 
   return (
     <motion.article
@@ -184,31 +224,35 @@ export default function ProductCard({
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-blue-800 hover:bg-blue-900 text-white shadow-sm hover:shadow-md"
             }`}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              if (!isOutOfStock) {
-                console.log(`Add to cart: ${id}`)
-              }
-            }}
+            onClick={handleAddToCart}
             disabled={isOutOfStock}
+            aria-label={hasVariants ? "Tambah" : "Tambah"}
           >
             <ShoppingCart size={14} className="md:w-4 md:h-4" />
-            <span className="hidden sm:inline">{isOutOfStock ? "Stok Habis" : "Tambah"}</span>
-            <span className="sm:hidden">{isOutOfStock ? "Habis" : "+"}</span>
+            <span className="hidden sm:inline">
+              {isOutOfStock 
+                ? "Stok Habis" 
+                : hasVariants 
+                  ? "Tambah" 
+                  : "Tambah"}
+            </span>
+            <span className="sm:hidden">
+              {isOutOfStock 
+                ? "Habis" 
+                : hasVariants 
+                  ? "Pilih" 
+                  : "+"}
+            </span>
           </button>
 
-          <button
+          <Link
+            href={`/products/${slug}`}
             className="relative z-20 bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 md:p-2.5 rounded-lg transition-all duration-200 active:scale-95 flex-shrink-0"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              console.log(`Quick view: ${id}`)
-            }}
+            onClick={(e) => e.stopPropagation()}
             aria-label="Lihat detail"
           >
             <Eye size={14} className="md:w-4 md:h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </motion.article>

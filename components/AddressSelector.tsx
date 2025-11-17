@@ -85,6 +85,9 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [rajaOngkirAvailable, setRajaOngkirAvailable] = useState(true)
   
+  // Client-side cache untuk search results (mengurangi API calls)
+  const [searchCache, setSearchCache] = useState<Map<string, { data: any[], timestamp: number }>>(new Map())
+  
   // Cascade dropdown states
   const [useDropdowns, setUseDropdowns] = useState(true)
   const [provinces, setProvinces] = useState<RajaOngkirProvince[]>([])
@@ -100,7 +103,33 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
     if (useDropdowns) {
       loadProvinces()
     }
+    // Load search cache dari localStorage
+    loadSearchCacheFromStorage()
   }, [])
+
+  // Load cache dari localStorage
+  const loadSearchCacheFromStorage = () => {
+    try {
+      const cached = localStorage.getItem('rajaongkir_search_cache')
+      if (cached) {
+        const parsed = JSON.parse(cached) as Record<string, { data: any[], timestamp: number }>
+        const cacheMap = new Map(Object.entries(parsed))
+        setSearchCache(cacheMap)
+      }
+    } catch (error) {
+      console.error('Error loading search cache:', error)
+    }
+  }
+
+  // Save cache ke localStorage
+  const saveSearchCacheToStorage = (cache: Map<string, any>) => {
+    try {
+      const obj = Object.fromEntries(cache)
+      localStorage.setItem('rajaongkir_search_cache', JSON.stringify(obj))
+    } catch (error) {
+      console.error('Error saving search cache:', error)
+    }
+  }
 
   // Load provinces on mount (for dropdown mode)
   const loadProvinces = async () => {
@@ -227,7 +256,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
     }
   }
 
-  // Search destinations with debouncing
+  // Optimized search dengan caching dan prefix filtering
   useEffect(() => {
     if (!rajaOngkirAvailable || searchQuery.length < 3) {
       setSearchResults([])
@@ -235,24 +264,82 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
       return
     }
 
+    const normalizedQuery = searchQuery.toLowerCase().trim()
+    
+    // 1. Check exact cache hit
+    const cached = searchCache.get(normalizedQuery)
+    const CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 hari
+    
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      setSearchResults(cached.data)
+      setShowSearchResults(true)
+      return
+    }
+
+    // 2. Try prefix cache filtering (untuk autocomplete)
+    // Cari cache untuk prefix yang lebih pendek dan filter locally
+    let foundPrefixCache = false
+    for (let len = normalizedQuery.length - 1; len >= 3; len--) {
+      const prefix = normalizedQuery.slice(0, len)
+      const prefixCached = searchCache.get(prefix)
+      
+      if (prefixCached && (Date.now() - prefixCached.timestamp) < CACHE_TTL) {
+        // Filter hasil prefix cache dengan query lengkap
+        const filtered = prefixCached.data.filter((item: any) => {
+          const name = (item.label || item.name || '').toLowerCase()
+          return name.includes(normalizedQuery)
+        })
+        
+        if (filtered.length > 0) {
+          setSearchResults(filtered)
+          setShowSearchResults(true)
+          // Cache filtered result juga
+          const newCache = new Map(searchCache)
+          newCache.set(normalizedQuery, { data: filtered, timestamp: Date.now() })
+          setSearchCache(newCache)
+          saveSearchCacheToStorage(newCache)
+          foundPrefixCache = true
+          break
+        }
+      }
+    }
+
+    if (foundPrefixCache) return
+
+    // 3. Jika tidak ada cache, baru hit API (dengan debounce lebih panjang)
     const timer = setTimeout(async () => {
       try {
         setIsSearching(true)
-        const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(searchQuery)}&limit=10`)
+        const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(normalizedQuery)}&limit=15`)
         if (res.ok) {
           const data = await res.json()
           setSearchResults(data)
           setShowSearchResults(true)
+          
+          // Cache hasil API
+          const newCache = new Map(searchCache)
+          newCache.set(normalizedQuery, { data, timestamp: Date.now() })
+          setSearchCache(newCache)
+          saveSearchCacheToStorage(newCache)
+          
+          // Cleanup old cache (keep max 50 entries)
+          if (newCache.size > 50) {
+            const sortedEntries = Array.from(newCache.entries())
+              .sort((a, b) => b[1].timestamp - a[1].timestamp)
+            const trimmedCache = new Map(sortedEntries.slice(0, 50))
+            setSearchCache(trimmedCache)
+            saveSearchCacheToStorage(trimmedCache)
+          }
         }
       } catch (error) {
         console.error("Error searching destinations:", error)
       } finally {
         setIsSearching(false)
       }
-    }, 500)
+    }, 800) // Debounce lebih panjang: 800ms (dari 500ms)
 
     return () => clearTimeout(timer)
-  }, [searchQuery, rajaOngkirAvailable])
+  }, [searchQuery, rajaOngkirAvailable, searchCache])
 
   // Auto-fill form with user data when opening form
   useEffect(() => {
@@ -288,6 +375,10 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent double submit
+    if (isSaving) return
+    
     setIsSaving(true)
 
     try {
@@ -301,14 +392,47 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
       })
 
       if (res.ok) {
-        await fetchAddresses()
+        const savedAddress = await res.json()
+        
+        // Optimistic update: Update local state immediately
+        if (editingId) {
+          // Update existing address
+          setAddresses(prev => prev.map(addr => 
+            addr.id === editingId ? savedAddress : addr
+          ))
+        } else {
+          // Add new address
+          setAddresses(prev => [...prev, savedAddress])
+        }
+        
+        // Close form and reset
         setShowForm(false)
         setEditingId(null)
         resetForm()
+        
+        // Show success toast
+        import("react-hot-toast").then(({ default: toast }) => {
+          toast.success(
+            editingId ? "Alamat berhasil diperbarui" : "Alamat berhasil ditambahkan",
+            { duration: 2000 }
+          )
+        })
+        
+        // Notify parent component
         if (onAddressChange) onAddressChange()
+      } else {
+        // Show error toast
+        const error = await res.json()
+        import("react-hot-toast").then(({ default: toast }) => {
+          toast.error(error.message || "Gagal menyimpan alamat", { duration: 3000 })
+        })
       }
     } catch (error) {
       console.error("Error saving address:", error)
+      // Show error toast
+      import("react-hot-toast").then(({ default: toast }) => {
+        toast.error("Terjadi kesalahan saat menyimpan alamat", { duration: 3000 })
+      })
     } finally {
       setIsSaving(false)
     }
@@ -359,17 +483,41 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
     if (!confirm("Hapus alamat ini?")) return
 
     try {
+      // Optimistic update: Remove from UI immediately
+      const deletedAddress = addresses.find(a => a.id === id)
+      setAddresses(prev => prev.filter(a => a.id !== id))
+      
       const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" })
+      
       if (res.ok) {
-        await fetchAddresses()
+        // Update selected address if needed
         if (selectedAddressId === id && addresses.length > 1) {
           const nextAddr = addresses.find((a) => a.id !== id)
           if (nextAddr) onSelectAddress(nextAddr)
         }
+        
+        // Show success toast
+        import("react-hot-toast").then(({ default: toast }) => {
+          toast.success("Alamat berhasil dihapus", { duration: 2000 })
+        })
+        
         if (onAddressChange) onAddressChange()
+      } else {
+        // Rollback on error
+        if (deletedAddress) {
+          setAddresses(prev => [...prev, deletedAddress])
+        }
+        import("react-hot-toast").then(({ default: toast }) => {
+          toast.error("Gagal menghapus alamat", { duration: 3000 })
+        })
       }
     } catch (error) {
       console.error("Error deleting address:", error)
+      // Re-fetch to restore state
+      fetchAddresses()
+      import("react-hot-toast").then(({ default: toast }) => {
+        toast.error("Terjadi kesalahan", { duration: 3000 })
+      })
     }
   }
 

@@ -38,34 +38,40 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { label, recipientName, phone, address, city, province, zipCode, country, isDefault } = body
+    const { label, recipientName, phone, address, city, province, zipCode, country, isDefault, cityId, provinceId } = body
 
-    // If this address is set as default, unset all other default addresses
-    if (isDefault) {
-      await prisma.address.updateMany({
-        where: {
-          userId: session.user.id,
-          isDefault: true,
-        },
+    // Use transaction for atomic operations
+    const newAddress = await prisma.$transaction(async (tx) => {
+      // If this address is set as default, unset all other default addresses
+      if (isDefault) {
+        await tx.address.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+          },
+          data: {
+            isDefault: false,
+          },
+        })
+      }
+
+      // Create new address
+      return await tx.address.create({
         data: {
-          isDefault: false,
+          userId: session.user.id,
+          label,
+          recipientName,
+          phone,
+          address,
+          city,
+          province,
+          zipCode,
+          country: country || "Indonesia",
+          isDefault: isDefault || false,
+          cityId: cityId || null,
+          provinceId: provinceId || null,
         },
       })
-    }
-
-    const newAddress = await prisma.address.create({
-      data: {
-        userId: session.user.id,
-        label,
-        recipientName,
-        phone,
-        address,
-        city,
-        province,
-        zipCode,
-        country: country || "Indonesia",
-        isDefault: isDefault || false,
-      },
     })
 
     return NextResponse.json(newAddress, { status: 201 })

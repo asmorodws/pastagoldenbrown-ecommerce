@@ -36,21 +36,19 @@ export async function GET(
 
 // PUT update address
 export async function PUT(
-  request: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
-
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
-    const body = await request.json()
-    const { label, recipientName, phone, address, city, province, zipCode, country, isDefault, cityId, provinceId } = body
+    const body = await req.json()
 
-    // Check if address belongs to user
+    // Verify ownership
     const existingAddress = await prisma.address.findFirst({
       where: {
         id,
@@ -59,45 +57,51 @@ export async function PUT(
     })
 
     if (!existingAddress) {
-      return NextResponse.json({ error: "Address not found" }, { status: 404 })
+      return NextResponse.json({ message: "Address not found" }, { status: 404 })
     }
 
-    // If this address is set as default, unset all other default addresses
-    if (isDefault && !existingAddress.isDefault) {
-      await prisma.address.updateMany({
-        where: {
-          userId: session.user.id,
-          isDefault: true,
-        },
+    // Use transaction for atomic operations
+    const address = await prisma.$transaction(async (tx) => {
+      // If setting as default, unset others in single operation
+      if (body.isDefault && !existingAddress.isDefault) {
+        await tx.address.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+            NOT: { id }, // Exclude current address
+          },
+          data: {
+            isDefault: false,
+          },
+        })
+      }
+
+      // Update the address
+      return await tx.address.update({
+        where: { id },
         data: {
-          isDefault: false,
+          label: body.label,
+          recipientName: body.recipientName,
+          phone: body.phone,
+          address: body.address,
+          city: body.city,
+          province: body.province,
+          zipCode: body.zipCode,
+          country: body.country || "Indonesia",
+          isDefault: body.isDefault,
+          cityId: body.cityId,
+          provinceId: body.provinceId,
         },
       })
-    }
-
-    const updatedAddress = await prisma.address.update({
-      where: {
-        id,
-      },
-      data: {
-        label,
-        recipientName,
-        phone,
-        address,
-        city,
-        province,
-        zipCode,
-        country: country || "Indonesia",
-        isDefault: isDefault !== undefined ? isDefault : existingAddress.isDefault,
-        cityId: cityId || null,
-        provinceId: provinceId || null,
-      },
     })
 
-    return NextResponse.json(updatedAddress)
+    return NextResponse.json(address)
   } catch (error) {
     console.error("Error updating address:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      { message: "Failed to update address" },
+      { status: 500 }
+    )
   }
 }
 

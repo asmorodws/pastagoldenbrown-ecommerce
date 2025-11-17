@@ -1,0 +1,332 @@
+/**
+ * API Routes Test for Address Endpoints
+ * @jest-environment node
+ */
+
+// Mock Next.js server dependencies BEFORE imports
+global.Request = class Request {
+  constructor(public url: string, public init?: any) {}
+  json() { return Promise.resolve(this.init?.body ? JSON.parse(this.init.body) : {}) }
+} as any
+
+global.Response = class Response {
+  constructor(public body: any, public init?: any) {}
+  json() { return Promise.resolve(this.body) }
+} as any
+
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { auth } from '@/auth'
+
+// Mock dependencies
+jest.mock('@/auth')
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    address: {
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+      delete: jest.fn(),
+    },
+    $transaction: jest.fn(),
+  },
+}))
+
+const mockSession = {
+  user: {
+    id: 'user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+  },
+}
+
+const mockAddress = {
+  id: 'addr-1',
+  userId: 'user-123',
+  label: 'Rumah',
+  recipientName: 'John Doe',
+  phone: '08123456789',
+  address: 'Jl. Test No. 123',
+  city: 'Jakarta',
+  province: 'DKI Jakarta',
+  zipCode: '12345',
+  country: 'Indonesia',
+  isDefault: false,
+  cityId: '151',
+  provinceId: '6',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+describe('POST /api/addresses', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(auth as jest.Mock).mockResolvedValue(mockSession)
+  })
+
+  it('should create address with transaction', async () => {
+    const newAddressData = {
+      label: 'Kantor',
+      recipientName: 'John Doe',
+      phone: '08123456789',
+      address: 'Jl. Office No. 456',
+      city: 'Jakarta',
+      province: 'DKI Jakarta',
+      zipCode: '12346',
+      country: 'Indonesia',
+      isDefault: false,
+      cityId: '151',
+      provinceId: '6',
+    }
+
+    const createdAddress = { ...mockAddress, ...newAddressData, id: 'addr-new' }
+
+    // Mock transaction
+    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      return callback({
+        address: {
+          updateMany: jest.fn(),
+          create: jest.fn().mockResolvedValue(createdAddress),
+        },
+      })
+    })
+
+    const request = new NextRequest('http://localhost:3000/api/addresses', {
+      method: 'POST',
+      body: JSON.stringify(newAddressData),
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(201)
+    expect(data.id).toBe('addr-new')
+    expect(data.label).toBe('Kantor')
+    expect(prisma.$transaction).toHaveBeenCalled()
+  })
+
+  it('should unset other defaults when creating default address', async () => {
+    const newDefaultAddress = {
+      label: 'Rumah Utama',
+      recipientName: 'John Doe',
+      phone: '08123456789',
+      address: 'Jl. Main No. 1',
+      city: 'Jakarta',
+      province: 'DKI Jakarta',
+      zipCode: '12345',
+      country: 'Indonesia',
+      isDefault: true, // Set as default
+      cityId: '151',
+      provinceId: '6',
+    }
+
+    let updateManyCalled = false
+
+    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      return callback({
+        address: {
+          updateMany: jest.fn(async (args) => {
+            updateManyCalled = true
+            expect(args.where.userId).toBe('user-123')
+            expect(args.where.isDefault).toBe(true)
+            expect(args.data.isDefault).toBe(false)
+          }),
+          create: jest.fn().mockResolvedValue({
+            ...mockAddress,
+            ...newDefaultAddress,
+            id: 'addr-new',
+          }),
+        },
+      })
+    })
+
+    const request = new NextRequest('http://localhost:3000/api/addresses', {
+      method: 'POST',
+      body: JSON.stringify(newDefaultAddress),
+    })
+
+    await POST(request)
+
+    expect(updateManyCalled).toBe(true)
+  })
+
+  it('should return 401 if not authenticated', async () => {
+    ;(auth as jest.Mock).mockResolvedValue(null)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+
+    const response = await POST(request)
+
+    expect(response.status).toBe(401)
+  })
+})
+
+describe('PUT /api/addresses/[id]', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(auth as jest.Mock).mockResolvedValue(mockSession)
+  })
+
+  it('should update address with transaction', async () => {
+    const updateData = {
+      label: 'Rumah Updated',
+      recipientName: 'John Doe',
+      phone: '08123456789',
+      address: 'Jl. Test No. 123',
+      city: 'Jakarta',
+      province: 'DKI Jakarta',
+      zipCode: '12345',
+      country: 'Indonesia',
+      isDefault: false,
+      cityId: '151',
+      provinceId: '6',
+    }
+
+    const updatedAddress = { ...mockAddress, ...updateData }
+
+    // Mock transaction
+    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      return callback({
+        address: {
+          updateMany: jest.fn(),
+          update: jest.fn().mockResolvedValue(updatedAddress),
+        },
+      })
+    })
+
+    // Mock findFirst for ownership check
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(mockAddress)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-1', {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    })
+
+    const response = await PUT(request, {
+      params: Promise.resolve({ id: 'addr-1' }),
+    })
+
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.label).toBe('Rumah Updated')
+    expect(prisma.$transaction).toHaveBeenCalled()
+  })
+
+  it('should exclude current address when unsetting defaults', async () => {
+    const updateToDefault = {
+      ...mockAddress,
+      isDefault: true, // Change to default
+    }
+
+    let updateManyCalledWithCorrectFilter = false
+
+    ;(prisma.$transaction as jest.Mock).mockImplementation(async (callback) => {
+      return callback({
+        address: {
+          updateMany: jest.fn(async (args) => {
+            // Verify NOT filter excludes current address
+            expect(args.where.NOT).toEqual({ id: 'addr-1' })
+            expect(args.where.userId).toBe('user-123')
+            expect(args.where.isDefault).toBe(true)
+            updateManyCalledWithCorrectFilter = true
+          }),
+          update: jest.fn().mockResolvedValue(updateToDefault),
+        },
+      })
+    })
+
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(mockAddress)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-1', {
+      method: 'PUT',
+      body: JSON.stringify({ isDefault: true }),
+    })
+
+    await PUT(request, {
+      params: Promise.resolve({ id: 'addr-1' }),
+    })
+
+    expect(updateManyCalledWithCorrectFilter).toBe(true)
+  })
+
+  it('should return 404 if address not found or not owned', async () => {
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(null)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-999', {
+      method: 'PUT',
+      body: JSON.stringify({}),
+    })
+
+    const response = await PUT(request, {
+      params: Promise.resolve({ id: 'addr-999' }),
+    })
+
+    expect(response.status).toBe(404)
+  })
+
+  it('should rollback transaction on error', async () => {
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(mockAddress)
+
+    // Mock transaction failure
+    ;(prisma.$transaction as jest.Mock).mockRejectedValue(
+      new Error('Database error')
+    )
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-1', {
+      method: 'PUT',
+      body: JSON.stringify({ label: 'Will Fail' }),
+    })
+
+    const response = await PUT(request, {
+      params: Promise.resolve({ id: 'addr-1' }),
+    })
+
+    expect(response.status).toBe(500)
+    expect(prisma.$transaction).toHaveBeenCalled()
+  })
+})
+
+describe('DELETE /api/addresses/[id]', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    ;(auth as jest.Mock).mockResolvedValue(mockSession)
+  })
+
+  it('should delete address successfully', async () => {
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(mockAddress)
+    ;(prisma.address.delete as jest.Mock).mockResolvedValue(mockAddress)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-1', {
+      method: 'DELETE',
+    })
+
+    const response = await DELETE(request, {
+      params: Promise.resolve({ id: 'addr-1' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(prisma.address.delete).toHaveBeenCalledWith({
+      where: { id: 'addr-1' },
+    })
+  })
+
+  it('should return 404 if address not found', async () => {
+    ;(prisma.address.findFirst as jest.Mock).mockResolvedValue(null)
+
+    const request = new NextRequest('http://localhost:3000/api/addresses/addr-999', {
+      method: 'DELETE',
+    })
+
+    const response = await DELETE(request, {
+      params: Promise.resolve({ id: 'addr-999' }),
+    })
+
+    expect(response.status).toBe(404)
+  })
+})

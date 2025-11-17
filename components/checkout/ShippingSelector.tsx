@@ -42,23 +42,10 @@ const ORIGIN_CITY_ID = process.env.NEXT_PUBLIC_ORIGIN_CITY_ID || "501"
 
 // Available couriers with display info
 const AVAILABLE_COURIERS = [
-  { code: "jne", name: "JNE", logo: "🚛", color: "bg-red-50 border-red-200" },
-  { code: "sicepat", name: "SiCepat", logo: "⚡", color: "bg-yellow-50 border-yellow-200" },
-  { code: "ide", name: "ID Express", logo: "📮", color: "bg-green-50 border-green-200" },
-  { code: "sap", name: "SAP Express", logo: "📦", color: "bg-purple-50 border-purple-200" },
-  { code: "jnt", name: "J&T Express", logo: "�", color: "bg-red-50 border-red-200" },
-  { code: "ninja", name: "Ninja Xpress", logo: "🥷", color: "bg-blue-50 border-blue-200" },
-  { code: "tiki", name: "TIKI", logo: "📦", color: "bg-orange-50 border-orange-200" },
   { code: "lion", name: "Lion Parcel", logo: "🦁", color: "bg-yellow-50 border-yellow-200" },
+  { code: "jne", name: "JNE", logo: "🚛", color: "bg-red-50 border-red-200" },
+  { code: "sicepat", name: "SiCepat", logo: "⚡", color: "bg-blue-50 border-blue-200" },
   { code: "anteraja", name: "AnterAja", logo: "🚚", color: "bg-green-50 border-green-200" },
-  { code: "pos", name: "POS Indonesia", logo: "📮", color: "bg-blue-50 border-blue-200" },
-  { code: "ncs", name: "NCS", logo: "📦", color: "bg-slate-50 border-slate-200" },
-  { code: "rex", name: "REX", logo: "📦", color: "bg-indigo-50 border-indigo-200" },
-  { code: "rpx", name: "RPX", logo: "📦", color: "bg-pink-50 border-pink-200" },
-  { code: "sentral", name: "Sentral Cargo", logo: "🚚", color: "bg-cyan-50 border-cyan-200" },
-  { code: "star", name: "Star Cargo", logo: "⭐", color: "bg-amber-50 border-amber-200" },
-  { code: "wahana", name: "Wahana", logo: "📦", color: "bg-teal-50 border-teal-200" },
-  { code: "dse", name: "DSE", logo: "📦", color: "bg-violet-50 border-violet-200" },
 ]
 
 const COURIER_LOGOS: Record<string, string> = Object.fromEntries(
@@ -76,7 +63,7 @@ export default function ShippingSelector({
   const [shippingOptions, setShippingOptions] = useState<ShippingCourier[]>([])
   const [error, setError] = useState<string | null>(null)
   const [selectedCouriers, setSelectedCouriers] = useState<string[]>([
-    "jne", "sicepat", "jnt", "ninja", "tiki", "anteraja", "pos"
+    "lion", "jne", "sicepat", "anteraja"
   ])
   const [showCourierSelector, setShowCourierSelector] = useState(false)
   const [originCityId, setOriginCityId] = useState<string>("")
@@ -170,7 +157,7 @@ export default function ShippingSelector({
   }
 
   const selectPopularCouriers = () => {
-    setSelectedCouriers(["jne", "sicepat", "jnt", "ninja", "tiki", "anteraja", "pos"])
+    setSelectedCouriers(["lion", "jne", "sicepat", "anteraja"])
   }
 
   const handleSelectShipping = (courier: ShippingCourier, service: ShippingService) => {
@@ -280,20 +267,20 @@ export default function ShippingSelector({
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {AVAILABLE_COURIERS.map((courier) => (
               <button
                 key={courier.code}
                 type="button"
                 onClick={() => toggleCourier(courier.code)}
-                className={`p-3 border-2 rounded-lg transition-all text-center ${
+                className={`p-4 border-2 rounded-lg transition-all text-center ${
                   selectedCouriers.includes(courier.code)
                     ? `${courier.color} border-current font-semibold`
                     : "bg-white border-slate-200 text-slate-400 hover:border-slate-300"
                 }`}
               >
-                <div className="text-2xl mb-1">{courier.logo}</div>
-                <div className="text-xs font-medium">{courier.name}</div>
+                <div className="text-3xl mb-2">{courier.logo}</div>
+                <div className="text-sm font-medium">{courier.name}</div>
               </button>
             ))}
           </div>

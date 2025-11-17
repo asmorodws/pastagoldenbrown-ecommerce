@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Settings, Globe, Mail, Bell, Shield, Database, Save, MapPin, Truck, Search } from "lucide-react"
 import toast from "react-hot-toast"
+import CacheManagerCard from "@/components/admin/CacheManagerCard"
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
@@ -29,9 +30,22 @@ export default function AdminSettingsPage() {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
+  
+  // Client-side cache untuk mengurangi API hits
+  const [searchCache, setSearchCache] = useState<Map<string, { data: any[], timestamp: number }>>(new Map())
 
   useEffect(() => {
     fetchShippingOrigin()
+    // Load search cache dari localStorage
+    try {
+      const cached = localStorage.getItem('admin_city_search_cache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        setSearchCache(new Map(Object.entries(parsed)))
+      }
+    } catch (error) {
+      console.error('Error loading cache:', error)
+    }
   }, [])
 
   const fetchShippingOrigin = async () => {
@@ -62,13 +76,70 @@ export default function AdminSettingsPage() {
       return
     }
 
+    const normalizedQuery = query.toLowerCase().trim()
+    const CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 hari
+    
+    // Check cache first
+    const cached = searchCache.get(normalizedQuery)
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      setSearchResults(cached.data)
+      setShowSearchResults(true)
+      return
+    }
+
+    // Try prefix cache filtering
+    for (let len = normalizedQuery.length - 1; len >= 3; len--) {
+      const prefix = normalizedQuery.slice(0, len)
+      const prefixCached = searchCache.get(prefix)
+      
+      if (prefixCached && (Date.now() - prefixCached.timestamp) < CACHE_TTL) {
+        const filtered = prefixCached.data.filter((item: any) => {
+          const name = (item.label || item.name || '').toLowerCase()
+          return name.includes(normalizedQuery)
+        })
+        
+        if (filtered.length > 0) {
+          setSearchResults(filtered)
+          setShowSearchResults(true)
+          // Cache filtered result
+          const newCache = new Map(searchCache)
+          newCache.set(normalizedQuery, { data: filtered, timestamp: Date.now() })
+          setSearchCache(newCache)
+          try {
+            localStorage.setItem('admin_city_search_cache', JSON.stringify(Object.fromEntries(newCache)))
+          } catch (e) {}
+          return
+        }
+      }
+    }
+
+    // Hit API jika tidak ada cache
     try {
       setIsSearching(true)
-      const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(query)}&limit=10`)
+      const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(normalizedQuery)}&limit=15`)
       if (res.ok) {
         const data = await res.json()
         setSearchResults(data)
         setShowSearchResults(true)
+        
+        // Cache hasil
+        const newCache = new Map(searchCache)
+        newCache.set(normalizedQuery, { data, timestamp: Date.now() })
+        setSearchCache(newCache)
+        
+        // Save to localStorage (limit 50 entries)
+        if (newCache.size > 50) {
+          const sorted = Array.from(newCache.entries()).sort((a, b) => b[1].timestamp - a[1].timestamp)
+          const trimmed = new Map(sorted.slice(0, 50))
+          setSearchCache(trimmed)
+          try {
+            localStorage.setItem('admin_city_search_cache', JSON.stringify(Object.fromEntries(trimmed)))
+          } catch (e) {}
+        } else {
+          try {
+            localStorage.setItem('admin_city_search_cache', JSON.stringify(Object.fromEntries(newCache)))
+          } catch (e) {}
+        }
       }
     } catch (error) {
       console.error("Error searching cities:", error)
@@ -119,8 +190,11 @@ export default function AdminSettingsPage() {
 
   useEffect(() => {
     if (searchQuery.length >= 3) {
-      const timer = setTimeout(() => searchCities(searchQuery), 500)
+      const timer = setTimeout(() => searchCities(searchQuery), 800) // Increased to 800ms
       return () => clearTimeout(timer)
+    } else {
+      setSearchResults([])
+      setShowSearchResults(false)
     }
   }, [searchQuery])
 
@@ -435,6 +509,9 @@ export default function AdminSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Cache Manager */}
+      <CacheManagerCard />
 
       {/* Save Button */}
       <div className="flex justify-end">

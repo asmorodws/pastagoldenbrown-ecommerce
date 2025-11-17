@@ -52,10 +52,20 @@ export default function ShippingTestPage() {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<ShippingResult[]>([])
   const [error, setError] = useState("")
+  
+  // Search cache untuk mengurangi API hits
+  const [searchCache, setSearchCache] = useState<Map<string, { data: any[], timestamp: number }>>(new Map())
 
   // Auto-load origin from settings
   useEffect(() => {
     loadDefaultOrigin()
+    // Load search cache
+    try {
+      const cached = localStorage.getItem('shipping_test_search_cache')
+      if (cached) {
+        setSearchCache(new Map(Object.entries(JSON.parse(cached))))
+      }
+    } catch (e) {}
   }, [])
 
   const loadDefaultOrigin = async () => {
@@ -87,8 +97,56 @@ export default function ShippingTestPage() {
       return
     }
 
+    const normalizedQuery = query.toLowerCase().trim()
+    const CACHE_TTL = 7 * 24 * 60 * 60 * 1000
+    
+    // Check cache
+    const cached = searchCache.get(normalizedQuery)
+    if (cached && (Date.now() - cached.timestamp) < CACHE_TTL) {
+      if (type === "origin") {
+        setOriginResults(cached.data)
+        setShowOriginResults(true)
+      } else {
+        setDestResults(cached.data)
+        setShowDestResults(true)
+      }
+      return
+    }
+
+    // Try prefix cache
+    for (let len = normalizedQuery.length - 1; len >= 3; len--) {
+      const prefix = normalizedQuery.slice(0, len)
+      const prefixCached = searchCache.get(prefix)
+      
+      if (prefixCached && (Date.now() - prefixCached.timestamp) < CACHE_TTL) {
+        const filtered = prefixCached.data.filter((item: any) => {
+          const name = (item.label || item.name || '').toLowerCase()
+          return name.includes(normalizedQuery)
+        })
+        
+        if (filtered.length > 0) {
+          if (type === "origin") {
+            setOriginResults(filtered)
+            setShowOriginResults(true)
+          } else {
+            setDestResults(filtered)
+            setShowDestResults(true)
+          }
+          // Cache filtered
+          const newCache = new Map(searchCache)
+          newCache.set(normalizedQuery, { data: filtered, timestamp: Date.now() })
+          setSearchCache(newCache)
+          try {
+            localStorage.setItem('shipping_test_search_cache', JSON.stringify(Object.fromEntries(newCache)))
+          } catch (e) {}
+          return
+        }
+      }
+    }
+
+    // Hit API
     try {
-      const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(query)}&limit=10`)
+      const res = await fetch(`/api/rajaongkir/search?q=${encodeURIComponent(normalizedQuery)}&limit=15`)
       if (res.ok) {
         const data = await res.json()
         if (type === "origin") {
@@ -98,6 +156,23 @@ export default function ShippingTestPage() {
           setDestResults(data)
           setShowDestResults(true)
         }
+        
+        // Cache
+        const newCache = new Map(searchCache)
+        newCache.set(normalizedQuery, { data, timestamp: Date.now() })
+        if (newCache.size > 50) {
+          const sorted = Array.from(newCache.entries()).sort((a, b) => b[1].timestamp - a[1].timestamp)
+          const trimmed = new Map(sorted.slice(0, 50))
+          setSearchCache(trimmed)
+          try {
+            localStorage.setItem('shipping_test_search_cache', JSON.stringify(Object.fromEntries(trimmed)))
+          } catch (e) {}
+        } else {
+          setSearchCache(newCache)
+          try {
+            localStorage.setItem('shipping_test_search_cache', JSON.stringify(Object.fromEntries(newCache)))
+          } catch (e) {}
+        }
       }
     } catch (error) {
       console.error("Error searching:", error)
@@ -105,13 +180,23 @@ export default function ShippingTestPage() {
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => searchLocation(originSearch, "origin"), 500)
-    return () => clearTimeout(timer)
+    if (originSearch.length >= 3) {
+      const timer = setTimeout(() => searchLocation(originSearch, "origin"), 800)
+      return () => clearTimeout(timer)
+    } else {
+      setOriginResults([])
+      setShowOriginResults(false)
+    }
   }, [originSearch])
 
   useEffect(() => {
-    const timer = setTimeout(() => searchLocation(destSearch, "dest"), 500)
-    return () => clearTimeout(timer)
+    if (destSearch.length >= 3) {
+      const timer = setTimeout(() => searchLocation(destSearch, "dest"), 800)
+      return () => clearTimeout(timer)
+    } else {
+      setDestResults([])
+      setShowDestResults(false)
+    }
   }, [destSearch])
 
   const handleSelectLocation = (location: any, type: "origin" | "dest") => {
