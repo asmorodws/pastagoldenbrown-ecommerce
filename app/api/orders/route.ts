@@ -2,6 +2,36 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 
+// Helper function to generate unique order code
+async function generateOrderCode(): Promise<string> {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const dateStr = `${year}${month}${day}`
+
+  // Find the last order of today
+  const lastOrder = await prisma.order.findFirst({
+    where: {
+      orderCode: {
+        startsWith: `TRX-${dateStr}`
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  let sequence = 1
+  if (lastOrder) {
+    const lastSequence = parseInt(lastOrder.orderCode.split('-')[2])
+    sequence = lastSequence + 1
+  }
+
+  const sequenceStr = String(sequence).padStart(5, '0')
+  return `TRX-${dateStr}-${sequenceStr}`
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -13,7 +43,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { items, shipping } = await req.json()
+    const { items, shipping, addressId, notes } = await req.json()
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -22,16 +52,29 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Calculate total
-    const total = items.reduce(
+    // Calculate subtotal (product prices only)
+    const subtotal = items.reduce(
       (sum: number, item: any) => sum + item.price * item.quantity,
       0
     )
+
+    // Get shipping cost (default to 0 if not provided)
+    const shippingCost = shipping.shippingCost || 0
+
+    // Calculate total (subtotal + shipping)
+    const total = subtotal + shippingCost
+
+    // Generate unique order code
+    const orderCode = await generateOrderCode()
 
     // Create order with items
     const order = await prisma.order.create({
       data: {
         userId: session.user.id,
+        orderCode,
+        addressId: addressId || null,
+        subtotal,
+        shippingCost,
         total,
         status: "PENDING",
         shippingName: shipping.name,
@@ -42,8 +85,10 @@ export async function POST(req: NextRequest) {
         shippingZip: shipping.zip,
         shippingCountry: shipping.country,
         shippingProvince: shipping.province || null,
+        courier: shipping.courier || null,
+        courierService: shipping.service || null,
         paymentMethod: shipping.paymentMethod || "bank_transfer",
-        notes: shipping.notes || null,
+        notes: notes || null,
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
