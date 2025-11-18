@@ -104,7 +104,7 @@ export default function OrderSummary({
           <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
             <Truck className="w-3.5 h-3.5 text-blue-600" />
           </div>
-          <span>Gratis Ongkir Seluruh Indonesia</span>
+          <span>Pengiriman ke Seluruh Indonesia</span>
         </div>
         <div className="flex items-center gap-2.5 text-xs text-slate-600">
           <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">

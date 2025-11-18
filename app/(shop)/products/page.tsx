@@ -2,10 +2,14 @@
 import { prisma } from "@/lib/prisma"
 import { Filter, PackageSearch, Search } from "lucide-react"
 import ProductCard from "@/components/ProductCard"
+import Pagination from "@/components/ui/Pagination"
+
+const ITEMS_PER_PAGE = 12
 
 async function getProducts(searchParams: any) {
   try {
     const params = await searchParams
+    const page = parseInt(params.page || "1")
     const where: any = {}
 
     if (params.category) {
@@ -30,6 +34,9 @@ async function getProducts(searchParams: any) {
     else if (params.sort === "price-desc") orderBy = { price: "desc" }
     else if (params.sort === "name") orderBy = { name: "asc" }
 
+    // Get total count for pagination
+    const totalCount = await prisma.product.count({ where })
+
     const products = await prisma.product.findMany({
       where,
       include: { 
@@ -39,22 +46,34 @@ async function getProducts(searchParams: any) {
         }
       },
       orderBy,
+      skip: (page - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
     })
 
-    return products.map((product: any) => ({
-      ...product,
-      price: parseFloat(product.price.toString()),
-      discount: product.discount ? parseFloat(product.discount.toString()) : undefined,
-      discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : undefined,
-      weight: product.weight ? parseFloat(product.weight.toString()) : null,
-      variants: product.variants.map((v: any) => ({
-        ...v,
-        price: v.price ? parseFloat(v.price.toString()) : null,
+    return {
+      products: products.map((product: any) => ({
+        ...product,
+        price: parseFloat(product.price.toString()),
+        discount: product.discount ? parseFloat(product.discount.toString()) : undefined,
+        discountPrice: product.discountPrice ? parseFloat(product.discountPrice.toString()) : undefined,
+        weight: product.weight ? parseFloat(product.weight.toString()) : null,
+        variants: product.variants.map((v: any) => ({
+          ...v,
+          price: v.price ? parseFloat(v.price.toString()) : null,
+        })),
       })),
-    }))
+      totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / ITEMS_PER_PAGE),
+    }
   } catch (error) {
     console.error("Error fetching products:", error)
-    return []
+    return {
+      products: [],
+      totalCount: 0,
+      currentPage: 1,
+      totalPages: 0,
+    }
   }
 }
 
@@ -78,13 +97,16 @@ export default async function ProductsPage({
     sort?: string
     minPrice?: string
     maxPrice?: string
+    page?: string
   }>
 }) {
   const params = await searchParams
-  const [products, categories] = await Promise.all([
+  const [productsData, categories] = await Promise.all([
     getProducts(searchParams),
     getCategories(),
   ])
+
+  const { products, totalCount, currentPage, totalPages } = productsData
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12">
@@ -104,7 +126,7 @@ export default async function ProductsPage({
             <div className="flex items-center gap-3 text-sm bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">
               <Filter size={18} className="text-blue-800" />
               <span className="text-slate-700 font-medium">
-                {products.length} produk ditemukan
+                {totalCount} produk ditemukan
               </span>
             </div>
           </div>
@@ -201,44 +223,7 @@ export default async function ProductsPage({
               </ul>
             </div>
 
-            {/* Price Filter */}
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
-              <h3 className="font-semibold text-gray-800 mb-4">Filter Harga</h3>
-              <form method="get" className="space-y-3">
-                <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Harga Minimum</label>
-                  <input
-                    type="number"
-                    name="minPrice"
-                    defaultValue={params.minPrice || ""}
-                    placeholder="Rp 0"
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-600 mb-1 block">Harga Maksimum</label>
-                  <input
-                    type="number"
-                    name="maxPrice"
-                    defaultValue={params.maxPrice || ""}
-                    placeholder="Rp 100000"
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent"
-                  />
-                </div>
-                {params.category && (
-                  <input type="hidden" name="category" value={params.category} />
-                )}
-                {params.sort && (
-                  <input type="hidden" name="sort" value={params.sort} />
-                )}
-                <button
-                  type="submit"
-                  className="w-full bg-blue-800 hover:bg-blue-900 text-white font-semibold py-2 rounded-lg transition-all duration-200"
-                >
-                  Terapkan Filter
-                </button>
-              </form>
-            </div>
+
           </aside>
 
           {/* Products Grid */}
@@ -301,6 +286,14 @@ export default async function ProductsPage({
                     </div>
                   ))}
                 </div>
+
+                {/* Pagination for Desktop */}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={totalCount}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                />
               </>
             )}
           </div>

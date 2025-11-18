@@ -5,20 +5,20 @@ Website e-commerce lengkap dengan fitur authentication, checkout, dan admin dash
 ## Fitur
 
 ### User Features
-- ✅ Login & Register dengan verifikasi email
-- ✅ Browse produk berdasarkan kategori
-- ✅ Detail produk dengan gambar dan deskripsi
-- ✅ Keranjang belanja (shopping cart)
-- ✅ Checkout & pembayaran
-- ✅ Riwayat pesanan
-- ✅ Profile management
+-  Login & Register dengan verifikasi email
+-  Browse produk berdasarkan kategori
+-  Detail produk dengan gambar dan deskripsi
+-  Keranjang belanja (shopping cart)
+-  Checkout & pembayaran
+-  Riwayat pesanan
+-  Profile management
 
 ### Admin Features
-- ✅ Dashboard dengan statistik
-- ✅ Kelola produk (CRUD)
-- ✅ Kelola kategori
-- ✅ Kelola pesanan & update status
-- ✅ Lihat semua pengguna
+-  Dashboard dengan statistik
+-  Kelola produk (CRUD)
+-  Kelola kategori
+-  Kelola pesanan & update status
+-  Lihat semua pengguna
 
 ## Tech Stack
 

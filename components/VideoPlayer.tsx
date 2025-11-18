@@ -16,12 +16,38 @@ const videoPlayers = new Set<HTMLVideoElement>()
 
 export default function VideoPlayer({ src, title, category, color }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isInView, setIsInView] = useState(false)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [showControls, setShowControls] = useState(false)
+
+  // Intersection Observer untuk lazy loading video
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true)
+            observer.disconnect() // Stop observing setelah video terlihat
+          }
+        })
+      },
+      {
+        rootMargin: '50px', // Mulai load 50px sebelum video terlihat
+        threshold: 0.1,
+      }
+    )
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const video = videoRef.current
@@ -46,7 +72,7 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
       video.removeEventListener('play', handlePlayEvent)
       videoPlayers.delete(video)
     }
-  }, [])
+  }, [isInView])
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -125,30 +151,37 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
 
   return (
     <div 
+      ref={containerRef}
       className="relative rounded-xl overflow-hidden shadow-lg group hover:shadow-2xl transition-all duration-300"
       style={{ width: '295px', height: '525px' }}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
       <div className="relative cursor-pointer h-full w-full" onClick={togglePlay}>
-        <video 
-          ref={videoRef}
-          className="w-full h-full object-cover"
-          preload="metadata"
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onLoadedMetadata={handleLoadedMetadata}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          onWaiting={handleWaiting}
-          onCanPlay={handleCanPlay}
-          playsInline
-        >
-          <source src={src} type="video/mp4" />
-        </video>
+        {isInView ? (
+          <video 
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            preload="metadata"
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onLoadedMetadata={handleLoadedMetadata}
+            onTimeUpdate={handleTimeUpdate}
+            onEnded={handleEnded}
+            onWaiting={handleWaiting}
+            onCanPlay={handleCanPlay}
+            playsInline
+          >
+            <source src={src} type="video/mp4" />
+          </video>
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <div className="text-gray-400 text-sm">Loading...</div>
+          </div>
+        )}
         
         {/* Play Button Overlay - Hidden saat video playing */}
-        {!isPlaying && (
+        {!isPlaying && isInView && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors duration-300 pointer-events-none">
             <div className="w-16 h-16 rounded-full bg-white/90 group-hover:bg-white group-hover:scale-110 transition-all duration-300 flex items-center justify-center shadow-xl">
               <Play className="w-8 h-8 text-blue-800 ml-1" fill="currentColor" />

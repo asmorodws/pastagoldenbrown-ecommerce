@@ -6,36 +6,36 @@ ecommerce/
 ├── __tests__/
 │   ├── components/
 │   │   └── AddressSelector.test.tsx          [250+ lines]
-│   │       ├── ✅ Optimistic Add (create)
-│   │       ├── ✅ Optimistic Update (edit)
-│   │       ├── ✅ Optimistic Delete (remove)
-│   │       ├── ✅ Rollback on Error
-│   │       ├── ✅ Prevent Double Submit
-│   │       └── ✅ No Refetch After Save
+│   │       ├──  Optimistic Add (create)
+│   │       ├──  Optimistic Update (edit)
+│   │       ├──  Optimistic Delete (remove)
+│   │       ├──  Rollback on Error
+│   │       ├──  Prevent Double Submit
+│   │       └──  No Refetch After Save
 │   │
 │   ├── api/
 │   │   └── addresses.test.ts                  [280+ lines]
 │   │       ├── POST /api/addresses
-│   │       │   ├── ✅ Create with Transaction
-│   │       │   ├── ✅ Unset Other Defaults
-│   │       │   └── ✅ 401 if Unauthorized
+│   │       │   ├──  Create with Transaction
+│   │       │   ├──  Unset Other Defaults
+│   │       │   └──  401 if Unauthorized
 │   │       │
 │   │       ├── PUT /api/addresses/[id]
-│   │       │   ├── ✅ Update with Transaction
-│   │       │   ├── ✅ Exclude Current Address
-│   │       │   ├── ✅ 404 if Not Found
-│   │       │   └── ✅ Rollback on Error
+│   │       │   ├──  Update with Transaction
+│   │       │   ├──  Exclude Current Address
+│   │       │   ├──  404 if Not Found
+│   │       │   └──  Rollback on Error
 │   │       │
 │   │       └── DELETE /api/addresses/[id]
-│   │           ├── ✅ Delete Successfully
-│   │           └── ✅ 404 if Not Found
+│   │           ├──  Delete Successfully
+│   │           └──  404 if Not Found
 │   │
 │   └── integration/
 │       └── address-performance.test.tsx       [220+ lines]
-│           ├── ✅ <100ms Optimistic Update
-│           ├── ✅ No Refetch (1 call only)
-│           ├── ✅ Transaction Failure
-│           └── ✅ Full Lifecycle Order
+│           ├──  <100ms Optimistic Update
+│           ├──  No Refetch (1 call only)
+│           ├──  Transaction Failure
+│           └──  Full Lifecycle Order
 │
 ├── jest.config.ts                             [32 lines]
 │   ├── Next.js integration
@@ -90,31 +90,31 @@ Mocks:
 ```
 components/AddressSelector.tsx
   └── __tests__/components/AddressSelector.test.tsx
-      ├── handleSubmit()        ✅ Tested
-      ├── handleDelete()        ✅ Tested
-      ├── optimistic updates    ✅ Tested
-      ├── error handling        ✅ Tested
-      └── double submit         ✅ Tested
+      ├── handleSubmit()         Tested
+      ├── handleDelete()         Tested
+      ├── optimistic updates     Tested
+      ├── error handling         Tested
+      └── double submit          Tested
 
 app/api/addresses/route.ts
   └── __tests__/api/addresses.test.ts
-      ├── POST handler          ✅ Tested
-      ├── transaction logic     ✅ Tested
-      └── auth check            ✅ Tested
+      ├── POST handler           Tested
+      ├── transaction logic      Tested
+      └── auth check             Tested
 
 app/api/addresses/[id]/route.ts
   └── __tests__/api/addresses.test.ts
-      ├── PUT handler           ✅ Tested
-      ├── DELETE handler        ✅ Tested
-      ├── ownership check       ✅ Tested
-      └── transaction logic     ✅ Tested
+      ├── PUT handler            Tested
+      ├── DELETE handler         Tested
+      ├── ownership check        Tested
+      └── transaction logic      Tested
 
 Full Flow
   └── __tests__/integration/address-performance.test.tsx
-      ├── E2E performance       ✅ Tested
-      ├── No refetch            ✅ Tested
-      ├── Error scenarios       ✅ Tested
-      └── Operation order       ✅ Tested
+      ├── E2E performance        Tested
+      ├── No refetch             Tested
+      ├── Error scenarios        Tested
+      └── Operation order        Tested
 ```
 
 ## Test Execution Flow
@@ -159,7 +159,7 @@ User Action: Click "Simpan"
   ├─> [T=5ms] Fetch API (async)
   │     └─> Transaction starts server-side
   │
-  ├─> [T=10ms] Optimistic Update ✅
+  ├─> [T=10ms] Optimistic Update 
   │     ├─> setAddresses(updated)
   │     ├─> setShowForm(false)
   │     └─> UI reflects changes
@@ -174,7 +174,7 @@ User Action: Click "Simpan"
   └─> [T=210ms] setIsSaving = false
 
 Expected Total: <100ms perceived, ~200ms actual
-Test Verifies: UI update at <100ms ✅
+Test Verifies: UI update at <100ms 
 ```
 
 ## Mock Strategy
@@ -213,9 +213,9 @@ User Edits
           └─> UI updates immediately
 
 Test Assertion
-  ├─> fetchCallCount === initialCount + 1 ✅
-  ├─> No GET after PUT ✅
-  └─> UI shows updated data ✅
+  ├─> fetchCallCount === initialCount + 1 
+  ├─> No GET after PUT 
+  └─> UI shows updated data 
 ```
 
 ---

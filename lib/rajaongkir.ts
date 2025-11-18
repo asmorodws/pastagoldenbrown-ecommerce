@@ -7,9 +7,13 @@ interface RajaOngkirDestination {
   label?: string
   name?: string
   province_name?: string
+  province_id?: string
   city_name?: string
+  city_id?: string
   district_name?: string
+  district_id?: string
   subdistrict_name?: string
+  subdistrict_id?: string
   zip_code?: string
   // Legacy fields
   province?: string
@@ -295,14 +299,16 @@ export async function searchDomesticDestination(
       // Check response structure for v2 API
       if (data && data.meta && data.meta.status === 'success' && Array.isArray(data.data)) {
         // Normalize response to include both old and new field names
+        // Note: API returns subdistrict-level ID in 'id', not city_id
+        // We need to derive city_id from city_name for proper shipping calculation
         return data.data.map((item: any) => ({
-          id: item.id?.toString() || '',
+          id: item.id?.toString() || '', // This is subdistrict ID
           label: item.label || '',
           name: item.label || item.name || '',
           province_name: item.province_name || '',
           province_id: item.province_id?.toString() || '',
           city_name: item.city_name || '',
-          city_id: item.city_id?.toString() || '',
+          city_id: item.city_id?.toString() || '', // Usually empty from API, needs to be derived
           district_name: item.district_name || '',
           district_id: item.district_id?.toString() || '',
           subdistrict_name: item.subdistrict_name || '',
@@ -462,6 +468,43 @@ export async function findDestinationByName(locationName: string): Promise<RajaO
     return results.length > 0 ? results[0] : null
   } catch (error) {
     console.error('Error finding destination:', error)
+    return null
+  }
+}
+
+// Helper: Get city_id from city name
+// Search API returns subdistrict-level ID, but we need city-level ID for shipping calculation
+export async function getCityIdFromName(cityName: string, provinceId?: string): Promise<string | null> {
+  try {
+    if (!cityName) return null
+    
+    // Normalize city name (remove "KOTA" prefix if exists)
+    const normalized = cityName.toUpperCase().replace(/^KOTA\s+/, '')
+    
+    // If we have province ID, search within that province
+    if (provinceId) {
+      const cities = await getCities(provinceId)
+      const found = cities.find(c => 
+        c.name.toUpperCase() === normalized || 
+        c.name.toUpperCase().includes(normalized)
+      )
+      if (found) return found.id.toString()
+    }
+    
+    // Otherwise, search all provinces (less efficient)
+    const provinces = await getProvinces()
+    for (const province of provinces) {
+      const cities = await getCities(province.id)
+      const found = cities.find(c => 
+        c.name.toUpperCase() === normalized ||
+        c.name.toUpperCase().includes(normalized)
+      )
+      if (found) return found.id.toString()
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Error getting city_id from name:', error)
     return null
   }
 }

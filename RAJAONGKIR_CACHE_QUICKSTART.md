@@ -1,13 +1,13 @@
-# ✅ RajaOngkir Cache Implementation - Quick Reference
+#  RajaOngkir Cache Implementation - Quick Reference
 
-## 🎯 What's Been Done
+##  What's Been Done
 
 ### 1. Enhanced Cache Library (`lib/cache.ts`)
-- ✅ **Stale-While-Revalidate**: Serve cached data instantly while updating in background
-- ✅ **Stale-On-Error**: Fallback to old cache if API fails
-- ✅ **Cache Warming**: Pre-load popular data before user requests
-- ✅ **Batch Operations**: Warm multiple cache entries efficiently
-- ✅ **Clear Old Cache**: Utility to cleanup stale entries
+-  **Stale-While-Revalidate**: Serve cached data instantly while updating in background
+-  **Stale-On-Error**: Fallback to old cache if API fails
+-  **Cache Warming**: Pre-load popular data before user requests
+-  **Batch Operations**: Warm multiple cache entries efficiently
+-  **Clear Old Cache**: Utility to cleanup stale entries
 
 ### 2. Optimized RajaOngkir Integration (`lib/rajaongkir.ts`)
 | Endpoint | Old TTL | New TTL | Strategy |
@@ -20,23 +20,23 @@
 | Shipping Cost | 60s | **1 hour** | Stale-while-revalidate |
 
 ### 3. Cache Warming Utility (`lib/rajaongkir-cache-warmer.ts`)
-- ✅ `warmProvinces()` - Warm all provinces
-- ✅ `warmPopularCities()` - Warm top 10 provinces' cities
-- ✅ `warmPopularSearches()` - Warm 15 popular city searches
-- ✅ `warmOriginCache()` - Warm origin city districts
-- ✅ `warmEssentialCache()` - One-click warm all important data
+-  `warmProvinces()` - Warm all provinces
+-  `warmPopularCities()` - Warm top 10 provinces' cities
+-  `warmPopularSearches()` - Warm 15 popular city searches
+-  `warmOriginCache()` - Warm origin city districts
+-  `warmEssentialCache()` - One-click warm all important data
 
 ### 4. Admin UI (`components/admin/CacheManagerCard.tsx`)
-- ✅ Visual cache warming buttons
-- ✅ Real-time cache statistics
-- ✅ Endpoint breakdown
-- ✅ Recent activity log
-- ✅ One-click clear old cache
+-  Visual cache warming buttons
+-  Real-time cache statistics
+-  Endpoint breakdown
+-  Recent activity log
+-  One-click clear old cache
 
 ### 5. API Endpoints
-- ✅ `POST /api/admin/cache/warm` - Trigger cache warming
-- ✅ `GET /api/admin/cache/warm` - Get cache statistics
-- ✅ `POST /api/admin/cache/clear` - Clear old cache entries
+-  `POST /api/admin/cache/warm` - Trigger cache warming
+-  `GET /api/admin/cache/warm` - Get cache statistics
+-  `POST /api/admin/cache/clear` - Clear old cache entries
 
 ### 6. NPM Scripts
 ```json
@@ -48,7 +48,7 @@
 
 ---
 
-## 🚀 How to Use
+##  How to Use
 
 ### Option 1: Admin Panel (Easiest)
 1. Login as admin
@@ -81,7 +81,7 @@ await warmEssentialCache()
 
 ---
 
-## 📊 Expected Results
+##  Expected Results
 
 ### API Call Reduction
 - **Before**: ~100+ calls per user session
@@ -101,7 +101,7 @@ If you have **1000 calls/day** quota:
 
 ---
 
-## 🎯 Key Features
+##  Key Features
 
 ### 1. Stale-While-Revalidate
 ```typescript
@@ -132,7 +132,7 @@ searchDomesticDestination("jakarta")
 
 ---
 
-## 📁 Files Changed/Created
+##  Files Changed/Created
 
 ### Modified
 - ✏️ `lib/cache.ts` - Enhanced with new features
@@ -141,12 +141,12 @@ searchDomesticDestination("jakarta")
 - ✏️ `app/admin/settings/page.tsx` - Added cache manager UI
 
 ### Created
-- ✨ `lib/rajaongkir-cache-warmer.ts` - Cache warming utility
-- ✨ `components/admin/CacheManagerCard.tsx` - Admin UI component
-- ✨ `app/api/admin/cache/warm/route.ts` - API endpoint
-- ✨ `app/api/admin/cache/clear/route.ts` - API endpoint
-- ✨ `RAJAONGKIR_CACHE_OPTIMIZATION.md` - Full documentation
-- ✨ `RAJAONGKIR_CACHE_QUICKSTART.md` - This file
+-  `lib/rajaongkir-cache-warmer.ts` - Cache warming utility
+-  `components/admin/CacheManagerCard.tsx` - Admin UI component
+-  `app/api/admin/cache/warm/route.ts` - API endpoint
+-  `app/api/admin/cache/clear/route.ts` - API endpoint
+-  `RAJAONGKIR_CACHE_OPTIMIZATION.md` - Full documentation
+-  `RAJAONGKIR_CACHE_QUICKSTART.md` - This file
 
 ---
 
@@ -161,7 +161,7 @@ searchDomesticDestination("jakarta")
 
 ---
 
-## 💡 Pro Tips
+##  Pro Tips
 
 1. **First-time setup**: Run cache warming before launching to production
 2. **Daily maintenance**: Setup cron job to warm cache every morning
@@ -171,7 +171,7 @@ searchDomesticDestination("jakarta")
 
 ---
 
-## 📞 Need Help?
+##  Need Help?
 
 Check full documentation: `RAJAONGKIR_CACHE_OPTIMIZATION.md`
 
@@ -183,4 +183,4 @@ Common issues:
 
 ---
 
-**Happy Caching! 🚀**
+**Happy Caching! **

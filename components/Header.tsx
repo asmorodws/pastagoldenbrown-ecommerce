@@ -28,8 +28,8 @@ export default function Header() {
   const navItems = [
     { label: "Beranda", href: "/" },
     { label: "Produk", href: "/products" },
-    { label: "Tentang Kami", href: "#tentang-kami" },
-    { label: "Kontak", href: "/contact" },
+    { label: "Tentang Kami", href: "/#tentang-kami" },
+    { label: "Kontak", href: "/#kontak" },
   ]
 
   return (
@@ -38,10 +38,10 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 group">
-            <Image src="/logo.png" alt="Golden Brown" width={42} height={42} className="w-10 h-10" />
-            <span className="text-xl font-semibold text-amber-700 group-hover:text-amber-800 transition-colors">
+            <Image src="/logo.png" alt="Golden Brown" width={75} height={40} className="w-18 h-10" />
+            {/* <span className="text-xl font-semibold text-amber-700 group-hover:text-amber-800 transition-colors">
               Golden Brown
-            </span>
+            </span> */}
           </Link>
 
           {/* DESKTOP NAV */}

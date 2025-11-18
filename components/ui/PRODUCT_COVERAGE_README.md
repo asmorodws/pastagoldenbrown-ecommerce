@@ -3,13 +3,13 @@
 Komponen peta Indonesia yang menampilkan jangkauan distribusi produk Golden Brown Pasta.
 
 ## Fitur
-- ✅ Peta Indonesia berbasis SVG (ringan & responsif)
-- ✅ 34+ titik lokasi distribusi
-- ✅ Warna sesuai brand (hijau untuk area terjangkau, abu-abu untuk area belum terjangkau)
-- ✅ Marker merah untuk setiap kota
-- ✅ Tooltip saat hover di setiap marker
-- ✅ Section statistik di bawah peta
-- ✅ Responsive untuk mobile & desktop
+-  Peta Indonesia berbasis SVG (ringan & responsif)
+-  34+ titik lokasi distribusi
+-  Warna sesuai brand (hijau untuk area terjangkau, abu-abu untuk area belum terjangkau)
+-  Marker merah untuk setiap kota
+-  Tooltip saat hover di setiap marker
+-  Section statistik di bawah peta
+-  Responsive untuk mobile & desktop
 
 ## Cara Menggunakan
 

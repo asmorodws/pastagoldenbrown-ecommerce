@@ -1,102 +1,455 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { ShoppingCart, Minus, Plus, Heart, Share2, Star, Package, Shield, Truck, Check, PackageSearch } from "lucide-react"
-import { useCartStore } from "@/store/cart"
+import { ShoppingCart, Minus, Plus, Heart, Share2, Package, ArrowLeft } from "lucide-react"
 import toast from "react-hot-toast"
+import { useCartStore } from "@/store/cart"
+import { useRouter } from "next/navigation"
 import ProductCard from "@/components/ProductCard"
 
-export default function ProductDetailPage() {
-  const params = useParams()
-  const slug = params.slug as string
-  const [product, setProduct] = useState<any>(null)
-  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
-  const [quantity, setQuantity] = useState(1)
+// ----------------------------
+// Types
+// ----------------------------
+
+interface ProductVariant {
+  id: string
+  name: string
+  label: string | null
+  sku: string | null
+  price: number | null
+  stock: number
+  image: string | null
+  sortOrder: number
+}
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+  halal: boolean
+}
+
+interface Product {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  price: number
+  image: string | null
+  images: string | null
+  categoryId: string
+  featured: boolean
+  brand: string | null
+  sku: string | null
+  weight: number | null
+  discount: number | null
+  discountPrice: number | null
+  category: Category
+  variants: ProductVariant[]
+}
+
+// ----------------------------
+// Components
+// ----------------------------
+
+const Breadcrumb = ({ categoryName, categorySlug, productName }: {
+  categoryName: string
+  categorySlug: string
+  productName: string
+}) => (
+  <nav className="flex items-center gap-2 text-xs mb-8 text-gray-500 overflow-x-auto pb-2">
+    <Link href="/" className="hover:text-blue-600 transition whitespace-nowrap">Home</Link>
+    <span className="text-gray-300">/</span>
+    <Link href="/products" className="hover:text-blue-600 transition whitespace-nowrap">Produk</Link>
+    <span className="text-gray-300">/</span>
+    <Link href={`/products?category=${categorySlug}`} className="hover:text-blue-600 transition whitespace-nowrap">
+      {categoryName}
+    </Link>
+    <span className="text-gray-300">/</span>
+    <span className="font-medium text-gray-700 truncate max-w-[200px]">{productName}</span>
+  </nav>
+)
+
+const ProductImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [imageError, setImageError] = useState(false)
+
+  return (
+    <div className="relative aspect-square bg-white rounded-xl overflow-hidden border border-gray-100 group">
+      {!imageError && src ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-contain p-6 group-hover:scale-105 transition-transform duration-500"
+          onError={() => setImageError(true)}
+          priority
+        />
+      ) : (
+        <div className="flex flex-col items-center justify-center h-full text-gray-300">
+          <Package size={64} className="mb-2" />
+          <span className="text-sm">Gambar tidak tersedia</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ThumbnailButton = ({
+  src,
+  selected,
+  onClick,
+}: {
+  src: string
+  selected: boolean
+  onClick: () => void
+}) => {
+  const [imageError, setImageError] = useState(false)
+
+  return (
+    <button
+      onClick={onClick}
+      className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${selected ? "border-blue-600 ring-1 ring-blue-200" : "border-gray-200 hover:border-gray-400 opacity-70 hover:opacity-100"
+        }`}
+    >
+      {!imageError && src ? (
+        <Image
+          src={src}
+          alt="Thumbnail"
+          fill
+          sizes="64px"
+          className="object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <div className="flex items-center justify-center h-full bg-gray-50">
+          <Package size={16} className="text-gray-300" />
+        </div>
+      )}
+    </button>
+  )
+}
+
+const VariantButton = ({
+  variant,
+  selected,
+  onClick,
+  disabled,
+}: {
+  variant: ProductVariant
+  selected: boolean
+  onClick: () => void
+  disabled?: boolean
+}) => {
+  const isOutOfStock = variant.stock === 0
+  const isLowStock = variant.stock > 0 && variant.stock <= 5
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || isOutOfStock}
+      className={`px-5 py-3 rounded-lg border-2 text-sm font-medium transition-all min-w-[100px] ${selected
+        ? "border-blue-600 bg-blue-600 text-white"
+        : isOutOfStock
+          ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed opacity-50"
+          : "border-gray-200 bg-white hover:border-blue-300 text-gray-800"
+        }`}
+    >
+      <div className="flex flex-col gap-1">
+        <span className={isOutOfStock ? 'line-through' : ''}>{variant.name}</span>
+
+        {isLowStock && !isOutOfStock && (
+          <span className="text-[10px] text-amber-600 font-medium">Sisa {variant.stock}</span>
+        )}
+      </div>
+    </button>
+  )
+}
+
+const QuantitySelector = ({
+  quantity,
+  setQuantity,
+  maxStock,
+}: {
+  quantity: number
+  setQuantity: (val: number) => void
+  maxStock: number
+}) => (
+  <div className="flex items-center justify-between">
+    <span className="text-sm font-medium text-gray-700">Jumlah</span>
+    <div className="flex items-center gap-0 border-2 border-gray-200 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+        className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 transition disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={quantity <= 1}
+      >
+        <Minus size={16} className="text-gray-600" />
+      </button>
+      <span className="w-14 text-center text-base font-semibold border-x-2 border-gray-200">{quantity}</span>
+      <button
+        onClick={() => setQuantity(Math.min(maxStock, quantity + 1))}
+        className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 active:bg-gray-200 transition disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={quantity >= maxStock}
+      >
+        <Plus size={16} className="text-gray-600" />
+      </button>
+    </div>
+  </div>
+)
+
+const AddToCartButton = ({
+  onClick,
+  disabled,
+  loading,
+}: {
+  onClick: () => void
+  disabled?: boolean
+  loading?: boolean
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled || loading}
+    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-4 rounded-lg flex items-center justify-center gap-2 active:scale-[.98] transition-all"
+  >
+    <ShoppingCart size={20} strokeWidth={2.5} />
+    <span className="text-base">
+      {loading ? "Menambahkan..." : disabled ? "Stok Habis" : "Tambah ke Keranjang"}
+    </span>
+  </button>
+)
+
+// ----------------------------
+// Main Page
+// ----------------------------
+
+export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedVariantId, setSelectedVariantId] = useState<string>("")
-  const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  const addItem = useCartStore((state: { addItem: any }) => state.addItem)
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
+  const [quantity, setQuantity] = useState(1)
 
+  const addItem = useCartStore((state) => state.addItem)
+  const router = useRouter()
+
+  // Fetch product data
   useEffect(() => {
-    const fetchProduct = async () => {
+    async function fetchProduct() {
       try {
+        const { slug } = await params
         const response = await fetch(`/api/products/${slug}`)
-        const data = await response.json()
 
-        if (response.ok) {
-          setProduct(data.product)
-          setRelatedProducts(data.relatedProducts)
-          
-          // Initialize with first variant
-          if (data.product.variants && data.product.variants.length > 0) {
-            setSelectedVariantId(data.product.variants[0].id)
-          }
+        if (!response.ok) {
+          throw new Error('Product not found')
+        }
+
+        const data = await response.json()
+        setProduct(data.product)
+        setRelatedProducts(data.relatedProducts || [])
+
+        // Set default variant (first available with stock)
+        if (data.product.variants && data.product.variants.length > 0) {
+          const firstAvailable = data.product.variants.find((v: ProductVariant) => v.stock > 0)
+          const defaultVariant = firstAvailable || data.product.variants[0]
+          setSelectedVariant(defaultVariant)
         }
       } catch (error) {
-        console.error("Error fetching product:", error)
+        console.error('Error fetching product:', error)
+        toast.error('Gagal memuat produk')
       } finally {
         setLoading(false)
       }
     }
 
     fetchProduct()
-  }, [slug])
+  }, [params])
 
+  // Parse images with useMemo to prevent re-creation on every render
+  const images = useMemo(() => {
+    if (!product) return ['/placeholder-product.jpg']
+    if (product.images) {
+      try {
+        return JSON.parse(product.images)
+      } catch (e) {
+        console.error('Error parsing product images:', e)
+        return product.image ? [product.image] : ['/placeholder-product.jpg']
+      }
+    }
+    return product.image ? [product.image] : ['/placeholder-product.jpg']
+  }, [product])
+
+  // Sync image when variant changes
+  useEffect(() => {
+    if (!selectedVariant?.image || images.length === 0) return
+
+    const variantImageIndex = images.findIndex((img: string) => img === selectedVariant.image)
+    if (variantImageIndex !== -1 && variantImageIndex !== selectedImageIndex) {
+      console.log('🖼️ Switching to variant image:', selectedVariant.name, selectedVariant.image)
+      setSelectedImageIndex(variantImageIndex)
+    } else if (variantImageIndex === -1) {
+      console.log('⚠️ Variant image not found in images array:', selectedVariant.image)
+    }
+  }, [selectedVariant?.id, selectedVariant?.image])
+
+  // Calculate price and stock
+  // Dapatkan harga base (variant price atau product price)
+  const basePrice = selectedVariant?.price || product?.price || 0
+
+  // Cek apakah ada diskon (field discount > 0)
+  const hasDiscount = product?.discount && product.discount > 0
+
+  // Hitung harga setelah diskon berdasarkan persentase discount field
+  const displayPrice = hasDiscount && product.discount
+    ? basePrice - (basePrice * product.discount / 100)
+    : basePrice
+
+  // Gunakan persentase diskon langsung dari field discount
+  const actualDiscount = hasDiscount && product.discount ? Math.round(product.discount) : 0
+
+  const maxStock = selectedVariant?.stock || 0
+  const isOutOfStock = maxStock === 0
+
+  // Handle add to cart
   const handleAddToCart = () => {
     if (!product) return
-
-    // Get selected variant
-    const selectedVariant = product.variants?.find((v: any) => v.id === selectedVariantId)
-    
-    if (!selectedVariant) {
-      toast.error("Silakan pilih varian produk")
+    if (isOutOfStock) {
+      toast.error('Produk ini sedang habis')
       return
     }
 
-    // Get variant image or fallback to product image
-    const variantImage = selectedVariant.image || product.image || ""
-    
-    // Get variant price or fallback to product price
-    const variantPrice = selectedVariant.price || product.price
+    if (product.variants.length > 0 && !selectedVariant) {
+      toast.error('Silakan pilih variant terlebih dahulu')
+      return
+    }
 
-    addItem({
-      id: product.id,
+    const cartItem = {
+      id: selectedVariant ? `${product.id}-${selectedVariant.id}` : product.id,
       productId: product.id,
-      productVariantId: selectedVariant.id, // Send variant ID
+      productVariantId: selectedVariant?.id,
       name: product.name,
       slug: product.slug,
-      price: parseFloat(variantPrice),
-      image: variantImage,
-      quantity,
-      variant: selectedVariant.name, // e.g., "30g", "100g"
-      variantLabel: selectedVariant.label || `Ukuran: ${selectedVariant.name}`,
-      stock: selectedVariant.stock,
-    })
-    
-    toast.success(`${product.name} (${selectedVariant.name}) ditambahkan ke keranjang`)
+      price: displayPrice,
+      image: selectedVariant?.image || product.image || images[0] || '/placeholder-product.jpg',
+      variant: selectedVariant?.name,
+      variantLabel: selectedVariant?.label || undefined,
+      stock: maxStock,
+      quantity: quantity,
+    }
+
+    addItem(cartItem)
+    toast.custom((t) => (
+  <div
+    className={`${
+      t.visible ? "animate-enter" : "animate-leave"
+    } w-80 bg-white rounded-xl shadow-lg border border-gray-100 p-4 flex gap-3 relative`}
+  >
+    {/* Icon */}
+    <div className="w-5 h-5 flex items-center justify-center rounded-full bg-green-100">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-3.5 h-3.5 text-green-600"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+
+    {/* Text */}
+    <div className="flex-1">
+      <p className="text-sm font-semibold text-gray-900 leading-tight">
+        Ditambahkan ke keranjang
+      </p>
+
+      <p className="text-xs text-gray-600 mt-0.5 line-clamp-1">
+        {product.name}
+      </p>
+
+      <div className="mt-2">
+        <button
+          onClick={() => {
+            toast.dismiss(t.id);
+            router.push("/cart");
+          }}
+          className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-all"
+        >
+          <ShoppingCart size={13} />
+          Lihat Keranjang
+        </button>
+      </div>
+    </div>
+
+    {/* Close */}
+    <button
+      onClick={() => toast.dismiss(t.id)}
+      className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+), {
+  duration: 3500,
+});
+
+
+
   }
 
-  const handleVariantChange = (variantId: string) => {
-    setSelectedVariantId(variantId)
+  // Handle share
+  const handleShare = async () => {
+    if (!product) return
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: product.description || '',
+          url: window.location.href,
+        })
+      } catch (error) {
+        // User cancelled or error occurred
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(window.location.href)
+      toast.success('Link berhasil disalin')
+    }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <div className="container mx-auto px-4 lg:px-8 py-12">
+      <div className="min-h-screen bg-white px-4 md:px-10 lg:px-20 py-10">
+        <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-40 mb-8"></div>
-            <div className="grid lg:grid-cols-2 gap-10">
-              <div className="h-[500px] bg-gray-200 rounded-2xl"></div>
-              <div className="space-y-5">
-                <div className="h-10 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-                <div className="h-20 bg-gray-200 rounded"></div>
-                <div className="h-14 bg-gray-200 rounded"></div>
+            <div className="h-3 bg-gray-100 rounded w-1/3 mb-8" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              <div>
+                <div className="aspect-square bg-gray-100 rounded-xl mb-4" />
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="w-16 h-16 bg-gray-100 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="h-8 bg-gray-100 rounded w-3/4" />
+                <div className="h-4 bg-gray-100 rounded w-full" />
+                <div className="h-4 bg-gray-100 rounded w-2/3" />
+                <div className="h-16 bg-gray-100 rounded" />
+                <div className="h-12 bg-gray-100 rounded" />
+                <div className="h-12 bg-gray-100 rounded" />
               </div>
             </div>
           </div>
@@ -107,376 +460,205 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
-        <div className="text-center px-6">
-          <PackageSearch className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-blue-900 mb-3">Produk Tidak Ditemukan</h1>
-          <p className="text-slate-600 mb-8 max-w-md mx-auto">
-            Maaf, produk yang Anda cari tidak tersedia atau telah dihapus
-          </p>
+      <div className="min-h-screen bg-white px-4 md:px-10 lg:px-20 py-10">
+        <div className="max-w-7xl mx-auto text-center py-32">
+          <Package size={64} className="mx-auto text-gray-300 mb-6" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Produk Tidak Ditemukan</h2>
+          <p className="text-gray-500 mb-8 text-sm">Produk yang Anda cari tidak tersedia</p>
           <Link
             href="/products"
-            className="inline-block px-6 py-3 bg-blue-800 text-white rounded-xl hover:bg-blue-900 transition-all font-semibold shadow-lg"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Kembali ke Katalog
+            <ArrowLeft size={18} />
+            <span>Kembali ke Produk</span>
           </Link>
         </div>
       </div>
     )
   }
 
-  // Get variants array (now from database, not JSON)
-  const variants = product.variants || []
-  const selectedVariant = variants.find((v: any) => v.id === selectedVariantId)
-  
-  // Get product images
-  const productImages = product.images ? JSON.parse(product.images) as string[] : [product.image || "/placeholder-product.jpg"]
-  
-  // Use variant image if available, otherwise use gallery
-  const currentImage = selectedVariant?.image || productImages[selectedImageIndex] || productImages[0]
-  
-  // Get variant-specific stock
-  const currentStock = selectedVariant?.stock || 0
-  const inStock = currentStock > 0
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4 lg:px-8 py-12">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm mb-8 flex-wrap">
-          <Link href="/" className="text-slate-600 hover:text-blue-800 transition-colors">
-            Home
-          </Link>
-          <span className="text-gray-300">/</span>
-          <Link href="/products" className="text-slate-600 hover:text-blue-800 transition-colors">
-            Produk
-          </Link>
-          <span className="text-gray-300">/</span>
-          <Link 
-            href={`/products?category=${product.category.slug}`} 
-            className="text-slate-600 hover:text-blue-800 transition-colors"
-          >
-            {product.category.name}
-          </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-blue-900 font-semibold">{product.name}</span>
-        </nav>
+    <div className="min-h-screen bg-white px-4 md:px-10 lg:px-20 py-10">
+      <div className="max-w-7xl mx-auto">
+        <Breadcrumb
+          categoryName={product.category.name}
+          categorySlug={product.category.slug}
+          productName={product.name}
+        />
 
-        <div className="grid lg:grid-cols-2 gap-10 mb-16">
-          {/* Product Images */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="relative aspect-square bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm group">
-              <Image
-                src={currentImage}
-                alt={product.name}
-                fill
-                className="object-contain p-6 group-hover:scale-105 transition-transform duration-500"
-              />
-              {product.featured && (
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-white" />
-                  Featured
-                </div>
-              )}
-              {!inStock && (
-                <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md">
-                  Stok Habis
-                </div>
-              )}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Left: Images */}
+          <div>
+            <ProductImage src={images[selectedImageIndex]} alt={product.name} />
 
-            {/* Thumbnail Gallery */}
-            {productImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-3">
-                {productImages.map((img, idx) => (
-                  <button
+            {images.length > 1 && (
+              <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+                {images.map((img: string, idx: number) => (
+                  <ThumbnailButton
                     key={idx}
+                    src={img}
+                    selected={selectedImageIndex === idx}
                     onClick={() => setSelectedImageIndex(idx)}
-                    className={`relative aspect-square bg-white rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImageIndex === idx
-                        ? 'border-blue-800 shadow-md scale-105'
-                        : 'border-gray-200 hover:border-blue-400'
-                    }`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${product.name} ${idx + 1}`}
-                      fill
-                      className="object-contain p-2"
-                    />
-                  </button>
+                  />
                 ))}
               </div>
             )}
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-5">
+          {/* Right: Info */}
+          <div className="flex flex-col gap-6">
+            {/* Back button mobile */}
+            <button
+              onClick={() => router.back()}
+              className="lg:hidden inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+            >
+              <ArrowLeft size={20} />
+              <span>Kembali</span>
+            </button>
+
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-snug">
+              {product.name}
+            </h1>
+
+            {/* Halal Badge */}
             <div>
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <span className="px-3 py-1 bg-blue-800 text-white rounded-full text-xs font-bold">
-                  {product.category.name}
+              {product.category.halal ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-semibold">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Halal MUI
                 </span>
-                {product.brand && (
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">
-                    {product.brand}
-                  </span>
-                )}
-              </div>
-              
-              <h1 className="text-3xl lg:text-4xl font-bold text-blue-900 mb-4 leading-tight">
-                {product.name}
-              </h1>
-
-              {/* Rating */}
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-slate-600 text-sm">(128 ulasan)</span>
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-5 border border-blue-100 shadow-sm">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-blue-900">
-                  Rp {parseFloat(product.price).toLocaleString("id-ID")}
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-sm font-semibold">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  Non-Halal
                 </span>
-              </div>
-              <p className="text-slate-600 mt-1 text-sm">Harga sudah termasuk PPN</p>
-            </div>
-
-            {/* Stock Status */}
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                inStock ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
-                <Package className="w-4 h-4" />
-                <span className="font-semibold text-sm">
-                  {inStock ? `Stok: ${currentStock} unit` : 'Stok Habis'}
-                </span>
-              </div>
-            </div>
-
-            {/* Variants */}
-            {variants.length > 0 && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-bold text-blue-900 mb-2">
-                    Pilih Ukuran
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {variants.map((variant: any) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => handleVariantChange(variant.id)}
-                        className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all ${
-                          selectedVariantId === variant.id
-                            ? 'border-blue-800 bg-blue-800 text-white shadow-sm'
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-blue-400'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center gap-1">
-                          <span>{variant.name}</span>
-                          <span className="text-xs opacity-75">
-                            Stok: {variant.stock}
-                          </span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Quantity Selector */}
-            <div>
-              <label className="block text-sm font-bold text-blue-900 mb-2">Jumlah</label>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
-                >
-                  <Minus size={18} className="text-gray-700" />
-                </button>
-                <span className="text-2xl font-bold text-blue-900 w-14 text-center">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                  disabled={!inStock}
-                  className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Plus size={18} className="text-gray-700" />
-                </button>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={!inStock}
-                className="flex-1 bg-gradient-to-r from-blue-800 to-blue-900 text-white py-3.5 px-6 rounded-xl font-bold text-base hover:from-blue-900 hover:to-blue-950 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-              >
-                <ShoppingCart size={20} />
-                <span>{inStock ? 'Tambah ke Keranjang' : 'Stok Habis'}</span>
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center bg-white border-2 border-gray-200 rounded-xl hover:border-red-400 hover:bg-red-50 transition-all group">
-                <Heart className="w-5 h-5 text-gray-600 group-hover:text-red-500 group-hover:fill-red-500" />
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center bg-white border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all group">
-                <Share2 className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
-              </button>
-            </div>
-
-            {/* Guarantees */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-200">
-              <div className="text-center">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Shield className="w-5 h-5 text-blue-800" />
-                </div>
-                <p className="text-xs font-semibold text-gray-700">Halal MUI</p>
-              </div>
-              <div className="text-center">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Truck className="w-5 h-5 text-blue-800" />
-                </div>
-                <p className="text-xs font-semibold text-gray-700">Gratis Ongkir</p>
-              </div>
-              <div className="text-center">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Check className="w-5 h-5 text-blue-800" />
-                </div>
-                <p className="text-xs font-semibold text-gray-700">BPOM RI</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Details Tabs */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:p-8 mb-16">
-          {/* Tab Headers */}
-          <div className="flex gap-6 border-b border-gray-200 mb-6">
-            <button
-              onClick={() => setActiveTab('description')}
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
-                activeTab === 'description'
-                  ? 'text-blue-900'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              Deskripsi
-              {activeTab === 'description' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-800"></div>
               )}
-            </button>
-            <button
-              onClick={() => setActiveTab('specs')}
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
-                activeTab === 'specs'
-                  ? 'text-blue-900'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              Spesifikasi
-              {activeTab === 'specs' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-800"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('reviews')}
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
-                activeTab === 'reviews'
-                  ? 'text-blue-900'
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              Ulasan
-              {activeTab === 'reviews' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-800"></div>
-              )}
-            </button>
-          </div>
+            </div>
 
-          {/* Tab Content */}
-          <div className="prose prose-slate max-w-none">
-            {activeTab === 'description' && (
-              <div className="space-y-3 text-gray-700 leading-relaxed">
-                <p className="text-base">
-                  {product.description || "Tidak ada deskripsi untuk produk ini."}
+            {/* Description Preview */}
+            {product.description && (
+              <div className="text-sm text-gray-600 leading-relaxed">
+                <p className="line-clamp-3">
+                  {product.description}
                 </p>
               </div>
             )}
 
-            {activeTab === 'specs' && (
-              <div className="grid md:grid-cols-2 gap-4">
-                {product.brand && (
-                  <div className="flex justify-between py-2.5 border-b border-gray-100">
-                    <span className="font-semibold text-blue-900 text-sm">Brand</span>
-                    <span className="text-gray-700 text-sm">{product.brand}</span>
-                  </div>
+            {/* Price */}
+            <div className="border-t border-b border-gray-100 py-6">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <span className="text-3xl lg:text-4xl font-bold text-gray-900">
+                  Rp {displayPrice.toLocaleString('id-ID')}
+                </span>
+                {hasDiscount && actualDiscount > 0 && displayPrice < basePrice && (
+                  <>
+                    <span className="text-base text-gray-400 line-through">
+                      Rp {basePrice.toLocaleString('id-ID')}
+                    </span>
+                    <span className="px-2.5 py-0.5 bg-red-600 text-white text-xs font-semibold rounded-md">
+                      -{actualDiscount}%
+                    </span>
+                  </>
                 )}
-                {product.sku && (
-                  <div className="flex justify-between py-2.5 border-b border-gray-100">
-                    <span className="font-semibold text-blue-900 text-sm">SKU</span>
-                    <span className="text-gray-700 text-sm">{product.sku}</span>
-                  </div>
-                )}
-                {product.weight && (
-                  <div className="flex justify-between py-2.5 border-b border-gray-100">
-                    <span className="font-semibold text-blue-900 text-sm">Berat</span>
-                    <span className="text-gray-700 text-sm">{product.weight} kg</span>
-                  </div>
-                )}
-                {product.dimensions && (
-                  <div className="flex justify-between py-2.5 border-b border-gray-100">
-                    <span className="font-semibold text-blue-900 text-sm">Dimensi</span>
-                    <span className="text-gray-700 text-sm">{product.dimensions}</span>
-                  </div>
-                )}
+              </div>
+              {maxStock > 0 && maxStock <= 10 && (
+                <p className="text-sm text-amber-600 mt-2 font-medium">
+                  Tersisa {maxStock} item
+                </p>
+              )}
+            </div>
+
+            {/* Variants */}
+            {product.variants && product.variants.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Pilih Variant
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((v) => (
+                    <VariantButton
+                      key={v.id}
+                      variant={v}
+                      selected={selectedVariant?.id === v.id}
+                      onClick={() => {
+                        console.log('🔄 Variant clicked:', v.name, 'Image:', v.image)
+                        setSelectedVariant(v)
+                        setQuantity(1)
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
-            {activeTab === 'reviews' && (
-              <div className="space-y-5">
-                <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="font-bold text-blue-900">5.0</span>
-                    <span className="text-slate-600 text-sm">dari 128 ulasan</span>
-                  </div>
-                </div>
-                <p className="text-gray-500 text-center py-8 text-sm">Ulasan pelanggan akan segera hadir</p>
-              </div>
+            {/* Quantity */}
+            {!isOutOfStock && (
+              <QuantitySelector
+                quantity={quantity}
+                setQuantity={setQuantity}
+                maxStock={maxStock}
+              />
             )}
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-2">
+              <AddToCartButton
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                loading={false}
+              />
+              <button
+                onClick={handleShare}
+                className="px-4 border-2 border-gray-200 hover:border-gray-300 text-gray-700 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-all shrink-0"
+                title="Bagikan Produk"
+              >
+                <Share2 size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Ulasan Section */}
+        <div className="mt-16 border-t border-gray-100 pt-12">
+          <h2 className="text-xl font-bold mb-6 text-gray-900">Ulasan Produk</h2>
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Belum Ada Ulasan</h3>
+              <p className="text-gray-500">Jadilah yang pertama memberikan ulasan untuk produk ini.</p>
+            </div>
           </div>
         </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div>
-            <div className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">Produk Terkait</h2>
-              <p className="text-slate-600 text-sm">Produk lain yang mungkin Anda sukai</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div className="mt-16 border-t border-gray-100 pt-12">
+            <h2 className="text-xl font-bold mb-8 text-gray-900">Produk Terkait</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard
                   key={relatedProduct.id}
                   id={relatedProduct.id}
                   name={relatedProduct.name}
-                  price={parseFloat(relatedProduct.price)}
-                  image={relatedProduct.image || ""}
                   slug={relatedProduct.slug}
-                  stock={relatedProduct.variants?.[0]?.stock || 0}
-                  variants={relatedProduct.variants || []}
+                  price={relatedProduct.price}
+                  discount={relatedProduct.discount ?? undefined}
+                  discountPrice={relatedProduct.discountPrice ?? undefined}
+                  image={relatedProduct.image ?? undefined}
+                  variants={relatedProduct.variants.map(v => ({
+                    id: v.id,
+                    name: v.name,
+                    stock: v.stock,
+                    price: v.price ?? undefined
+                  }))}
                 />
               ))}
             </div>

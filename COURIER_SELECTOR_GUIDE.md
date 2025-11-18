@@ -1,6 +1,6 @@
-# 📦 Panduan Pemilihan Ekspedisi Pengiriman
+#  Panduan Pemilihan Ekspedisi Pengiriman
 
-## ✨ Fitur Baru: Courier Selector
+##  Fitur Baru: Courier Selector
 
 Sekarang customer dapat memilih ekspedisi mana saja yang ingin ditampilkan saat checkout, memberikan kontrol penuh untuk membandingkan harga dan layanan dari berbagai jasa pengiriman.
 
@@ -11,24 +11,24 @@ Total **17 ekspedisi** terintegrasi dengan RajaOngkir V2 API:
 | No | Kode | Nama Ekspedisi | Logo | Kategori |
 |----|------|----------------|------|----------|
 | 1 | `jne` | JNE | 🚛 | Populer |
-| 2 | `sicepat` | SiCepat | ⚡ | Populer |
+| 2 | `sicepat` | SiCepat |  | Populer |
 | 3 | `ide` | ID Express | 📮 | - |
-| 4 | `sap` | SAP Express | 📦 | - |
-| 5 | `jnt` | J&T Express | 🔴 | Populer |
+| 4 | `sap` | SAP Express |  | - |
+| 5 | `jnt` | J&T Express |  | Populer |
 | 6 | `ninja` | Ninja Xpress | 🥷 | Populer |
-| 7 | `tiki` | TIKI | 📦 | Populer |
+| 7 | `tiki` | TIKI |  | Populer |
 | 8 | `lion` | Lion Parcel | 🦁 | - |
 | 9 | `anteraja` | AnterAja | 🚚 | Populer |
 | 10 | `pos` | POS Indonesia | 📮 | Populer |
-| 11 | `ncs` | NCS | 📦 | - |
-| 12 | `rex` | REX | 📦 | - |
-| 13 | `rpx` | RPX | 📦 | - |
+| 11 | `ncs` | NCS |  | - |
+| 12 | `rex` | REX |  | - |
+| 13 | `rpx` | RPX |  | - |
 | 14 | `sentral` | Sentral Cargo | 🚚 | - |
 | 15 | `star` | Star Cargo | ⭐ | - |
-| 16 | `wahana` | Wahana | 📦 | - |
-| 17 | `dse` | DSE | 📦 | - |
+| 16 | `wahana` | Wahana |  | - |
+| 17 | `dse` | DSE |  | - |
 
-## 🎯 User Experience
+##  User Experience
 
 ### 1. Default Selection (Ekspedisi Populer)
 Saat pertama kali masuk checkout, **7 ekspedisi populer** sudah terpilih:
@@ -57,11 +57,11 @@ Saat pertama kali masuk checkout, **7 ekspedisi populer** sudah terpilih:
 
 ### 3. Real-time Update
 Setiap kali ekspedisi dipilih/dibatalkan:
-- ✅ Auto-refresh biaya pengiriman
-- ✅ Hanya ekspedisi terpilih yang ditampilkan
-- ✅ Perubahan langsung terlihat tanpa reload
+-  Auto-refresh biaya pengiriman
+-  Hanya ekspedisi terpilih yang ditampilkan
+-  Perubahan langsung terlihat tanpa reload
 
-## 🎨 UI/UX Design
+##  UI/UX Design
 
 ### Courier Selector Panel
 ```
@@ -69,17 +69,17 @@ Setiap kali ekspedisi dipilih/dibatalkan:
 │ Pilih Ekspedisi              [Populer] [Semua]     │
 ├─────────────────────────────────────────────────────┤
 │                                                      │
-│  [🚛]    [⚡]    [📮]    [📦]    [🔴]    [🥷]      │
+│  [🚛]    []    [📮]    []    []    [🥷]      │
 │  JNE   SiCepat   IDE    SAP     J&T   Ninja        │
 │                                                      │
-│  [📦]    [🦁]    [🚚]    [📮]    [📦]    [📦]      │
+│  []    [🦁]    [🚚]    [📮]    []    []      │
 │  TIKI   Lion  AnterAja  POS    NCS     REX         │
 │                                                      │
-│  [📦]    [🚚]    [⭐]    [📦]    [📦]               │
+│  []    [🚚]    [⭐]    []    []               │
 │  RPX  Sentral  Star  Wahana   DSE                  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
-│ 💡 Pilih ekspedisi yang ingin ditampilkan.         │
+│  Pilih ekspedisi yang ingin ditampilkan.         │
 │    Minimal 1 ekspedisi harus dipilih.              │
 └─────────────────────────────────────────────────────┘
 ```
@@ -107,7 +107,7 @@ Setiap ekspedisi memiliki warna unik untuk mudah dibedakan:
 | Wahana | `bg-teal-50` | `border-teal-200` |
 | DSE | `bg-violet-50` | `border-violet-200` |
 
-## ⚙️ Technical Implementation
+##  Technical Implementation
 
 ### Component State
 ```typescript
@@ -163,7 +163,7 @@ if (selectedCouriers.length === 0) {
 }
 ```
 
-## 📊 Use Cases
+##  Use Cases
 
 ### 1. Budget-Conscious Customer
 Pilih hanya ekspedisi ekonomis:
@@ -189,18 +189,18 @@ Klik "Semua" untuk melihat harga dari 17 ekspedisi sekaligus
 ## 🎁 Benefits
 
 ### For Customers:
-✅ **Fleksibilitas**: Pilih ekspedisi sesuai preferensi  
-✅ **Transparansi**: Bandingkan harga dari berbagai ekspedisi  
-✅ **Kontrol**: Kurangi clutter dengan hanya menampilkan yang relevan  
-✅ **Efisiensi**: Loading lebih cepat jika hanya pilih beberapa ekspedisi  
+ **Fleksibilitas**: Pilih ekspedisi sesuai preferensi  
+ **Transparansi**: Bandingkan harga dari berbagai ekspedisi  
+ **Kontrol**: Kurangi clutter dengan hanya menampilkan yang relevan  
+ **Efisiensi**: Loading lebih cepat jika hanya pilih beberapa ekspedisi  
 
 ### For Store Owner:
-✅ **Better UX**: Customer tidak overwhelmed dengan terlalu banyak opsi  
-✅ **Customizable**: Default selection bisa disesuaikan dengan bisnis  
-✅ **Analytics Ready**: Bisa track ekspedisi mana yang paling sering dipilih  
-✅ **Cost Optimization**: Bisa promote ekspedisi dengan komisi lebih tinggi  
+ **Better UX**: Customer tidak overwhelmed dengan terlalu banyak opsi  
+ **Customizable**: Default selection bisa disesuaikan dengan bisnis  
+ **Analytics Ready**: Bisa track ekspedisi mana yang paling sering dipilih  
+ **Cost Optimization**: Bisa promote ekspedisi dengan komisi lebih tinggi  
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 ### Planned Features:
 1. **Saved Preferences**: Remember customer's courier preference
@@ -216,7 +216,7 @@ Klik "Semua" untuk melihat harga dari 17 ekspedisi sekaligus
 - [ ] Track conversion rate per courier
 - [ ] Admin panel to set default couriers
 
-## 📱 Responsive Design
+##  Responsive Design
 
 ### Desktop (Grid 6 columns):
 ```
@@ -242,7 +242,7 @@ Klik "Semua" untuk melihat harga dari 17 ekspedisi sekaligus
 ...
 ```
 
-## 🧪 Testing Scenarios
+##  Testing Scenarios
 
 ### Test Case 1: Default Selection
 1. Go to checkout
@@ -271,7 +271,7 @@ Klik "Semua" untuk melihat harga dari 17 ekspedisi sekaligus
 3. Verify buttons are tappable
 4. Verify panel scrolls properly
 
-## 📖 Documentation for Developers
+##  Documentation for Developers
 
 ### Adding New Courier
 Edit `AVAILABLE_COURIERS` array:
@@ -279,7 +279,7 @@ Edit `AVAILABLE_COURIERS` array:
 { 
   code: "newcourier", 
   name: "New Courier", 
-  logo: "🚀", 
+  logo: "", 
   color: "bg-rose-50 border-rose-200" 
 }
 ```
@@ -298,17 +298,17 @@ const selectEconomyCouriers = () => {
 }
 ```
 
-## 🎉 Summary
+##  Summary
 
 Fitur **Courier Selector** memberikan pengalaman checkout yang lebih personal dan efisien dengan:
 
-1. ✅ **17 ekspedisi terintegrasi**
-2. ✅ **Visual selector dengan logo & warna**
-3. ✅ **Quick select buttons (Populer/Semua)**
-4. ✅ **Real-time update biaya pengiriman**
-5. ✅ **Responsive design (desktop/tablet/mobile)**
-6. ✅ **Smart validation (min 1 courier)**
-7. ✅ **Default populer couriers untuk kemudahan**
+1.  **17 ekspedisi terintegrasi**
+2.  **Visual selector dengan logo & warna**
+3.  **Quick select buttons (Populer/Semua)**
+4.  **Real-time update biaya pengiriman**
+5.  **Responsive design (desktop/tablet/mobile)**
+6.  **Smart validation (min 1 courier)**
+7.  **Default populer couriers untuk kemudahan**
 
 Customer sekarang punya **kontrol penuh** untuk memilih dan membandingkan harga dari ekspedisi yang mereka percaya dan inginkan! 🎊
 
@@ -316,4 +316,4 @@ Customer sekarang punya **kontrol penuh** untuk memilih dan membandingkan harga 
 
 **Version**: 1.0  
 **Last Updated**: 2024  
-**Status**: ✅ Production Ready
+**Status**:  Production Ready

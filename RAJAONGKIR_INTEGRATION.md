@@ -1,6 +1,6 @@
 # RajaOngkir Shipping Integration
 
-⚠️ **PENTING: RajaOngkir Sudah Migrasi ke Platform Baru!**
+ **PENTING: RajaOngkir Sudah Migrasi ke Platform Baru!**
 
 RajaOngkir telah migrasi ke platform baru di **https://collaborator.komerce.id**
 
@@ -15,45 +15,45 @@ RajaOngkir telah migrasi ke platform baru di **https://collaborator.komerce.id**
 
 Integrasi lengkap dengan RajaOngkir API untuk pengecekan ongkos kirim otomatis berdasarkan tujuan.
 
-## 🎯 Fitur yang Telah Diimplementasikan
+##  Fitur yang Telah Diimplementasikan
 
 ### 1. Backend API
-- ✅ Utility functions untuk RajaOngkir API (`lib/rajaongkir.ts`)
-- ✅ Endpoint `/api/rajaongkir/provinces` - Ambil semua provinsi
-- ✅ Endpoint `/api/rajaongkir/cities` - Ambil kota/kabupaten (dengan filter provinsi)
-- ✅ Endpoint `/api/rajaongkir/cost` - Hitung ongkos kirim
+-  Utility functions untuk RajaOngkir API (`lib/rajaongkir.ts`)
+-  Endpoint `/api/rajaongkir/provinces` - Ambil semua provinsi
+-  Endpoint `/api/rajaongkir/cities` - Ambil kota/kabupaten (dengan filter provinsi)
+-  Endpoint `/api/rajaongkir/cost` - Hitung ongkos kirim
 
 ### 2. Database Schema
-- ✅ Tabel `Address` ditambahkan field:
+-  Tabel `Address` ditambahkan field:
   - `cityId` - RajaOngkir city ID
   - `provinceId` - RajaOngkir province ID
-- ✅ Migration sudah dijalankan dan Prisma Client sudah di-generate
+-  Migration sudah dijalankan dan Prisma Client sudah di-generate
 
 ### 3. Frontend Components
-- ✅ **AddressSelector** - Updated untuk menggunakan dropdown provinsi dan kota dari RajaOngkir
+-  **AddressSelector** - Updated untuk menggunakan dropdown provinsi dan kota dari RajaOngkir
   - Auto-fill dari data RajaOngkir
   - Kode pos otomatis terisi dari data kota
   - Simpan cityId dan provinceId untuk perhitungan ongkir
   
-- ✅ **ShippingSelector** - Komponen baru untuk memilih kurir dan layanan
+-  **ShippingSelector** - Komponen baru untuk memilih kurir dan layanan
   - Tampilkan opsi dari 3 kurir (JNE, POS, TIKI)
   - Multiple layanan per kurir (REG, YES, OKE, dll)
   - Tampilkan biaya dan estimasi pengiriman
   - Real-time calculation berdasarkan berat dan tujuan
 
 ### 4. Checkout Integration
-- ✅ Checkout page terintegrasi dengan ShippingSelector
-- ✅ Ongkos kirim dihitung otomatis berdasarkan:
+-  Checkout page terintegrasi dengan ShippingSelector
+-  Ongkos kirim dihitung otomatis berdasarkan:
   - Alamat tujuan (cityId)
   - Total berat produk di keranjang
   - Kurir dan layanan yang dipilih
-- ✅ Total pembayaran termasuk ongkir
-- ✅ Validasi: user harus pilih alamat dan metode pengiriman
-- ✅ Review order menampilkan detail shipping lengkap
+-  Total pembayaran termasuk ongkir
+-  Validasi: user harus pilih alamat dan metode pengiriman
+-  Review order menampilkan detail shipping lengkap
 
-## 🔧 Konfigurasi yang Diperlukan
+##  Konfigurasi yang Diperlukan
 
-### ⚠️ LANGKAH PENTING: Migrasi ke Platform Baru
+###  LANGKAH PENTING: Migrasi ke Platform Baru
 
 **RajaOngkir sudah tidak aktif di rajaongkir.com!**
 
@@ -112,7 +112,7 @@ Setelah update `.env`, restart Next.js:
 npm run dev
 ```
 
-## 📋 Cara Menggunakan
+##  Cara Menggunakan
 
 ### Untuk User (Customer):
 1. **Tambah Alamat Pengiriman**
@@ -155,7 +155,7 @@ const costs = await getShippingCost({
 - **POS Indonesia** - Pos Indonesia
 - **TIKI** - Titipan Kilat
 
-## 🚀 Fitur Lanjutan (Opsional)
+##  Fitur Lanjutan (Opsional)
 
 ### 1. Tambah Field Berat Produk
 Saat ini berat default adalah 500 gram per item. Untuk lebih akurat:
@@ -216,7 +216,7 @@ const order = await prisma.order.create({
 ### 3. Tracking Number (untuk Admin)
 Tambahkan field `trackingNumber` ke Order model untuk update status pengiriman.
 
-## 🔍 Testing
+##  Testing
 
 ### Test dengan Data Development:
 1. **Test Provinsi API**:
@@ -256,29 +256,29 @@ Tambahkan field `trackingNumber` ke Order model untuk update status pengiriman.
 8. Review total (harus termasuk ongkir)
 9. Konfirmasi order
 
-## 📊 Limitasi RajaOngkir Starter Plan
+##  Limitasi RajaOngkir Starter Plan
 
-- ✅ 3 kurir tersedia: JNE, POS Indonesia, TIKI
-- ❌ Tidak tersedia: J&T, SiCepat, Anteraja, dll
-- ✅ Unlimited API calls
-- ✅ Estimasi biaya real-time
-- ✅ Multiple service options per kurir
+-  3 kurir tersedia: JNE, POS Indonesia, TIKI
+-  Tidak tersedia: J&T, SiCepat, Anteraja, dll
+-  Unlimited API calls
+-  Estimasi biaya real-time
+-  Multiple service options per kurir
 
 Untuk upgrade ke Pro Plan (lebih banyak kurir), kunjungi: https://collaborator.komerce.id
 
-## 🚨 Perhatian Penting!
+##  Perhatian Penting!
 
 **RajaOngkir telah migrasi ke platform baru:**
-- ❌ **TIDAK AKTIF**: https://rajaongkir.com (API endpoint lama sudah mati)
-- ✅ **AKTIF**: https://collaborator.komerce.id (Platform baru)
+-  **TIDAK AKTIF**: https://rajaongkir.com (API endpoint lama sudah mati)
+-  **AKTIF**: https://collaborator.komerce.id (Platform baru)
 
 **Yang harus dilakukan:**
-1. ✅ Daftar/Login di https://collaborator.komerce.id
-2. ✅ Renewal package Anda (Starter/Basic/Pro)
-3. ✅ Dapatkan API key baru
-4. ✅ Update `RAJAONGKIR_API_KEY` di `.env`
-5. ✅ Cek dan update `RAJAONGKIR_BASE_URL` jika diperlukan
-6. ✅ Restart development server
+1.  Daftar/Login di https://collaborator.komerce.id
+2.  Renewal package Anda (Starter/Basic/Pro)
+3.  Dapatkan API key baru
+4.  Update `RAJAONGKIR_API_KEY` di `.env`
+5.  Cek dan update `RAJAONGKIR_BASE_URL` jika diperlukan
+6.  Restart development server
 
 **Link Penting:**
 - Platform Baru: https://collaborator.komerce.id
@@ -311,7 +311,7 @@ Untuk upgrade ke Pro Plan (lebih banyak kurir), kunjungi: https://collaborator.k
 - Tambahkan field weight ke Product model
 - Atau pastikan default weight calculation berjalan
 
-## 📝 Notes
+##  Notes
 
 - RajaOngkir API menggunakan city_id sebagai identifier unik
 - Setiap kota/kabupaten memiliki postal_code default
@@ -319,33 +319,33 @@ Untuk upgrade ke Pro Plan (lebih banyak kurir), kunjungi: https://collaborator.k
 - Biaya dalam satuan Rupiah
 - Weight harus dalam gram (1 kg = 1000 gram)
 
-## 🎉 Selesai!
+##  Selesai!
 
 Integrasi RajaOngkir sudah selesai diimplementasikan. 
 
 **CHECKLIST SEBELUM MENGGUNAKAN:**
 
-1. ✅ **Migrasi ke Platform Baru** ⚠️ WAJIB!
+1.  **Migrasi ke Platform Baru**  WAJIB!
    - Kunjungi https://collaborator.komerce.id
    - Login/Daftar dan renewal package
    - Dapatkan API key baru
 
-2. ✅ **Set Configuration di `.env`**
+2.  **Set Configuration di `.env`**
    - `RAJAONGKIR_API_KEY` = API key dari dashboard Komerce
    - `RAJAONGKIR_BASE_URL` = URL sesuai dokumentasi (cek di dashboard)
    - `NEXT_PUBLIC_ORIGIN_CITY_ID` = city_id toko Anda
 
-3. ✅ **Restart Development Server**
+3.  **Restart Development Server**
    ```bash
    npm run dev
    ```
 
-4. ✅ **Test End-to-End Flow**
+4.  **Test End-to-End Flow**
    - Tambah alamat dengan dropdown provinsi/kota
    - Checkout dan lihat opsi shipping
    - Verifikasi biaya ongkir muncul dengan benar
 
-5. ✅ **(Opsional) Tambah Field Weight ke Product**
+5.  **(Opsional) Tambah Field Weight ke Product**
    - Untuk kalkulasi berat yang lebih akurat
 
 **Jika mengalami masalah:**
@@ -354,4 +354,4 @@ Integrasi RajaOngkir sudah selesai diimplementasikan.
 - Verifikasi API key dan base URL sudah benar
 - Hubungi support Komerce jika API masih error
 
-Happy coding! 🚀
+Happy coding! 

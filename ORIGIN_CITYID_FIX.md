@@ -1,6 +1,6 @@
-# 🔧 Fix: Origin City ID vs Subdistrict ID
+#  Fix: Origin City ID vs Subdistrict ID
 
-## ❗ Masalah yang Ditemukan
+##  Masalah yang Ditemukan
 
 Ketika admin mengset origin pengiriman melalui fitur search di admin settings, sistem menyimpan **subdistrict ID** (contoh: 17737) ke dalam `NEXT_PUBLIC_ORIGIN_CITY_ID`, padahal API RajaOngkir untuk perhitungan ongkir membutuhkan **city ID**.
 
@@ -13,7 +13,7 @@ Ketika admin mengset origin pengiriman melalui fitur search di admin settings, s
    - `/calculate/domestic-cost` → butuh **city ID** untuk origin dan destination
    - `/calculate/district/domestic-cost` → bisa pakai **subdistrict ID** tapi hanya untuk destination
 
-## ✅ Solusi yang Diimplementasikan
+##  Solusi yang Diimplementasikan
 
 ### 1. Enhanced Search Response
 
@@ -70,7 +70,7 @@ if (!response.ok) {
 
 Sekarang menampilkan error message yang lebih jelas dari API.
 
-## 🎯 Cara Mengecek dan Memperbaiki
+##  Cara Mengecek dan Memperbaiki
 
 ### Langkah 1: Cek Current Origin ID
 
@@ -141,7 +141,7 @@ NEXT_PUBLIC_ORIGIN_CITY_ID=152  # Ganti dengan city ID yang benar
 npm run dev
 ```
 
-## 🔍 Cara Identifikasi ID Type
+##  Cara Identifikasi ID Type
 
 ### Berdasarkan Digit:
 - **3-4 digit** (1-9999): Likely city ID
@@ -162,7 +162,7 @@ Search API mengembalikan:
 
 **Yang harus disimpan**: `city_id: 152`, bukan `id: 17737`
 
-## ⚠️ Dampak Jika Salah
+##  Dampak Jika Salah
 
 Jika menggunakan subdistrict ID sebagai origin:
 
@@ -176,7 +176,7 @@ Jika menggunakan subdistrict ID sebagai origin:
 - Endpoint `/calculate/domestic-cost` hanya terima **city ID** untuk origin
 - Endpoint `/calculate/district/domestic-cost` hanya terima **subdistrict ID** untuk **destination**, bukan origin
 
-## 📋 Checklist Verifikasi
+##  Checklist Verifikasi
 
 Setelah fix, pastikan:
 
@@ -187,7 +187,7 @@ Setelah fix, pastikan:
 - [ ] No errors in browser console
 - [ ] Shipping costs calculate correctly
 
-## 🚀 Future Improvements
+##  Future Improvements
 
 ### Database-based Settings
 
@@ -203,10 +203,10 @@ model Settings {
 ```
 
 Benefits:
-- ✅ No server restart needed
-- ✅ Can store multiple locations
-- ✅ Audit trail
-- ✅ API can read directly
+-  No server restart needed
+-  Can store multiple locations
+-  Audit trail
+-  API can read directly
 
 ### Smart ID Detection
 
@@ -223,7 +223,7 @@ function extractCityId(searchResult: any): string {
 }
 ```
 
-## 📞 Support
+##  Support
 
 Jika masih error setelah fix:
 
@@ -245,6 +245,6 @@ curl -X POST http://localhost:3000/api/rajaongkir/cost \
 
 ---
 
-**Status**: ✅ Fixed  
+**Status**:  Fixed  
 **Version**: 1.0  
 **Last Updated**: 2024

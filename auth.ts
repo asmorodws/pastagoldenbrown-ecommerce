@@ -43,7 +43,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Email atau password salah")
         }
 
-        if (!user.emailVerified) {
+        // Skip email verification in development mode
+        if (process.env.NODE_ENV === "production" && !user.emailVerified) {
           throw new Error("Email belum diverifikasi. Silakan cek email Anda.")
         }
 

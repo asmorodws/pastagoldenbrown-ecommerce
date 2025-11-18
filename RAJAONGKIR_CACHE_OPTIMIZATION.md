@@ -1,10 +1,10 @@
 # RajaOngkir Cache Optimization Guide
 
-## 📋 Overview
+##  Overview
 
 Implementasi caching yang komprehensif untuk menghemat kuota API RajaOngkir dengan best practices:
 
-### ✅ Fitur Cache yang Diimplementasikan
+###  Fitur Cache yang Diimplementasikan
 
 1. **Multi-layer Caching**
    - Database cache (persistent via Prisma)
@@ -38,7 +38,7 @@ Implementasi caching yang komprehensif untuk menghemat kuota API RajaOngkir deng
 
 ---
 
-## 🚀 Penghematan API Quota
+##  Penghematan API Quota
 
 ### Sebelum Optimasi
 - Setiap request provinsi → **1 API call**
@@ -56,14 +56,14 @@ Implementasi caching yang komprehensif untuk menghemat kuota API RajaOngkir deng
 
 **Total**: ~1-5 API calls per user session
 
-### 📊 Estimasi Penghematan
+###  Estimasi Penghematan
 - **80-95%** pengurangan API calls
 - Jika quota 1000 calls/hari → bisa handle **10,000-20,000** user actions
 - Monthly quota lebih awet **10-20x** lipat
 
 ---
 
-## 🛠️ Cara Menggunakan
+##  Cara Menggunakan
 
 ### 1. Cache Warming Otomatis (Recommended)
 
@@ -119,7 +119,7 @@ await warmOriginCache(originCityId)
 
 ---
 
-## 📖 API Reference
+##  API Reference
 
 ### Cache Functions
 
@@ -182,7 +182,7 @@ clearCacheByEndpoint(endpoint: string): Promise<void>
 
 ---
 
-## 🎯 Best Practices
+##  Best Practices
 
 ### 1. **Gunakan TTL yang Tepat**
 ```typescript
@@ -201,7 +201,7 @@ getShippingCost()  // 1 jam
 getShippingCost({
   // ... params
 }, {
-  staleWhileRevalidate: true  // ✅ Response instant
+  staleWhileRevalidate: true  //  Response instant
 })
 ```
 
@@ -209,7 +209,7 @@ getShippingCost({
 ```typescript
 // Jika RajaOngkir down, app tetap jalan
 getProvinces({
-  allowStaleOnError: true  // ✅ Fallback ke cache lama
+  allowStaleOnError: true  //  Fallback ke cache lama
 })
 ```
 
@@ -230,7 +230,7 @@ await clearCacheByEndpoint('/calculate/domestic-cost')
 
 ---
 
-## 🔧 Monitoring & Debugging
+##  Monitoring & Debugging
 
 ### Check Cache Status
 
@@ -266,7 +266,7 @@ console.log('Cache miss, fetching:', key)
 
 ---
 
-## ⚡ Performance Metrics
+##  Performance Metrics
 
 ### Expected Response Times
 
@@ -333,7 +333,7 @@ await prisma.apiCache.deleteMany({
 
 ---
 
-## 📈 Scaling Tips
+##  Scaling Tips
 
 ### For High Traffic (1000+ users/day)
 
@@ -358,11 +358,11 @@ await prisma.apiCache.deleteMany({
 
 ### For Low Traffic (< 100 users/day)
 
-Current implementation sudah cukup optimal! 🎉
+Current implementation sudah cukup optimal! 
 
 ---
 
-## 📝 TODO / Future Improvements
+##  TODO / Future Improvements
 
 - [ ] Add Redis support untuk distributed caching
 - [ ] Implement cache warming via API endpoint (untuk trigger manual)
@@ -372,14 +372,14 @@ Current implementation sudah cukup optimal! 🎉
 
 ---
 
-## 🎉 Summary
+##  Summary
 
 Dengan implementasi ini, Anda akan mendapat:
 
-✅ **80-95% pengurangan API calls** ke RajaOngkir  
-✅ **10-100x response time lebih cepat**  
-✅ **Aplikasi tetap jalan** meski API down  
-✅ **User experience lebih baik** dengan instant response  
-✅ **Kuota API lebih awet** 10-20x lipat  
+ **80-95% pengurangan API calls** ke RajaOngkir  
+ **10-100x response time lebih cepat**  
+ **Aplikasi tetap jalan** meski API down  
+ **User experience lebih baik** dengan instant response  
+ **Kuota API lebih awet** 10-20x lipat  
 
 **Cost Saving**: Jika paket RajaOngkir Rp 100k/bulan untuk 1000 calls, dengan optimasi ini bisa handle beban yang sama dengan paket lebih murah atau handle 10-20x lebih banyak traffic dengan paket yang sama!

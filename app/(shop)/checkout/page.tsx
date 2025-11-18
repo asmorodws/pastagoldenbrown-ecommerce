@@ -68,6 +68,17 @@ export default function CheckoutPage() {
     }, 0)
   }
 
+  // Debug: Log selected address for verification
+  useEffect(() => {
+    if (selectedAddress) {
+      console.log('=== Selected Destination Address ===')
+      console.log('City ID:', selectedAddress.cityId)
+      console.log('District ID:', selectedAddress.districtId)
+      console.log('City:', selectedAddress.city)
+      console.log('Province:', selectedAddress.province)
+    }
+  }, [selectedAddress])
+
   // Show loading while checking auth or redirecting
   if (!session || items.length === 0) {
     return (
@@ -311,7 +322,7 @@ export default function CheckoutPage() {
                 {/* Warning if no cityId (manual input mode) */}
                 {selectedAddress && !selectedAddress.cityId && (
                   <div className="mt-6 bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
-                    <p className="text-amber-800 font-semibold mb-2">⚠️ Perhitungan Ongkir Otomatis Tidak Tersedia</p>
+                    <p className="text-amber-800 font-semibold mb-2">Perhitungan Ongkir Otomatis Tidak Tersedia</p>
                     <p className="text-amber-700 text-sm mb-3">
                       Alamat ini dibuat dengan input manual. Untuk mengaktifkan perhitungan ongkir otomatis, silakan:
                     </p>

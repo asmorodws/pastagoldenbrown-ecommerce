@@ -41,8 +41,17 @@ export default function ProductCard({
   const router = useRouter()
   const addItem = useCartStore((state) => state.addItem)
   
+  // Hitung diskon dengan benar
+  // hasDiscount hanya true jika ada discount > 0
   const hasDiscount = discount && discount > 0
-  const displayPrice = hasDiscount ? discountPrice : price
+  
+  // Hitung harga setelah diskon
+  const displayPrice = hasDiscount 
+    ? price - (price * discount / 100)
+    : price
+  
+  // Gunakan persentase diskon langsung dari field discount
+  const actualDiscountPercent = hasDiscount ? Math.round(discount) : 0
   
   // Calculate total stock from all variants
   const totalStock = variants.length > 0 
@@ -63,8 +72,8 @@ export default function ProductCard({
     
     if (isOutOfStock) return
 
-    // Jika produk punya variant, arahkan ke halaman detail
-    if (hasVariants) {
+    // Jika produk punya lebih dari 1 variant, arahkan ke halaman detail
+    if (variants.length > 1) {
       toast.success("Silakan pilih variant terlebih dahulu", {
         icon: "📦",
         duration: 2000,
@@ -73,21 +82,48 @@ export default function ProductCard({
       return
     }
 
-    // Jika tidak ada variant, langsung tambahkan ke cart
+    // Jika hanya ada 1 variant atau tidak ada variant, langsung tambahkan ke cart
+    const variantToAdd = variants.length === 1 ? variants[0] : null
+    
     addItem({
-      id: id,
+      id: variantToAdd ? `${id}-${variantToAdd.id}` : id,
       productId: id,
+      productVariantId: variantToAdd?.id,
       name: name,
       slug: slug,
-      price: displayPrice || price,
+      price: variantToAdd?.price || displayPrice || price,
       image: image || "/placeholder-product.jpg",
-      stock: stock,
+      stock: variantToAdd?.stock || stock,
+      variant: variantToAdd?.name,
     })
 
-    toast.success(`${name} ditambahkan ke keranjang`, {
-      icon: "🛒",
-      duration: 2000,
-    })
+    toast.success(
+      (t) => (
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+            <img
+              src={image || "/placeholder-product.jpg"}
+              alt={name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-gray-900">Ditambahkan ke keranjang</p>
+            <p className="text-xs text-gray-600 truncate max-w-[200px]">{name}</p>
+          </div>
+        </div>
+      ),
+      {
+        duration: 3000,
+        style: {
+          background: '#fff',
+          color: '#111',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          borderRadius: '12px',
+          padding: '12px',
+        },
+      }
+    )
   }
 
   return (
@@ -108,13 +144,14 @@ export default function ProductCard({
       />
 
       {/* Product Image - Fixed Height */}
-      <div className="relative h-48 md:h-56 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex-shrink-0">
+      <div className="relative h-40 md:h-44 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex-shrink-0">
         {!imageError && image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={image}
             alt={name}
-            className={`w-full h-full object-contain p-4 transition-transform duration-500 ${
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className={`object-contain p-3 transition-transform duration-500 ${
               isOutOfStock ? "grayscale opacity-50" : "group-hover:scale-105"
             }`}
             loading="lazy"
@@ -123,22 +160,22 @@ export default function ProductCard({
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center p-4">
-              <Package size={48} className="mx-auto text-gray-300 mb-2" />
+              <Package size={40} className="mx-auto text-gray-300 mb-2" />
               <p className="text-xs text-gray-400">Gambar tidak tersedia</p>
             </div>
           </div>
         )}
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-          {hasDiscount && !isOutOfStock && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white shadow-md bg-gradient-to-r from-red-600 to-red-700">
-              <Percent size={12} className="shrink-0" />
-              -{Math.round(discount)}%
+        <div className="absolute top-2 left-2 z-20 flex flex-col gap-1.5">
+          {hasDiscount && !isOutOfStock && actualDiscountPercent > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold text-white shadow-md bg-gradient-to-r from-red-600 to-red-700">
+              <Percent size={11} className="shrink-0" />
+              -{actualDiscountPercent}%
             </span>
           )}
           {isLowStock && !isOutOfStock && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium text-amber-800 bg-amber-100 border border-amber-200">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-amber-800 bg-amber-100 border border-amber-200">
               <Package size={10} />
               Sisa {totalStock}
             </span>
@@ -156,28 +193,24 @@ export default function ProductCard({
       </div>
 
       {/* Product Info - Flex grow to fill remaining space */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-3 md:p-4 flex flex-col flex-grow">
         {/* Product Title - Fixed height dengan line-clamp */}
         <h3
-          className={`font-medium text-sm md:text-base leading-snug text-gray-800 group-hover:text-blue-800 transition-colors duration-200 mb-2 ${
+          className={`font-medium text-sm leading-snug text-gray-800 group-hover:text-blue-800 transition-colors duration-200 mb-2 ${
             isOutOfStock ? "text-gray-400" : ""
-          } line-clamp-2 min-h-[2.5rem]`}
+          } line-clamp-2 min-h-[2.25rem]`}
         >
           {name}
         </h3>
 
         {/* Variant Info */}
         {hasVariants && (
-          <div className="mb-3">
-            <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-1">
-              <Package size={12} />
-              <span className="font-medium">Tersedia:</span>
-            </div>
+          <div className="mb-2">
             <div className="flex flex-wrap gap-1">
               {variants.slice(0, 3).map((variant) => (
                 <span
                   key={variant.id}
-                  className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                     variant.stock > 0
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'bg-gray-100 text-gray-400 border border-gray-200 line-through'
@@ -187,7 +220,7 @@ export default function ProductCard({
                 </span>
               ))}
               {variants.length > 3 && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600">
                   +{variants.length - 3}
                 </span>
               )}
@@ -196,20 +229,17 @@ export default function ProductCard({
         )}
 
         {/* Price Section - Margin top auto untuk push ke bawah */}
-        <div className="space-y-2 mt-auto">
-          <div className="text-[11px] text-gray-500 uppercase font-medium">
-            Harga
-          </div>
-          <div className="flex items-baseline gap-2 flex-wrap min-h-[2rem]">
+        <div className="space-y-1 mt-auto">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span
-              className={`text-lg md:text-xl font-bold ${
+              className={`text-base md:text-lg font-bold ${
                 isOutOfStock ? "text-gray-400" : "text-gray-900"
               }`}
             >
               Rp {displayPrice?.toLocaleString("id-ID")}
             </span>
-            {hasDiscount && !isOutOfStock && (
-              <span className="text-xs md:text-sm text-gray-400 line-through">
+            {hasDiscount && !isOutOfStock && actualDiscountPercent > 0 && (
+              <span className="text-xs text-gray-400 line-through">
                 Rp {price.toLocaleString("id-ID")}
               </span>
             )}
@@ -217,9 +247,9 @@ export default function ProductCard({
         </div>
 
         {/* Action Buttons - Fixed at bottom */}
-        <div className="flex gap-2 pt-3 mt-3 border-t border-gray-100">
+        <div className="flex gap-2 pt-2 mt-2 border-t border-gray-100">
           <button
-            className={`flex-1 relative z-20 inline-flex items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-lg font-semibold text-xs md:text-sm transition-all duration-200 active:scale-95 ${
+            className={`flex-1 relative z-20 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg font-semibold text-xs transition-all duration-200 active:scale-95 ${
               isOutOfStock
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-blue-800 hover:bg-blue-900 text-white shadow-sm hover:shadow-md"
@@ -228,30 +258,21 @@ export default function ProductCard({
             disabled={isOutOfStock}
             aria-label={hasVariants ? "Tambah" : "Tambah"}
           >
-            <ShoppingCart size={14} className="md:w-4 md:h-4" />
-            <span className="hidden sm:inline">
-              {isOutOfStock 
-                ? "Stok Habis" 
-                : hasVariants 
-                  ? "Tambah" 
-                  : "Tambah"}
-            </span>
-            <span className="sm:hidden">
+            <ShoppingCart size={14} />
+            <span>
               {isOutOfStock 
                 ? "Habis" 
-                : hasVariants 
-                  ? "Pilih" 
-                  : "+"}
+                : "Tambah"}
             </span>
           </button>
 
           <Link
             href={`/products/${slug}`}
-            className="relative z-20 bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 md:p-2.5 rounded-lg transition-all duration-200 active:scale-95 flex-shrink-0"
+            className="relative z-20 bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-lg transition-all duration-200 active:scale-95 flex-shrink-0"
             onClick={(e) => e.stopPropagation()}
             aria-label="Lihat detail"
           >
-            <Eye size={14} className="md:w-4 md:h-4" />
+            <Eye size={14} />
           </Link>
         </div>
       </div>

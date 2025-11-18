@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-## ✅ Masalah Umum dan Solusinya
+##  Masalah Umum dan Solusinya
 
 ### 1. Error: "Cannot read properties of undefined (reading 'status')"
 
@@ -10,7 +10,7 @@
 - API response tidak sesuai format yang diharapkan
 
 **Solusi:**
-✅ Aplikasi sudah diupdate dengan **graceful fallback**. Jika RajaOngkir tidak tersedia:
+ Aplikasi sudah diupdate dengan **graceful fallback**. Jika RajaOngkir tidak tersedia:
 - Form alamat akan otomatis switch ke **input manual** (text input)
 - User bisa tetap checkout **tanpa perhitungan ongkir otomatis**
 - Ongkir akan dikonfirmasi manual setelah pesanan dibuat
@@ -35,7 +35,7 @@
 - Sebelumnya memerlukan shipping selection bahkan ketika RajaOngkir tidak tersedia
 
 **Solusi:**
-✅ **SUDAH DIPERBAIKI!** Sekarang:
+ **SUDAH DIPERBAIKI!** Sekarang:
 - Jika RajaOngkir **tersedia** → user HARUS pilih metode pengiriman
 - Jika RajaOngkir **tidak tersedia** → user bisa langsung lanjut (ongkir manual)
 - Validasi otomatis disesuaikan dengan ketersediaan RajaOngkir
@@ -48,14 +48,14 @@
 - Next.js 15 mengubah `params` dari object menjadi Promise
 
 **Solusi:**
-✅ **SUDAH DIPERBAIKI!** Semua route handler sudah diupdate:
+ **SUDAH DIPERBAIKI!** Semua route handler sudah diupdate:
 ```typescript
 // BEFORE (Error)
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const id = params.id // ❌ Error
+  const id = params.id //  Error
 }
 
 // AFTER (Fixed)
@@ -63,65 +63,65 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params // ✅ Correct
+  const { id } = await params //  Correct
 }
 ```
 
 ---
 
-## 🔄 Mode Operasi Aplikasi
+##  Mode Operasi Aplikasi
 
-### Mode 1: RajaOngkir AKTIF ✅
+### Mode 1: RajaOngkir AKTIF 
 **Kondisi:**
 - API key valid dan dikonfigurasi
 - Endpoint API berfungsi
 - Response data valid
 
 **Fitur:**
-- ✅ Dropdown provinsi dari RajaOngkir
-- ✅ Dropdown kota ter-filter by provinsi
-- ✅ Kode pos auto-fill
-- ✅ Perhitungan ongkir otomatis (JNE, POS, TIKI)
-- ✅ Multiple service options per kurir
-- ✅ Estimasi pengiriman real-time
+-  Dropdown provinsi dari RajaOngkir
+-  Dropdown kota ter-filter by provinsi
+-  Kode pos auto-fill
+-  Perhitungan ongkir otomatis (JNE, POS, TIKI)
+-  Multiple service options per kurir
+-  Estimasi pengiriman real-time
 
-### Mode 2: RajaOngkir TIDAK AKTIF ⚠️
+### Mode 2: RajaOngkir TIDAK AKTIF 
 **Kondisi:**
 - API key tidak dikonfigurasi
 - Endpoint API error/tidak tersedia
 - Response data kosong
 
 **Fitur:**
-- ✅ Input manual provinsi (text input)
-- ✅ Input manual kota (text input)
-- ✅ Input manual kode pos
-- ⚠️ Ongkir tidak dihitung otomatis
+-  Input manual provinsi (text input)
+-  Input manual kota (text input)
+-  Input manual kode pos
+-  Ongkir tidak dihitung otomatis
 - ℹ️ Notifikasi: "Ongkir akan dikonfirmasi setelah order"
-- ✅ Checkout tetap bisa dilanjutkan
+-  Checkout tetap bisa dilanjutkan
 
 ---
 
-## 🚀 Quick Start - Tanpa RajaOngkir
+##  Quick Start - Tanpa RajaOngkir
 
 Jika Anda ingin **menggunakan aplikasi sekarang tanpa setup RajaOngkir**:
 
-1. ✅ Biarkan `.env` seperti ini:
+1.  Biarkan `.env` seperti ini:
    ```env
    RAJAONGKIR_API_KEY="your_rajaongkir_api_key_here"
    ```
 
-2. ✅ Jalankan aplikasi:
+2.  Jalankan aplikasi:
    ```bash
    npm run dev
    ```
 
-3. ✅ Aplikasi akan berjalan dalam **Mode Manual**:
+3.  Aplikasi akan berjalan dalam **Mode Manual**:
    - Form alamat menggunakan text input
    - User isi provinsi, kota, kode pos manual
    - Checkout bisa dilakukan tanpa ongkir otomatis
    - Admin konfirmasi ongkir setelah order masuk
 
-4. ✅ Untuk aktivasi RajaOngkir nanti:
+4.  Untuk aktivasi RajaOngkir nanti:
    - Follow instruksi di `RAJAONGKIR_INTEGRATION.md`
    - Update API key di `.env`
    - Restart server
@@ -129,17 +129,17 @@ Jika Anda ingin **menggunakan aplikasi sekarang tanpa setup RajaOngkir**:
 
 ---
 
-## 📊 Status Check
+##  Status Check
 
 ### Cek Mode Operasi Saat Ini:
 
 1. **Jalankan aplikasi** dan buka halaman checkout
 2. **Tambah alamat baru**:
-   - Jika melihat **dropdown** provinsi/kota → RajaOngkir AKTIF ✅
-   - Jika melihat **text input** provinsi/kota → Mode Manual ⚠️
+   - Jika melihat **dropdown** provinsi/kota → RajaOngkir AKTIF 
+   - Jika melihat **text input** provinsi/kota → Mode Manual 
 3. Jika Mode Manual, akan ada notifikasi:
    ```
-   ⚠️ RajaOngkir tidak tersedia
+    RajaOngkir tidak tersedia
    Silakan isi provinsi dan kota secara manual.
    Perhitungan ongkir otomatis tidak dapat dilakukan.
    ```
@@ -192,7 +192,7 @@ npm run dev
 
 ---
 
-## 📝 Log Monitoring
+##  Log Monitoring
 
 ### Normal Logs (Mode Manual):
 ```
@@ -211,23 +211,23 @@ Error fetching provinces: TypeError: Cannot read properties of undefined
 
 ---
 
-## ✨ Kesimpulan
+##  Kesimpulan
 
 **Aplikasi sekarang:**
-- ✅ **Tidak akan crash** jika RajaOngkir tidak aktif
-- ✅ **Graceful degradation** ke input manual
-- ✅ **User tetap bisa checkout** dalam mode apapun
-- ✅ **Auto-detect** ketersediaan RajaOngkir
-- ✅ **Seamless switch** antara mode manual dan RajaOngkir
+-  **Tidak akan crash** jika RajaOngkir tidak aktif
+-  **Graceful degradation** ke input manual
+-  **User tetap bisa checkout** dalam mode apapun
+-  **Auto-detect** ketersediaan RajaOngkir
+-  **Seamless switch** antara mode manual dan RajaOngkir
 
 **Anda bisa:**
-- 🚀 Deploy aplikasi **SEKARANG** tanpa RajaOngkir
-- 🔧 Setup RajaOngkir **NANTI** kapan saja
-- 💰 Tidak perlu beli package RajaOngkir untuk testing
-- 📦 Order tetap bisa diproses dengan ongkir manual
+-  Deploy aplikasi **SEKARANG** tanpa RajaOngkir
+-  Setup RajaOngkir **NANTI** kapan saja
+-  Tidak perlu beli package RajaOngkir untuk testing
+-  Order tetap bisa diproses dengan ongkir manual
 
 **Upgrade ke RajaOngkir kapan saja** dengan:
 1. Renewal package di https://collaborator.komerce.id
 2. Update API key di `.env`
 3. Restart server
-4. **DONE!** ✨
+4. **DONE!** 

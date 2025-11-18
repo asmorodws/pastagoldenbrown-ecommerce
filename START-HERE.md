@@ -1,6 +1,6 @@
-# 🚀 CARA SETUP E-COMMERCE (5 MENIT!)
+#  CARA SETUP E-COMMERCE (5 MENIT!)
 
-## ⚡ OPSI 1: AUTO SETUP (RECOMMENDED)
+##  OPSI 1: AUTO SETUP (RECOMMENDED)
 
 Jalankan script otomatis yang sudah saya buatkan:
 
@@ -9,12 +9,12 @@ Jalankan script otomatis yang sudah saya buatkan:
 ```
 
 Script ini akan otomatis:
-1. ✅ Check MySQL installation
-2. ✅ Membuat database `ecommerce_db`
-3. ✅ Generate `.env` dengan secret yang aman
-4. ✅ Generate Prisma Client
-5. ✅ Migrate database (buat tabel)
-6. ✅ Seed database dengan data sample
+1.  Check MySQL installation
+2.  Membuat database `ecommerce_db`
+3.  Generate `.env` dengan secret yang aman
+4.  Generate Prisma Client
+5.  Migrate database (buat tabel)
+6.  Seed database dengan data sample
 
 **Anda hanya perlu:**
 - Masukkan password MySQL root
@@ -27,7 +27,7 @@ npm run dev
 
 ---
 
-## 🔧 OPSI 2: MANUAL SETUP
+##  OPSI 2: MANUAL SETUP
 
 Jika ingin setup manual, ikuti langkah berikut:
 
@@ -96,7 +96,7 @@ Ini akan membuat:
 
 ---
 
-## ✅ VERIFIKASI SETUP
+##  VERIFIKASI SETUP
 
 Check apakah semua sudah OK:
 
@@ -113,7 +113,7 @@ npm run build
 
 ---
 
-## 🎯 JALANKAN PROJECT
+##  JALANKAN PROJECT
 
 ```bash
 npm run dev
@@ -137,7 +137,7 @@ Setelah seed database:
 
 ---
 
-## 📊 USEFUL COMMANDS
+##  USEFUL COMMANDS
 
 ```bash
 # Development
@@ -204,7 +204,7 @@ PORT=3001 npm run dev
 
 ---
 
-## 📁 FILE PENTING
+##  FILE PENTING
 
 - `.env` - Environment variables (DATABASE_URL, secrets, dll)
 - `prisma/schema.prisma` - Database schema
@@ -213,7 +213,7 @@ PORT=3001 npm run dev
 
 ---
 
-## 🎓 NEXT STEPS
+##  NEXT STEPS
 
 Setelah setup berhasil:
 
@@ -243,11 +243,11 @@ Setelah setup berhasil:
 
 ---
 
-## 🎉 SELESAI!
+##  SELESAI!
 
 Jika ada pertanyaan atau error, check:
 - `SETUP.md` - Detailed troubleshooting
 - `FEATURES.md` - Complete feature list
 - `README.md` - Full documentation
 
-**Happy coding! 🚀**
+**Happy coding! **

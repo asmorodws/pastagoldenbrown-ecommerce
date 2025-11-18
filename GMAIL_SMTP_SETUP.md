@@ -4,7 +4,7 @@ Panduan lengkap untuk mengkonfigurasi Gmail SMTP dengan App Password untuk fitur
 
 ---
 
-## 🔐 Langkah 1: Enable 2-Factor Authentication
+##  Langkah 1: Enable 2-Factor Authentication
 
 Sebelum bisa membuat App Password, Anda harus mengaktifkan 2-Factor Authentication (2FA) di akun Google.
 
@@ -42,7 +42,7 @@ Setelah 2FA aktif, Anda bisa membuat App Password:
 
 ---
 
-## ⚙️ Langkah 3: Update File .env
+##  Langkah 3: Update File .env
 
 Buka file `.env` di root project dan update konfigurasi email:
 
@@ -62,7 +62,7 @@ EMAIL_FROM="noreply@yourdomain.com"               # Email pengirim (bisa sama de
 
 ---
 
-## 🧪 Langkah 4: Test SMTP Configuration
+##  Langkah 4: Test SMTP Configuration
 
 Jalankan script test untuk memverifikasi konfigurasi:
 
@@ -71,14 +71,14 @@ npm run test:email
 ```
 
 Script ini akan:
-1. ✅ Verifikasi koneksi ke Gmail SMTP
+1.  Verifikasi koneksi ke Gmail SMTP
 2. 📧 Mengirim test email ke email Anda sendiri
-3. 🎉 Menampilkan hasil dan troubleshooting jika ada error
+3.  Menampilkan hasil dan troubleshooting jika ada error
 
 ### Output yang Diharapkan:
 
 ```
-🔧 Testing Gmail SMTP Configuration...
+ Testing Gmail SMTP Configuration...
 
 📧 Email Configuration:
    Host: smtp.gmail.com
@@ -87,34 +87,34 @@ Script ini akan:
    Password: ****mnop
 
 ⏳ Step 1: Verifying SMTP connection...
-✅ SMTP connection verified successfully!
+ SMTP connection verified successfully!
 
 ⏳ Step 2: Sending test email...
-✅ Test email sent successfully!
+ Test email sent successfully!
 
 📬 Email Details:
    Message ID: <xxx@gmail.com>
    Recipient: your-email@gmail.com
    Response: 250 2.0.0 OK
 
-🎉 All tests passed! Your Gmail SMTP is configured correctly.
+ All tests passed! Your Gmail SMTP is configured correctly.
 
 📧 Please check your inbox at: your-email@gmail.com
 ```
 
 ---
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Error: "Invalid login: 535-5.7.8 Username and Password not accepted"
 
 **Penyebab**: Password yang digunakan salah atau bukan App Password
 
 **Solusi**:
-1. ✅ Pastikan menggunakan **App Password** (16 karakter), bukan password Google biasa
-2. ✅ Generate App Password baru di https://myaccount.google.com/apppasswords
-3. ✅ Hapus semua spasi dari App Password
-4. ✅ Copy-paste dengan hati-hati, jangan ada typo
+1.  Pastikan menggunakan **App Password** (16 karakter), bukan password Google biasa
+2.  Generate App Password baru di https://myaccount.google.com/apppasswords
+3.  Hapus semua spasi dari App Password
+4.  Copy-paste dengan hati-hati, jangan ada typo
 
 ---
 
@@ -123,10 +123,10 @@ Script ini akan:
 **Penyebab**: Tidak bisa connect ke server SMTP
 
 **Solusi**:
-1. ✅ Cek koneksi internet Anda
-2. ✅ Pastikan port 587 tidak diblokir firewall
-3. ✅ Coba gunakan port 465 dengan `secure: true`
-4. ✅ Disable antivirus/firewall sementara untuk testing
+1.  Cek koneksi internet Anda
+2.  Pastikan port 587 tidak diblokir firewall
+3.  Coba gunakan port 465 dengan `secure: true`
+4.  Disable antivirus/firewall sementara untuk testing
 
 ---
 
@@ -135,24 +135,24 @@ Script ini akan:
 **Penyebab**: ISP atau network Anda memblokir port SMTP
 
 **Solusi**:
-1. ✅ Coba gunakan VPN
-2. ✅ Coba koneksi internet lain (mobile hotspot)
-3. ✅ Hubungi ISP Anda
-4. ✅ Gunakan port alternatif 465 atau 2525
+1.  Coba gunakan VPN
+2.  Coba koneksi internet lain (mobile hotspot)
+3.  Hubungi ISP Anda
+4.  Gunakan port alternatif 465 atau 2525
 
 ---
 
 ### Email Tidak Masuk ke Inbox
 
 **Solusi**:
-1. ✅ Cek folder **Spam/Junk**
-2. ✅ Cek folder **Promotions** (Gmail)
-3. ✅ Tunggu beberapa menit (delay server)
-4. ✅ Pastikan email recipient benar
+1.  Cek folder **Spam/Junk**
+2.  Cek folder **Promotions** (Gmail)
+3.  Tunggu beberapa menit (delay server)
+4.  Pastikan email recipient benar
 
 ---
 
-## 🎯 Testing di Development Mode
+##  Testing di Development Mode
 
 Jika Anda tidak ingin setup email saat development, aplikasi akan **auto-verify** email:
 
@@ -170,7 +170,7 @@ Jika Anda tidak ingin setup email saat development, aplikasi akan **auto-verify*
 
 ---
 
-## 📚 Referensi
+##  Referensi
 
 - **Gmail App Passwords**: https://support.google.com/accounts/answer/185833
 - **Nodemailer Documentation**: https://nodemailer.com/
@@ -178,7 +178,7 @@ Jika Anda tidak ingin setup email saat development, aplikasi akan **auto-verify*
 
 ---
 
-## ✅ Checklist
+##  Checklist
 
 - [ ] 2-Factor Authentication sudah aktif
 - [ ] App Password sudah di-generate (16 karakter)
@@ -190,4 +190,4 @@ Jika Anda tidak ingin setup email saat development, aplikasi akan **auto-verify*
 
 ---
 
-**Happy Coding! 🚀**
+**Happy Coding! **

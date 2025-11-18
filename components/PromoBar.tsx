@@ -14,7 +14,7 @@ export default function PromoBar() {
         <div className="flex items-center gap-2 flex-1 justify-center text-sm md:text-base">
           <Sparkles size={20} className="text-[#c49c0f] animate-pulse" />
           <span className="font-bold">
-            PROMO WEBSITE EKSKLUSIF! Diskon 30% + Gratis Ongkir untuk Member Baru!
+            PROMO WEBSITE EKSKLUSIF! Diskon hingga 30% untuk Member Baru!
           </span>
           <Sparkles size={20} className="text-[#c49c0f] animate-pulse" />
         </div>

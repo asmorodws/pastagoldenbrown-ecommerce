@@ -1,6 +1,6 @@
 # Test Manual: Address Save Optimization
 
-## 🧪 Test Suite Overview
+##  Test Suite Overview
 
 Test suite untuk memverifikasi optimasi penyimpanan alamat berfungsi dengan baik.
 
@@ -18,7 +18,7 @@ Test suite untuk memverifikasi optimasi penyimpanan alamat berfungsi dengan baik
    - End-to-end performance tests
    - Coverage: Latency, No refetch, Error handling
 
-## 📦 Setup (Manual - karena disk penuh)
+##  Setup (Manual - karena disk penuh)
 
 Karena disk penuh, install testing dependencies secara manual nanti:
 
@@ -32,7 +32,7 @@ npm install -D @types/jest
 # Update package.json scripts
 ```
 
-## 🎯 Test Coverage
+##  Test Coverage
 
 ### 1. Optimistic Updates Tests
 
@@ -40,22 +40,22 @@ npm install -D @types/jest
 
 #### Test Cases:
 
-✅ **Create Address - Optimistic Add**
+ **Create Address - Optimistic Add**
 - Verifies new address appears in UI immediately
 - Checks toast notification shown
 - Ensures NO refetch after save
 
-✅ **Update Address - Optimistic Update**
+ **Update Address - Optimistic Update**
 - Verifies UI updates before API response
 - Checks correct toast message
 - Ensures state updated correctly
 
-✅ **Delete Address - Optimistic Removal**
+ **Delete Address - Optimistic Removal**
 - Verifies address removed from UI immediately
 - Checks rollback on failure
 - Ensures next address selected if default deleted
 
-✅ **Prevent Double Submit**
+ **Prevent Double Submit**
 - Verifies only one API call made on double click
 - Checks `isSaving` state prevents race conditions
 
@@ -65,22 +65,22 @@ npm install -D @types/jest
 
 #### Test Cases:
 
-✅ **POST - Create with Transaction**
+ **POST - Create with Transaction**
 - Verifies transaction used for atomic operations
 - Checks updateMany called when isDefault=true
 - Ensures proper error handling
 
-✅ **PUT - Update with Transaction**
+ **PUT - Update with Transaction**
 - Verifies transaction includes both updateMany and update
 - Checks `NOT: { id }` filter excludes current address
 - Ensures ownership verification
 
-✅ **DELETE - Remove Address**
+ **DELETE - Remove Address**
 - Verifies ownership check
 - Checks proper 404 on not found
 - Ensures successful deletion
 
-✅ **Transaction Rollback**
+ **Transaction Rollback**
 - Verifies rollback on error
 - Checks 500 status returned
 - Ensures data integrity maintained
@@ -91,27 +91,27 @@ npm install -D @types/jest
 
 #### Test Cases:
 
-✅ **Optimistic Update Speed (<100ms)**
+ **Optimistic Update Speed (<100ms)**
 - Measures UI update latency
 - Verifies perceived performance
 - Ensures user sees immediate feedback
 
-✅ **NO Refetch After Save**
+ **NO Refetch After Save**
 - Tracks all fetch calls
 - Verifies only 1 POST/PUT, no GET refetch
 - Ensures network optimization
 
-✅ **Transaction Failure Handling**
+ **Transaction Failure Handling**
 - Simulates API error
 - Verifies UI rollback
 - Checks error toast shown
 
-✅ **Full Lifecycle Order**
+ **Full Lifecycle Order**
 - Logs all operations
 - Verifies correct sequence: GET → POST → PUT → DELETE
 - Ensures no unexpected GETs
 
-## 🚀 Running Tests
+##  Running Tests
 
 ### Individual Test Files:
 
@@ -144,17 +144,17 @@ npm test -- --watch
 npm test -- --coverage
 ```
 
-## 📊 Expected Results
+##  Expected Results
 
 ### Performance Benchmarks:
 
 | Metric | Expected | Test Verification |
 |--------|----------|-------------------|
-| Optimistic Update | <100ms | ✅ address-performance.test.tsx |
-| API Calls per Save | 1 (no refetch) | ✅ address-performance.test.tsx |
-| Transaction Atomicity | Pass | ✅ addresses.test.ts |
-| Double Submit Prevention | Blocked | ✅ AddressSelector.test.tsx |
-| Error Rollback | Restored | ✅ AddressSelector.test.tsx |
+| Optimistic Update | <100ms |  address-performance.test.tsx |
+| API Calls per Save | 1 (no refetch) |  address-performance.test.tsx |
+| Transaction Atomicity | Pass |  addresses.test.ts |
+| Double Submit Prevention | Blocked |  AddressSelector.test.tsx |
+| Error Rollback | Restored |  AddressSelector.test.tsx |
 
 ### Coverage Targets:
 
@@ -183,7 +183,7 @@ npm cache clean --force
 **Symptom**: Tests fail with "Cannot find module"
 **Solution**: Check moduleNameMapper in jest.config.ts matches your aliases
 
-## 📝 Test Scenarios
+##  Test Scenarios
 
 ### Scenario 1: Normal Flow
 1. User loads checkout page
@@ -205,7 +205,7 @@ npm cache clean --force
 1. User creates new address with isDefault=true
 2. **Expected**: Transaction unsets other defaults first, then creates new
 
-## 🎓 Key Testing Principles
+##  Key Testing Principles
 
 1. **Test User Experience**: Focus on what user sees/experiences
 2. **Test Performance**: Measure actual latency
@@ -213,7 +213,7 @@ npm cache clean --force
 4. **Test Atomicity**: Ensure transactions work correctly
 5. **Test Optimization**: Verify NO redundant fetches
 
-## 📚 Reference
+##  Reference
 
 - Jest Docs: https://jestjs.io/
 - React Testing Library: https://testing-library.com/react
@@ -221,6 +221,6 @@ npm cache clean --force
 
 ---
 
-**Status**: ✅ Test Suite Created  
+**Status**:  Test Suite Created  
 **Ready to Run**: After installing dependencies  
 **Expected Pass Rate**: 100%

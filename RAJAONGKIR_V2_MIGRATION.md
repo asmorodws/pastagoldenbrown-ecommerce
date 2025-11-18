@@ -1,28 +1,28 @@
 # RajaOngkir V2 API Integration Guide
 
-## 🎯 Update: RajaOngkir Migrasi ke Platform Baru!
+##  Update: RajaOngkir Migrasi ke Platform Baru!
 
 RajaOngkir telah **migrasi ke platform baru** dengan API v2 yang lebih modern.
 
 **Platform Baru:**
-- 🌐 Website: https://collaborator.komerce.id
+-  Website: https://collaborator.komerce.id
 - 📡 Base URL: `https://rajaongkir.komerce.id/api/v1`
-- 📚 Postman Collection: Tersedia (sudah diintegrasikan)
+-  Postman Collection: Tersedia (sudah diintegrasikan)
 
 ---
 
-## 🔄 Perubahan dari V1 ke V2
+##  Perubahan dari V1 ke V2
 
 ### Endpoint Changes
 
 | V1 (Old) | V2 (New) | Status |
 |----------|----------|--------|
-| `/province` | ❌ Removed | Use Search API |
-| `/city` | ❌ Removed | Use Search API |
-| `/cost` | `/calculate/domestic-cost` | ✅ Updated |
-| - | `/destination/domestic-destination` | ✅ NEW |
-| - | `/destination/international-destination` | ✅ NEW |
-| - | `/track/waybill` | ✅ NEW |
+| `/province` |  Removed | Use Search API |
+| `/city` |  Removed | Use Search API |
+| `/cost` | `/calculate/domestic-cost` |  Updated |
+| - | `/destination/domestic-destination` |  NEW |
+| - | `/destination/international-destination` |  NEW |
+| - | `/track/waybill` |  NEW |
 
 ### Request Format Changes
 
@@ -66,7 +66,7 @@ fetch('/api/rajaongkir/cost', {
 
 ---
 
-## 🚀 Setup RajaOngkir V2
+##  Setup RajaOngkir V2
 
 ### 1. Daftar/Login ke Platform Baru
 
@@ -202,7 +202,7 @@ fetch('/api/rajaongkir/search?q=jakarta&limit=10')
 ### Backend (lib/rajaongkir.ts)
 
 ```typescript
-// ✅ Sudah diimplementasikan:
+//  Sudah diimplementasikan:
 export async function searchDomesticDestination(
   search: string,
   limit: number = 10,
@@ -220,7 +220,7 @@ export async function getShippingCost(params: {
 ### Frontend (ShippingSelector Component)
 
 ```typescript
-// ✅ Sudah diimplementasikan:
+//  Sudah diimplementasikan:
 // - Single request untuk multiple couriers
 // - Format courier: colon-separated
 // - Support lebih banyak kurir (JNE, POS, TIKI, SiCepat, J&T, Ninja, etc)
@@ -228,7 +228,7 @@ export async function getShippingCost(params: {
 
 ---
 
-## 🎨 Available Couriers (V2)
+##  Available Couriers (V2)
 
 Berdasarkan package Anda, kurir yang tersedia:
 
@@ -236,27 +236,27 @@ Berdasarkan package Anda, kurir yang tersedia:
 |--------------|------|------|
 | `jne` | JNE | 🚛 |
 | `pos` | POS Indonesia | 📮 |
-| `tiki` | TIKI | 📦 |
-| `sicepat` | SiCepat | ⚡ |
+| `tiki` | TIKI |  |
+| `sicepat` | SiCepat |  |
 | `jnt` | J&T Express | 📮 |
 | `ninja` | Ninja Xpress | 🥷 |
 | `anteraja` | AnterAja | 🚚 |
 | `lion` | Lion Parcel | 🦁 |
-| `ide` | ID Express | 📦 |
-| `sap` | SAP Express | 📦 |
-| `rex` | REX | 📦 |
-| `rpx` | RPX | 📦 |
-| `sentral` | Sentral Cargo | 📦 |
+| `ide` | ID Express |  |
+| `sap` | SAP Express |  |
+| `rex` | REX |  |
+| `rpx` | RPX |  |
+| `sentral` | Sentral Cargo |  |
 | `star` | Star Cargo | ⭐ |
-| `wahana` | Wahana | 📦 |
-| `dse` | DSE | 📦 |
-| `ncs` | NCS | 📦 |
+| `wahana` | Wahana |  |
+| `dse` | DSE |  |
+| `ncs` | NCS |  |
 
 **Note:** Ketersediaan kurir tergantung package subscription Anda.
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Test Search API
 
@@ -286,44 +286,44 @@ curl -X POST \
 
 ---
 
-## 📊 Migration Checklist
+##  Migration Checklist
 
-- ✅ Update base URL ke `rajaongkir.komerce.id/api/v1`
-- ✅ Implement Search Domestic Destination API
-- ✅ Update Cost Calculation (colon-separated couriers)
-- ✅ Remove province/city endpoints (use Search instead)
-- ✅ Update response parsing (v1 → v2 format)
-- ✅ Add new courier options
-- ✅ Update documentation
-- ⚠️ **TODO**: Get API key dari https://collaborator.komerce.id
-- ⚠️ **TODO**: Find dan set ORIGIN_CITY_ID untuk toko
+-  Update base URL ke `rajaongkir.komerce.id/api/v1`
+-  Implement Search Domestic Destination API
+-  Update Cost Calculation (colon-separated couriers)
+-  Remove province/city endpoints (use Search instead)
+-  Update response parsing (v1 → v2 format)
+-  Add new courier options
+-  Update documentation
+-  **TODO**: Get API key dari https://collaborator.komerce.id
+-  **TODO**: Find dan set ORIGIN_CITY_ID untuk toko
 
 ---
 
-## 🔧 Troubleshooting V2
+##  Troubleshooting V2
 
 ### Error: "RajaOngkir API error: 401 Unauthorized"
-- ✅ **Solusi**: API key belum valid
+-  **Solusi**: API key belum valid
   - Login ke https://collaborator.komerce.id
   - Copy API key dari dashboard
   - Update `.env`
   - Restart server
 
 ### Error: "No shipping options available"
-- ✅ **Solusi**: Origin atau destination ID tidak valid
+-  **Solusi**: Origin atau destination ID tidak valid
   - Gunakan `/api/rajaongkir/search` untuk cari ID yang benar
   - Update `NEXT_PUBLIC_ORIGIN_CITY_ID`
   - Pastikan format ID sesuai (contoh: "31555")
 
 ### Courier tidak muncul
-- ✅ **Solusi**: Courier tidak tersedia di package Anda
+-  **Solusi**: Courier tidak tersedia di package Anda
   - Cek package subscription di dashboard
   - Sesuaikan courier list di `ShippingSelector.tsx`
   - Contoh: jika hanya ada JNE & POS, gunakan `"jne:pos"`
 
 ---
 
-## 🎉 Keuntungan V2
+##  Keuntungan V2
 
 1. **Lebih Banyak Kurir** 
    - V1: 3 kurir (JNE, POS, TIKI)
@@ -347,19 +347,19 @@ curl -X POST \
 
 ---
 
-## 📝 Next Steps
+##  Next Steps
 
-1. ✅ **Setup API Key**
+1.  **Setup API Key**
    - Daftar di https://collaborator.komerce.id
    - Dapatkan API key
    - Update `.env`
 
-2. ✅ **Find Origin ID**
+2.  **Find Origin ID**
    - Search lokasi toko
    - Catat destination ID
    - Set di `.env`
 
-3. ✅ **Test Checkout Flow**
+3.  **Test Checkout Flow**
    - Add to cart
    - Checkout
    - Pilih alamat
@@ -371,4 +371,4 @@ curl -X POST \
    - Add tracking page
    - Show delivery status
 
-Aplikasi sudah siap menggunakan RajaOngkir V2! 🚀
+Aplikasi sudah siap menggunakan RajaOngkir V2! 

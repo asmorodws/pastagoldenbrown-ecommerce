@@ -1,10 +1,10 @@
 # Panduan Pemilihan Jasa Pengiriman & Ongkir di Checkout
 
-## ✅ Status Implementasi: SELESAI
+##  Status Implementasi: SELESAI
 
 Fitur pemilihan jasa pengiriman dan perhitungan ongkir otomatis **sudah terintegrasi lengkap** di halaman checkout.
 
-## 📋 Alur Checkout dengan RajaOngkir V2
+##  Alur Checkout dengan RajaOngkir V2
 
 ### Step 1: Keranjang Belanja
 - User melihat produk yang akan dibeli
@@ -24,7 +24,7 @@ User menggunakan **AddressSelector** dengan fitur search:
 6. Simpan
 ```
 
-#### 2.2. Perhitungan Ongkir Otomatis 🚀
+#### 2.2. Perhitungan Ongkir Otomatis 
 Setelah alamat dipilih, jika alamat memiliki `cityId` (dari search RajaOngkir):
 
 **ShippingSelector otomatis muncul dan:**
@@ -48,13 +48,13 @@ Setelah alamat dipilih, jika alamat memiliki `cityId` (dari search RajaOngkir):
 │ Berat: 1 kg                                         │
 ├─────────────────────────────────────────────────────┤
 │ ☑️ BBM - Berani Bayar Murah                         │
-│   ⏱️ 6-8 hari    Rp 24.500                          │
+│    6-8 hari    Rp 24.500                          │
 │                                                     │
 │ ☐ REG - Reguler                                     │
-│   ⏱️ 5-7 hari    Rp 35.500                          │
+│    5-7 hari    Rp 35.500                          │
 │                                                     │
 │ ☐ GOKIL - Cargo Per Kg (Minimal 10kg)              │
-│   ⏱️ 7-8 hari    Rp 190.000                         │
+│    7-8 hari    Rp 190.000                         │
 └─────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────┐
@@ -62,24 +62,24 @@ Setelah alamat dipilih, jika alamat memiliki `cityId` (dari search RajaOngkir):
 │ Berat: 1 kg                                         │
 ├─────────────────────────────────────────────────────┤
 │ ☐ REG - Layanan Reguler                            │
-│   ⏱️ 3 hari      Rp 32.000                          │
+│    3 hari      Rp 32.000                          │
 │                                                     │
 │ ☐ JTR - JNE Trucking                                │
-│   ⏱️ 7 hari      Rp 90.000                          │
+│    7 hari      Rp 90.000                          │
 └─────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────┐
-│ 📦 Citra Van Titipan Kilat (TIKI)                   │
+│  Citra Van Titipan Kilat (TIKI)                   │
 │ Berat: 1 kg                                         │
 ├─────────────────────────────────────────────────────┤
 │ ☐ ECO - Economy Service                             │
-│   ⏱️ 5 hari      Rp 35.000                          │
+│    5 hari      Rp 35.000                          │
 │                                                     │
 │ ☐ REG - Reguler Service                             │
-│   ⏱️ 3 hari      Rp 38.000                          │
+│    3 hari      Rp 38.000                          │
 │                                                     │
 │ ☐ ONS - Over Night Service                          │
-│   ⏱️ 1 hari      Rp 53.000                          │
+│    1 hari      Rp 53.000                          │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -91,7 +91,7 @@ Setelah alamat dipilih, jika alamat memiliki `cityId` (dari search RajaOngkir):
 Jika alamat **tidak memiliki cityId** (diisi manual):
 ```
 ┌─────────────────────────────────────────────────────┐
-│ ⚠️ Perhitungan Ongkir Otomatis Tidak Tersedia       │
+│  Perhitungan Ongkir Otomatis Tidak Tersedia       │
 │                                                     │
 │ RajaOngkir API tidak tersedia. Biaya pengiriman    │
 │ akan dikonfirmasi setelah pesanan dibuat.          │
@@ -106,12 +106,12 @@ Jika alamat **tidak memiliki cityId** (diisi manual):
 - Pilih: Transfer Bank / E-Wallet / Kartu Kredit
 - Klik "Review Pesanan"
 
-### Step 4: Review & Konfirmasi ✅
+### Step 4: Review & Konfirmasi 
 
 **Ringkasan Lengkap:**
 ```
 ┌─────────────────────────────────────────────────────┐
-│ 📦 Produk yang Dipesan (3 item)                     │
+│  Produk yang Dipesan (3 item)                     │
 │ - Pasta Carbonara Classic (x2) - Rp 60.000         │
 │ - Pasta Aglio Olio (x1) - Rp 35.000                │
 ├─────────────────────────────────────────────────────┤
@@ -130,7 +130,7 @@ Jika alamat **tidak memiliki cityId** (diisi manual):
 │ 💳 Metode Pembayaran                                │
 │ Transfer Bank (BCA, Mandiri, BNI, BRI)             │
 ├─────────────────────────────────────────────────────┤
-│ 💰 Total Pembayaran                                 │
+│  Total Pembayaran                                 │
 │ Subtotal         Rp 95.000                          │
 │ Ongkos Kirim     Rp 24.500                          │
 │ ─────────────────────────────                       │
@@ -142,7 +142,7 @@ Jika alamat **tidak memiliki cityId** (diisi manual):
 
 Klik "Konfirmasi & Buat Pesanan" → Order dibuat!
 
-## 🔧 Konfigurasi yang Diperlukan
+##  Konfigurasi yang Diperlukan
 
 ### 1. File `.env`
 ```env
@@ -177,7 +177,7 @@ curl -H "key: YOUR_API_KEY" \
 NEXT_PUBLIC_ORIGIN_CITY_ID="31555"
 ```
 
-## 📊 Integrasi Backend
+##  Integrasi Backend
 
 ### API Endpoint yang Digunakan
 
@@ -249,7 +249,7 @@ Saat user konfirmasi pesanan, data shipping disimpan:
 }
 ```
 
-## 🎨 Komponen UI
+##  Komponen UI
 
 ### 1. `components/AddressSelector.tsx`
 **Fitur:**
@@ -277,7 +277,7 @@ Saat user konfirmasi pesanan, data shipping disimpan:
 - Order review & confirmation
 - Conditional validation (shipping required only if cityId exists)
 
-## ✅ Validasi & Error Handling
+##  Validasi & Error Handling
 
 ### Validasi di Step 2 (Pengiriman)
 ```typescript
@@ -296,7 +296,7 @@ setCurrentStep(3)
 3. **Request gagal**: Tombol "Coba Lagi"
 4. **Timeout**: Auto-retry dengan debouncing
 
-## 🧪 Testing
+##  Testing
 
 ### Test Local API
 ```bash
@@ -354,7 +354,7 @@ Expected response: Array of couriers with services and costs
 - Auto-fill user data
 - Remember selected address
 
-## 🚀 Performance
+##  Performance
 
 ### Optimizations
 - **Debounced search**: 500ms delay
@@ -368,7 +368,7 @@ Expected response: Array of couriers with services and costs
 - Cost calculation: 1 call per address selection
 - Total: ~3-6 API calls per checkout session
 
-## 📖 Dokumentasi Terkait
+##  Dokumentasi Terkait
 
 - **Setup Guide**: `RAJAONGKIR_V2_MIGRATION.md`
 - **Search Implementation**: `RAJAONGKIR_SEARCH_IMPLEMENTATION.md`
@@ -377,22 +377,22 @@ Expected response: Array of couriers with services and costs
 
 ---
 
-## ✨ Kesimpulan
+##  Kesimpulan
 
 Form pemilihan jasa pengiriman dan perhitungan ongkir **sudah lengkap dan berfungsi** di halaman checkout!
 
 **Yang perlu Anda lakukan:**
-1. ✅ Pastikan `RAJAONGKIR_API_KEY` terisi di `.env`
-2. ✅ Set `NEXT_PUBLIC_ORIGIN_CITY_ID` sesuai lokasi toko
-3. ✅ Test flow checkout end-to-end
-4. ✅ Deploy dan monitor API usage
+1.  Pastikan `RAJAONGKIR_API_KEY` terisi di `.env`
+2.  Set `NEXT_PUBLIC_ORIGIN_CITY_ID` sesuai lokasi toko
+3.  Test flow checkout end-to-end
+4.  Deploy dan monitor API usage
 
 **Fitur yang sudah berjalan:**
-- ✅ Search-based address selection
-- ✅ Auto-calculate shipping cost
-- ✅ Multi-courier comparison (JNE, SiCepat, TIKI, dll)
-- ✅ Real-time price update
-- ✅ Manual mode fallback
-- ✅ Complete order creation with shipping details
+-  Search-based address selection
+-  Auto-calculate shipping cost
+-  Multi-courier comparison (JNE, SiCepat, TIKI, dll)
+-  Real-time price update
+-  Manual mode fallback
+-  Complete order creation with shipping details
 
-**Status: PRODUCTION READY** 🎉
+**Status: PRODUCTION READY** 

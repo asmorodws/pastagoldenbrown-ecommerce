@@ -465,14 +465,48 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
     }
   }
 
-  const handleSelectDestination = (destination: any) => {
+  const handleSelectDestination = async (destination: any) => {
+    // IMPORTANT: Search API returns subdistrict-level ID in destination.id
+    // We need to get proper city_id for shipping calculation
+    // destination.id = subdistrict ID (e.g., 17737 for Rawamangun)
+    // We need city_id (e.g., 139 for Jakarta Timur)
+    
+    console.log('=== Selected Destination from Search ===')
+    console.log('Raw destination data:', destination)
+    
+    let cityId = destination.city_id || ""
+    
+    // If city_id not provided by API, derive it from city_name
+    if (!cityId && destination.city_name) {
+      try {
+        console.log('Deriving city_id from city_name:', destination.city_name)
+        const { getCityIdFromName } = await import("@/lib/rajaongkir")
+        const derivedCityId = await getCityIdFromName(destination.city_name, destination.province_id)
+        cityId = derivedCityId || destination.id // Fallback to subdistrict ID if derivation fails
+        console.log('Derived city_id:', derivedCityId)
+      } catch (error) {
+        console.error("Error deriving city_id:", error)
+        cityId = destination.id // Fallback to subdistrict ID
+      }
+    }
+    
+    const finalData = {
+      cityId: cityId,
+      provinceId: destination.province_id || "",
+      districtId: destination.id || "", // Use subdistrict ID as districtId for precision
+      city: destination.city_name || destination.city || destination.name,
+      province: destination.province_name || destination.province || "",
+      zipCode: destination.zip_code || destination.postal_code || formData.zipCode,
+    }
+    
+    console.log('=== Final IDs to be saved ===')
+    console.log('City ID (for fallback):', finalData.cityId)
+    console.log('District ID (for precision):', finalData.districtId)
+    console.log('Province ID:', finalData.provinceId)
+    
     setFormData({
       ...formData,
-      cityId: destination.id,
-      provinceId: destination.id, // Use same ID for compatibility (V2 doesn't have separate provinceId)
-      city: destination.city || destination.district || destination.name,
-      province: destination.province || "",
-      zipCode: destination.postal_code || formData.zipCode,
+      ...finalData
     })
     setSearchQuery("")
     setShowSearchResults(false)
@@ -563,39 +597,32 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
       {!showForm && (
         <>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-blue-900 flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              Pilih Alamat Pengiriman
-            </h3>
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Pilih Alamat Pengiriman</h3>
+            </div>
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Tambah Alamat
             </button>
           </div>
 
-          {/* Info helper */}
-          {addresses.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-800">
-                <span className="font-semibold">💡 Tips:</span> Alamat dengan badge{" "}
-                <span className="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                  ✓ Ongkir Otomatis
-                </span>{" "}
-                mendukung perhitungan ongkir real-time dari RajaOngkir.
-              </p>
-            </div>
-          )}
+          
 
           {addresses.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 rounded-xl">
-              <MapPin className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <div className="text-center py-12 bg-white border-2 border-slate-200 rounded-xl">
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-8 h-8 text-slate-400" />
+              </div>
               <p className="text-slate-600 mb-4">Belum ada alamat tersimpan</p>
               <button
                 onClick={() => setShowForm(true)}
-                className="px-6 py-2 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors font-medium"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
               >
                 Tambah Alamat Baru
               </button>
@@ -631,7 +658,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
                           )}
                           {addr.cityId ? (
                             <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded flex items-center gap-1">
-                              ✓ Ongkir Otomatis
+                              Ongkir Otomatis
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded flex items-center gap-1">
@@ -677,14 +704,14 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
 
       {/* Address Form */}
       {showForm && (
-        <div className="bg-white border-2 border-blue-200 rounded-xl p-6">
+        <div className="bg-white border-2 border-slate-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-blue-900 text-lg">
+            <h3 className="font-bold text-slate-900 text-lg">
               {editingId ? "Edit Alamat" : "Tambah Alamat Baru"}
             </h3>
             <button
               onClick={handleCancel}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -858,7 +885,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
                         ))}
                       </select>
                       <p className="text-xs text-slate-500 mt-1">
-                        💡 Pilih kecamatan untuk perhitungan ongkir yang lebih akurat
+                        Pilih kecamatan untuk perhitungan ongkir yang lebih akurat
                       </p>
                     </div>
 
@@ -877,14 +904,31 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
                     </div>
 
                     {formData.cityId && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <p className="font-semibold text-green-800 mb-1">✓ Lokasi dipilih:</p>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                        <p className="font-semibold text-green-800 flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Lokasi dipilih dengan ID RajaOngkir
+                        </p>
                         <p className="text-sm text-green-700">
                           {formData.province} → {formData.city}
                           {formData.districtId && districts.find(d => d.id.toString() === formData.districtId) && (
                             <> → {districts.find(d => d.id.toString() === formData.districtId)?.name}</>
                           )}
                         </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {formData.districtId && (
+                            <span className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full font-semibold" title="District ID untuk perhitungan ongkir presisi">
+                              Akurat (District ID)
+                            </span>
+                          )}
+                          {formData.cityId && !formData.districtId && (
+                            <span className="px-2 py-1 bg-amber-200 text-amber-800 text-xs rounded-full font-semibold" title="City ID untuk perhitungan ongkir">
+                              City ID
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -937,12 +981,29 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
                     </div>
 
                     {formData.cityId && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <p className="font-semibold text-green-800 mb-1">✓ Lokasi dipilih:</p>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                        <p className="font-semibold text-green-800 flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Lokasi dipilih dengan ID RajaOngkir
+                        </p>
                         <p className="text-sm text-green-700">
                           {formData.city}, {formData.province}
                           {formData.zipCode && ` - ${formData.zipCode}`}
                         </p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {formData.districtId && (
+                            <span className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full font-semibold" title="District ID untuk perhitungan ongkir presisi">
+                              Akurat (District ID)
+                            </span>
+                          )}
+                          {formData.cityId && !formData.districtId && (
+                            <span className="px-2 py-1 bg-amber-200 text-amber-800 text-xs rounded-full font-semibold" title="City ID untuk perhitungan ongkir">
+                              City ID
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
 
@@ -995,7 +1056,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
             ) : (
               <>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-4">
-                  <p className="font-semibold mb-1">⚠️ RajaOngkir tidak tersedia</p>
+                  <p className="font-semibold mb-1">RajaOngkir tidak tersedia</p>
                   <p>Silakan isi provinsi dan kota secara manual. Perhitungan ongkir otomatis tidak dapat dilakukan.</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
@@ -1059,7 +1120,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex-1 py-3 bg-blue-800 text-white rounded-lg hover:bg-blue-900 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? "Menyimpan..." : editingId ? "Simpan Perubahan" : "Tambah Alamat"}
               </button>
@@ -1067,7 +1128,7 @@ export default function AddressSelector({ selectedAddressId, onSelectAddress, on
                 type="button"
                 onClick={handleCancel}
                 disabled={isSaving}
-                className="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-semibold disabled:opacity-50"
+                className="px-6 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-semibold disabled:opacity-50"
               >
                 Batal
               </button>

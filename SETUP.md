@@ -96,30 +96,30 @@ Setelah seeding, gunakan akun ini untuk login sebagai admin:
 
 ## Fitur-fitur Utama
 
-✅ **Authentication**
+ **Authentication**
 - Login & Register
 - Email verification
 - Session management dengan NextAuth
 - Role-based access (User & Admin)
 
-✅ **Product Management**
+ **Product Management**
 - Browse produk dengan filter kategori
 - Detail produk dengan gambar
 - Search produk
 - Admin CRUD produk
 
-✅ **Shopping Cart**
+ **Shopping Cart**
 - Add/remove items
 - Update quantity
 - Persistent cart (menggunakan Zustand)
 
-✅ **Checkout & Orders**
+ **Checkout & Orders**
 - Form checkout dengan validasi
 - Create order
 - Order history
 - Admin order management
 
-✅ **Admin Dashboard**
+ **Admin Dashboard**
 - Statistik (total products, orders, users, revenue)
 - Manage products (Create, Read, Update, Delete)
 - Manage orders (Update status)
@@ -241,4 +241,4 @@ Jika ada pertanyaan atau masalah, silakan check:
 - Prisma schema di `prisma/schema.prisma`
 - API routes di `app/api/`
 
-Happy coding! 🚀
+Happy coding! 

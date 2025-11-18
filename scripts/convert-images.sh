@@ -59,7 +59,7 @@ elif command -v magick &> /dev/null; then
     done
     
 else
-    echo "❌ Error: heif-convert atau ImageMagick tidak ditemukan!"
+    echo " Error: heif-convert atau ImageMagick tidak ditemukan!"
     echo ""
     echo "Instalasi:"
     echo "  Ubuntu/Debian: sudo apt-get install libheif-examples imagemagick"

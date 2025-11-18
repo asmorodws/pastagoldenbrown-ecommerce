@@ -18,14 +18,14 @@ EOF
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "✅ Database ecommerce_db berhasil dibuat!"
+    echo " Database ecommerce_db berhasil dibuat!"
     echo ""
     echo "Sekarang update file .env dengan password MySQL Anda:"
     echo "DATABASE_URL=\"mysql://root:$MYSQL_PASSWORD@localhost:3306/ecommerce_db\""
     echo ""
 else
     echo ""
-    echo "❌ Gagal membuat database. Pastikan:"
+    echo " Gagal membuat database. Pastikan:"
     echo "1. MySQL server sedang running"
     echo "2. Password root MySQL benar"
     echo ""

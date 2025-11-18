@@ -14,16 +14,16 @@ model User {
   emailVerified DateTime?
   password      String
   image         String?
-  phone         String?   // Add phone field
+  phone         String? // Add phone field
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
-  accounts      Account[]
-  sessions      Session[]
-  orders        Order[]
-  cart          CartItem[]
-  addresses     Address[]
+
+  accounts           Account[]
+  sessions           Session[]
+  orders             Order[]
+  cart               CartItem[]
+  addresses          Address[]
   verificationTokens VerificationToken[]
 }
 
@@ -66,89 +66,90 @@ model VerificationToken {
 }
 
 model Address {
-  id          String   @id @default(cuid())
-  userId      String
-  label       String   // e.g., "Rumah", "Kantor", "Alamat Utama"
+  id            String   @id @default(cuid())
+  userId        String
+  label         String // e.g., "Rumah", "Kantor", "Alamat Utama"
   recipientName String
-  phone       String
-  address     String   @db.Text
-  city        String
-  cityId      String?  // RajaOngkir city_id for shipping calculation
-  province    String
-  provinceId  String?  // RajaOngkir province_id
-  zipCode     String
-  country     String   @default("Indonesia")
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders      Order[]
-  
+  phone         String
+  address       String   @db.Text
+  city          String
+  cityId        String? // RajaOngkir city_id (3-4 digit) for city-level calculation
+  province      String
+  provinceId    String? // RajaOngkir province_id
+  districtId    String? // RajaOngkir district/subdistrict_id (5+ digit) for accurate calculation
+  zipCode       String
+  country       String   @default("Indonesia")
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
   @@index([userId])
 }
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
-  description String?   @db.Text
+  slug        String   @unique
+  description String?  @db.Text
   image       String?
-  halal       Boolean   @default(true) // Tandai apakah kategori halal atau tidak
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  products    Product[]
+  halal       Boolean  @default(true) // Tandai apakah kategori halal atau tidak
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
 }
 
 model Product {
-  id          String     @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String     @unique
-  description String?    @db.Text
-  price       Decimal    @db.Decimal(10, 2) // Base price (can be overridden by variant)
+  slug        String  @unique
+  description String? @db.Text
+  price       Decimal @db.Decimal(10, 2) // Base price (can be overridden by variant)
   image       String?
-  images      String?    @db.Text // JSON array of image URLs
+  images      String? @db.Text // JSON array of image URLs
   categoryId  String
-  featured    Boolean    @default(false)
-  
+  featured    Boolean @default(false)
+
   // Product details
-  brand       String?
-  sku         String?    // Base SKU
-  weight      Decimal?   @db.Decimal(10, 2)
-  dimensions  String?
-  
+  brand      String?
+  sku        String? // Base SKU
+  weight     Decimal? @db.Decimal(10, 2)
+  dimensions String?
+
   // Discount fields
-  discount    Decimal?   @db.Decimal(5, 2) // Percentage discount (0-100)
+  discount      Decimal? @db.Decimal(5, 2) // Percentage discount (0-100)
   discountPrice Decimal? @db.Decimal(10, 2) // Calculated discounted price
-  
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  category    Category         @relation(fields: [categoryId], references: [id])
-  variants    ProductVariant[] // Product variants with individual stock, price, etc.
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category   Category         @relation(fields: [categoryId], references: [id])
+  variants   ProductVariant[] // Product variants with individual stock, price, etc.
+  orderItems OrderItem[]
+  cartItems  CartItem[]
 }
 
 model ProductVariant {
-  id           String   @id @default(cuid())
-  productId    String
-  name         String   // e.g., "30g", "100g", "1kg"
-  label        String?  // e.g., "Ukuran: 30g" - for display
-  sku          String?  // Unique SKU for this variant
-  price        Decimal? @db.Decimal(10, 2) // Override product price if set
-  stock        Int      @default(0)
-  image        String?  // Variant-specific image (override product image)
-  sortOrder    Int      @default(0) // For ordering variants in display
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  cartItems    CartItem[]
-  orderItems   OrderItem[]
-  
+  id        String   @id @default(cuid())
+  productId String
+  name      String // e.g., "30g", "100g", "1kg"
+  label     String? // e.g., "Ukuran: 30g" - for display
+  sku       String? // Unique SKU for this variant
+  price     Decimal? @db.Decimal(10, 2) // Override product price if set
+  stock     Int      @default(0)
+  image     String? // Variant-specific image (override product image)
+  sortOrder Int      @default(0) // For ordering variants in display
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
   @@unique([productId, name]) // Prevent duplicate variant names for same product
   @@index([productId])
 }
@@ -156,52 +157,65 @@ model ProductVariant {
 model CartItem {
   id               String   @id @default(cuid())
   userId           String
-  productId        String   // Keep for backward compatibility and product info
-  productVariantId String?  // Reference to specific variant
+  productId        String // Keep for backward compatibility and product info
+  productVariantId String? // Reference to specific variant
   quantity         Int      @default(1)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product          Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
   @@unique([userId, productVariantId]) // One variant per user
   @@index([userId])
   @@index([productId])
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  addressId       String?     // Reference to selected address
-  total           Decimal     @db.Decimal(10, 2)
-  status          OrderStatus @default(PENDING)
-  
+  id           String      @id @default(cuid())
+  orderCode    String      @unique // Format: TRX-YYYYMMDD-XXXXX
+  userId       String
+  addressId    String? // Reference to selected address
+  subtotal     Decimal     @db.Decimal(10, 2) // Total harga produk
+  shippingCost Decimal     @default(0) @db.Decimal(10, 2) // Biaya pengiriman
+  total        Decimal     @db.Decimal(10, 2) // Subtotal + Shipping
+  status       OrderStatus @default(PENDING)
+
   // Shipping info (denormalized for historical record)
-  shippingName    String
-  shippingEmail   String
-  shippingPhone   String?
-  shippingAddress String
-  shippingCity    String
-  shippingZip     String
-  shippingCountry String
+  shippingName     String
+  shippingEmail    String
+  shippingPhone    String?
+  shippingAddress  String
+  shippingCity     String
+  shippingZip      String
+  shippingCountry  String
   shippingProvince String?
-  
+
+  // Courier info
+  courier        String? // JNE, TIKI, POS
+  courierService String? // REG, YES, OKE
+
   // Payment info
-  paymentMethod   String?     @default("bank_transfer")
-  
+  paymentMethod String?   @default("bank_transfer")
+  paymentProof  String? // URL to payment proof image
+  paidAt        DateTime? // Timestamp when payment confirmed
+
   // Additional info
-  notes           String?     @db.Text
-  
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  
-  user            User        @relation(fields: [userId], references: [id])
-  address         Address?    @relation(fields: [addressId], references: [id])
-  items           OrderItem[]
-  
+  notes          String? @db.Text
+  trackingNumber String? // Nomor resi pengiriman
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id])
+  address Address?    @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
   @@index([addressId])
+  @@index([userId])
+  @@index([orderCode])
+  @@index([status])
 }
 
 model OrderItem {
@@ -212,11 +226,11 @@ model OrderItem {
   quantity         Int
   price            Decimal @db.Decimal(10, 2)
   variantName      String? // Store variant name for historical record
-  
-  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product          Product        @relation(fields: [productId], references: [id])
-  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
-  
+
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        Product         @relation(fields: [productId], references: [id])
+  productVariant ProductVariant? @relation(fields: [productVariantId], references: [id])
+
   @@index([orderId])
   @@index([productId])
 }
@@ -227,11 +241,14 @@ enum Role {
 }
 
 enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
+  PENDING // Menunggu pembayaran
+  PAYMENT_UPLOADED // Bukti pembayaran sudah diupload
+  PAID // Pembayaran dikonfirmasi
+  PROCESSING // Pesanan sedang diproses
+  SHIPPED // Pesanan sudah dikirim
+  DELIVERED // Pesanan sudah diterima
+  CANCELLED // Pesanan dibatalkan
+  REFUNDED // Pesanan dikembalikan/refund
 }
 
 model Settings {
@@ -240,18 +257,18 @@ model Settings {
   value     String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([key])
 }
 
 // Cache model for storing API responses (e.g. RajaOngkir) to reduce external calls
 model ApiCache {
   id        String   @id @default(cuid())
-  key       String   @unique                       // computed key: endpoint + params hash
-  endpoint  String                                   // e.g. "/destination/province" or "/calculate/domestic-cost"
-  params    String?  @db.Text                        // serialized params
-  response  Json                                     // stored JSON response
-  ttl       Int      @default(3600)                  // time-to-live in seconds
+  key       String   @unique // computed key: endpoint + params hash
+  endpoint  String // e.g. "/destination/province" or "/calculate/domestic-cost"
+  params    String?  @db.Text // serialized params
+  response  Json // stored JSON response
+  ttl       Int      @default(3600) // time-to-live in seconds
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -77,6 +77,12 @@ export async function PUT(
       }
 
       // Update the address
+      console.log('Updating address with IDs:', { 
+        cityId: body.cityId, 
+        provinceId: body.provinceId, 
+        districtId: body.districtId 
+      })
+      
       return await tx.address.update({
         where: { id },
         data: {
@@ -91,6 +97,7 @@ export async function PUT(
           isDefault: body.isDefault,
           cityId: body.cityId,
           provinceId: body.provinceId,
+          districtId: body.districtId || null, // District/Subdistrict ID for accurate shipping
         },
       })
     })

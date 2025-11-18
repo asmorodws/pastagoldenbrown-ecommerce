@@ -1,10 +1,10 @@
 # 📍 Panduan Pengaturan Lokasi Asal Pengiriman (Shipping Origin)
 
-## ✨ Overview
+##  Overview
 
 Fitur ini memungkinkan **Super Admin** untuk mengubah lokasi asal pengiriman (origin city) yang digunakan untuk kalkulasi ongkir RajaOngkir. Lokasi ini menentukan titik awal pengiriman untuk semua pesanan.
 
-## 🎯 Fungsi Utama
+##  Fungsi Utama
 
 ### 1. **Lihat Lokasi Toko Saat Ini**
 - Menampilkan kota/kabupaten yang saat ini diset sebagai origin
@@ -21,7 +21,7 @@ Fitur ini memungkinkan **Super Admin** untuk mengubah lokasi asal pengiriman (or
 - Toast notification sukses/gagal
 - Instruksi lengkap untuk development dan production
 
-## 🚀 Cara Menggunakan
+##  Cara Menggunakan
 
 ### Akses Fitur
 1. Login sebagai **Super Admin**
@@ -92,9 +92,9 @@ Response:
 ```
 
 ### Security
-- ✅ Hanya user dengan role `ADMIN` yang bisa akses
-- ✅ Autentikasi dengan NextAuth session
-- ✅ Write permission ke file `.env` di-handle server-side
+-  Hanya user dengan role `ADMIN` yang bisa akses
+-  Autentikasi dengan NextAuth session
+-  Write permission ke file `.env` di-handle server-side
 
 ### File Modified
 
@@ -170,7 +170,7 @@ fs.writeFileSync(envPath, envContent)
 )}
 ```
 
-## 📊 Use Cases
+##  Use Cases
 
 ### 1. Toko Pindah Lokasi
 **Scenario**: Toko fisik pindah dari Jakarta ke Bandung
@@ -199,7 +199,7 @@ fs.writeFileSync(envPath, envContent)
 4. Catat biaya pengiriman
 5. Ulangi untuk Kota B, C, dll.
 
-## ⚠️ Perhatian Penting
+##  Perhatian Penting
 
 ### 1. **Server Restart Required**
 - Perubahan disimpan ke `.env`
@@ -225,7 +225,7 @@ fs.writeFileSync(envPath, envContent)
 - Catat City ID lama sebelum ubah
 - Test di staging dulu sebelum production
 
-## 🎨 UI/UX Design
+##  UI/UX Design
 
 ### Visual Indicators
 
@@ -244,8 +244,8 @@ fs.writeFileSync(envPath, envContent)
 #### Search Active
 ```
 ┌────────────────────────────────────────────┐
-│ 🔍 Cari kota/kabupaten...                  │
-│ [bandung___________________] 🔄           │
+│  Cari kota/kabupaten...                  │
+│ [bandung___________________]            │
 │ ┌────────────────────────────────────────┐ │
 │ │ Bandung                                │ │
 │ │ Bandung, Jawa Barat - 40111            │ │
@@ -259,7 +259,7 @@ fs.writeFileSync(envPath, envContent)
 #### Warning Message
 ```
 ┌────────────────────────────────────────────┐
-│ ⚠️ PENTING!                                │
+│  PENTING!                                │
 ├────────────────────────────────────────────┤
 │ Setelah mengubah lokasi asal pengiriman,  │
 │ Anda perlu RESTART SERVER:                 │
@@ -279,7 +279,7 @@ fs.writeFileSync(envPath, envContent)
 - **Warning**: Amber (`bg-amber-50`, `border-amber-200`)
 - **Section Header**: Blue-Cyan gradient
 
-## 🧪 Testing Checklist
+##  Testing Checklist
 
 ### Frontend Testing
 - [ ] Admin dapat melihat origin saat ini
@@ -313,7 +313,7 @@ fs.writeFileSync(envPath, envContent)
 - [ ] Session expired saat save
 - [ ] Multiple admin ubah bersamaan
 
-## 📈 Analytics & Monitoring
+##  Analytics & Monitoring
 
 ### Metrics to Track
 1. **Frequency**: Berapa sering origin diubah
@@ -332,7 +332,7 @@ console.log(`Shipping origin updated to: ${originCityName} (ID: ${originCityId})
 - Impact analysis on shipping costs
 - Customer complaints correlation
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 ### Phase 1: Improvements
 - [ ] **Preview Mode**: Preview biaya ongkir sebelum apply
@@ -352,42 +352,42 @@ console.log(`Shipping origin updated to: ${originCityName} (ID: ${originCityId})
 - [ ] **Distance Calculator**: Show distance from origin to popular destinations
 - [ ] **Fulfillment Time**: Predict delivery time based on origin
 
-## 📚 Related Documentation
+##  Related Documentation
 
 - [RAJAONGKIR_V2_HIERARCHICAL.md](./RAJAONGKIR_V2_HIERARCHICAL.md) - RajaOngkir integration
 - [COURIER_SELECTOR_GUIDE.md](./COURIER_SELECTOR_GUIDE.md) - Courier selection feature
 - [ShippingSelector Component](../components/checkout/ShippingSelector.tsx) - Uses origin city
 
-## 🎓 Best Practices
+##  Best Practices
 
 ### 1. Sebelum Ubah Origin
-- ✅ Backup `.env` file
-- ✅ Test di staging environment dulu
-- ✅ Pastikan courier support origin baru
-- ✅ Informasikan team/customer jika perlu
+-  Backup `.env` file
+-  Test di staging environment dulu
+-  Pastikan courier support origin baru
+-  Informasikan team/customer jika perlu
 
 ### 2. Saat Ubah Origin
-- ✅ Pilih kota yang benar (cek spelling)
-- ✅ Verify City ID dari RajaOngkir
-- ✅ Schedule di maintenance window (production)
-- ✅ Monitor error logs setelah restart
+-  Pilih kota yang benar (cek spelling)
+-  Verify City ID dari RajaOngkir
+-  Schedule di maintenance window (production)
+-  Monitor error logs setelah restart
 
 ### 3. Setelah Ubah Origin
-- ✅ Test checkout flow end-to-end
-- ✅ Verify biaya ongkir masuk akal
-- ✅ Check semua courier tersedia
-- ✅ Monitor customer feedback
+-  Test checkout flow end-to-end
+-  Verify biaya ongkir masuk akal
+-  Check semua courier tersedia
+-  Monitor customer feedback
 
-## 🎉 Summary
+##  Summary
 
 Fitur **Shipping Origin Settings** memberikan:
 
-1. ✅ **Flexibility**: Admin bisa ubah origin kapan saja
-2. ✅ **User-Friendly**: Search autocomplete yang mudah
-3. ✅ **Safe**: Authorization dan validation
-4. ✅ **Transparent**: Clear warning dan instruksi
-5. ✅ **Persistent**: Simpan ke `.env` file
-6. ✅ **Professional**: UI yang clean dan informatif
+1.  **Flexibility**: Admin bisa ubah origin kapan saja
+2.  **User-Friendly**: Search autocomplete yang mudah
+3.  **Safe**: Authorization dan validation
+4.  **Transparent**: Clear warning dan instruksi
+5.  **Persistent**: Simpan ke `.env` file
+6.  **Professional**: UI yang clean dan informatif
 
 **Impact**: Admin tidak perlu edit `.env` manual, lebih cepat dan mengurangi human error! 🎊
 
@@ -395,4 +395,4 @@ Fitur **Shipping Origin Settings** memberikan:
 
 **Version**: 1.0  
 **Last Updated**: 2024  
-**Status**: ✅ Production Ready
+**Status**:  Production Ready

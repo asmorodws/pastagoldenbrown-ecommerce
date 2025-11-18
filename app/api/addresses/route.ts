@@ -38,7 +38,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { label, recipientName, phone, address, city, province, zipCode, country, isDefault, cityId, provinceId } = body
+    const { label, recipientName, phone, address, city, province, zipCode, country, isDefault, cityId, provinceId, districtId } = body
+
+    // Log untuk debugging
+    console.log('Creating address with IDs:', { cityId, provinceId, districtId })
 
     // Use transaction for atomic operations
     const newAddress = await prisma.$transaction(async (tx: any) => {
@@ -70,6 +73,7 @@ export async function POST(request: Request) {
           isDefault: isDefault || false,
           cityId: cityId || null,
           provinceId: provinceId || null,
+          districtId: districtId || null, // District/Subdistrict ID for accurate shipping
         },
       })
     })

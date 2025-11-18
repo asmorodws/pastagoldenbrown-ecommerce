@@ -2,7 +2,7 @@
 
 ## Color Palette
 
-### 🔵 Dark Blue (Primary)
+###  Dark Blue (Primary)
 - **Navy 900**: `#0a1628` - Darkest blue for headers, primary text
 - **Navy 800**: `#0f2744` - Dark blue for backgrounds, hover states
 - **Navy 700**: `#1a3a5c` - Primary button color, main brand color
@@ -15,7 +15,7 @@
 - Dark backgrounds: `bg-navy-800`
 - Links: `text-navy-700`
 
-### 🔴 Red (Accent/CTA)
+###  Red (Accent/CTA)
 - **Red 600**: `#dc2626` - Hover state, important actions
 - **Red 500**: `#ef4444` - Primary red for CTAs, alerts
 - **Red 400**: `#f87171` - Lighter red for badges
@@ -26,7 +26,7 @@
 - Error states: `text-red-500`
 - Discount indicators: `bg-red-500`
 
-### ✨ Gold (Highlight/Premium)
+###  Gold (Highlight/Premium)
 - **Gold 600**: `#d97706` - Dark gold for emphasis
 - **Gold 500**: `#f59e0b` - Primary gold for premium features
 - **Gold 400**: `#fbbf24` - Medium gold
@@ -38,7 +38,7 @@
 - Highlights: `text-gold-600`
 - Success states: `bg-gold-100 text-gold-600`
 
-### ⚪ White/Neutral
+###  White/Neutral
 - **White**: `#ffffff` - Pure white backgrounds
 - **Gray 50-900**: Various gray shades for UI elements
 
@@ -142,8 +142,8 @@ className="bg-gradient-to-br from-navy-900 via-navy-800 to-red-900"
 ## Accessibility
 
 - All color combinations meet WCAG AA standards
-- Navy 700+ on white: ✅ High contrast
-- White on Navy 700+: ✅ High contrast
-- Red 500 on white: ✅ High contrast
-- Gold 600 on white: ✅ Sufficient contrast
-- Gold 500 on Navy 900: ✅ High contrast
+- Navy 700+ on white:  High contrast
+- White on Navy 700+:  High contrast
+- Red 500 on white:  High contrast
+- Gold 600 on white:  Sufficient contrast
+- Gold 500 on Navy 900:  High contrast

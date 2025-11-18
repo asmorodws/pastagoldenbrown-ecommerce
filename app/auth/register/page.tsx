@@ -188,12 +188,12 @@ export default function RegisterPage() {
         {/* Benefits */}
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
           <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-slate-100">
-            <div className="text-2xl mb-2 font-bold text-slate-800">50%</div>
+            <div className="text-2xl mb-2 font-bold text-slate-800">30%</div>
             <p className="text-xs font-medium text-slate-700">Diskon Member</p>
           </div>
           <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-slate-100">
-            <div className="text-2xl mb-2 font-bold text-slate-800">Free</div>
-            <p className="text-xs font-medium text-slate-700">Gratis Ongkir</p>
+            <div className="text-2xl mb-2 font-bold text-slate-800">Fast</div>
+            <p className="text-xs font-medium text-slate-700">Pengiriman Cepat</p>
           </div>
           <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-slate-100">
             <div className="text-2xl mb-2 font-bold text-slate-800">100%</div>

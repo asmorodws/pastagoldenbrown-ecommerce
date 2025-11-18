@@ -1,4 +1,4 @@
-# 🚀 QUICK START GUIDE
+#  QUICK START GUIDE
 
 ## Prerequisites
 - Node.js 18+ 
@@ -61,7 +61,7 @@ npm run dev
 
 Buka browser: **http://localhost:3000**
 
-## 🎉 Selesai!
+##  Selesai!
 
 ### Login sebagai Admin:
 - URL: http://localhost:3000/auth/login
@@ -73,7 +73,7 @@ Buka browser: **http://localhost:3000**
 2. Login dengan email yang didaftarkan
 3. Browse products, add to cart, checkout!
 
-## 📝 Cheat Sheet Commands
+##  Cheat Sheet Commands
 
 ```bash
 # Development
@@ -90,7 +90,7 @@ npm run build                 # Build for production
 npm start                     # Start production server
 ```
 
-## ❗ Troubleshooting
+##  Troubleshooting
 
 ### Error: Can't connect to MySQL
 ```bash
@@ -117,15 +117,15 @@ npx prisma migrate dev --name init
 npm install --legacy-peer-deps
 ```
 
-## 📚 Documentation
+##  Documentation
 
 - `README.md` - Overview & tech stack
 - `SETUP.md` - Detailed setup instructions
 - `FEATURES.md` - Complete feature list
 
-## 🎯 What's Next?
+##  What's Next?
 
-✅ Your e-commerce is ready!
+ Your e-commerce is ready!
 
 **Try these:**
 1. Login as admin → Add new products
@@ -138,4 +138,4 @@ npm install --legacy-peer-deps
 - Integrate payment gateway
 - Deploy to production
 
-Happy coding! 🚀
+Happy coding! 

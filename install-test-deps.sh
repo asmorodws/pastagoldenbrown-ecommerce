@@ -3,7 +3,7 @@
 # Test Dependencies Installation Script
 # Run this after freeing up disk space
 
-echo "📦 Installing Jest and Testing Dependencies..."
+echo " Installing Jest and Testing Dependencies..."
 
 # Core testing libraries
 npm install -D --legacy-peer-deps \
@@ -16,12 +16,12 @@ npm install -D --legacy-peer-deps \
   @testing-library/user-event \
   @types/jest
 
-echo "✅ Testing dependencies installed!"
+echo " Testing dependencies installed!"
 
 echo ""
-echo "🧪 Available test commands:"
+echo " Available test commands:"
 echo "  npm test              - Run all tests"
 echo "  npm run test:watch    - Run tests in watch mode"
 echo "  npm run test:coverage - Run tests with coverage report"
 echo ""
-echo "📚 See TESTING_GUIDE.md for detailed information"
+echo " See TESTING_GUIDE.md for detailed information"

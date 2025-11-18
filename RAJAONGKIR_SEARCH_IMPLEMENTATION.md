@@ -7,13 +7,13 @@ RajaOngkir V2 API tidak lagi menyediakan endpoint untuk listing semua provinsi d
 ## Perubahan dari V1 ke V2
 
 ### V1 (Deprecated)
-- ❌ GET `/province` - List semua provinsi
-- ❌ GET `/city?province=xxx` - List kota berdasarkan provinsi
-- ✅ POST `/cost` - Hitung ongkir
+-  GET `/province` - List semua provinsi
+-  GET `/city?province=xxx` - List kota berdasarkan provinsi
+-  POST `/cost` - Hitung ongkir
 
 ### V2 (Current)
-- ✅ GET `/destination/domestic-destination?search=xxx` - Cari lokasi
-- ✅ POST `/calculate/domestic-cost` - Hitung ongkir dengan courier colon-separated
+-  GET `/destination/domestic-destination?search=xxx` - Cari lokasi
+-  POST `/calculate/domestic-cost` - Hitung ongkir dengan courier colon-separated
 
 ## Cara Kerja Search Implementation
 

@@ -1,10 +1,10 @@
 # RajaOngkir V2 Hierarchical Integration
 
-## 📋 Overview
+##  Overview
 
 Implementasi lengkap RajaOngkir V2 API dengan dukungan **cascade dropdown selection** (Province → City → District) dan **district-level shipping calculation** untuk akurasi biaya pengiriman yang lebih baik.
 
-## ✨ Features
+##  Features
 
 ### 1. **Dual Input Mode**
 - **Dropdown Mode**: Pilih lokasi dengan cascade dropdowns (Province → City → District)
@@ -106,7 +106,7 @@ export async function getShippingCost({
   />
   ```
 
-## 📦 Database Schema
+##  Database Schema
 
 ### Address Model
 ```prisma
@@ -139,7 +139,7 @@ model Address {
 - `districtId`: Optional, meningkatkan akurasi hingga tingkat kecamatan
 - Alamat tanpa kedua field ini tetap bisa digunakan (manual mode)
 
-## 🎨 User Experience
+##  User Experience
 
 ### Creating New Address
 
@@ -184,7 +184,7 @@ model Address {
 → Checkout tetap bisa dilanjutkan
 ```
 
-## 🔄 API Request Examples
+##  API Request Examples
 
 ### Get Provinces
 ```bash
@@ -239,7 +239,7 @@ curl -X POST http://localhost:3000/api/rajaongkir/cost \
   }'
 ```
 
-## 🎯 Visual Indicators
+##  Visual Indicators
 
 ### Address List
 | Indicator | Meaning | Shipping Calculation |
@@ -259,7 +259,7 @@ curl -X POST http://localhost:3000/api/rajaongkir/cost \
 | "Gunakan Pencarian" | Dropdown | Search |
 | "Gunakan Dropdown" | Search | Dropdown |
 
-## ⚙️ Configuration
+##  Configuration
 
 ### Environment Variables
 ```env
@@ -279,7 +279,7 @@ const courierList = "jne:pos:tiki:sicepat:jnt:ninja:anteraja"
 Available couriers:
 - jne, pos, tiki, sicepat, jnt, ninja, anteraja, lion, rpx, pandu, wahana, pcp, jet, dse, first, indah, cahaya, star, idl, 21, mgp, sap, rex, ncs
 
-## 🧪 Testing Checklist
+##  Testing Checklist
 
 ### Dropdown Mode
 - [ ] Province list loads on form open
@@ -310,7 +310,7 @@ Available couriers:
 - [ ] Checkout works without shipping selection for manual
 - [ ] Edit address can upgrade to RajaOngkir mode
 
-## 🚀 Performance Optimization
+##  Performance Optimization
 
 ### Implemented
 1. **Lazy Loading**: Province list hanya dimuat saat form dibuka
@@ -323,7 +323,7 @@ Available couriers:
 2. **Prefetch Cities**: Untuk provinsi populer (Jakarta, Jawa Barat)
 3. **Virtual Scrolling**: Untuk dropdown dengan banyak items (1000+ cities)
 
-## 📝 Migration Guide
+##  Migration Guide
 
 ### Upgrading Existing Addresses
 
@@ -367,7 +367,7 @@ async function migrateAddresses() {
 }
 ```
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Province List Empty
 - Check `RAJAONGKIR_API_KEY` in `.env`
@@ -389,24 +389,24 @@ async function migrateAddresses() {
 - Check weight calculation (should be in grams)
 - Verify origin city ID matches your store location
 
-## 📚 Related Documentation
+##  Related Documentation
 
 - [RajaOngkir V2 API Documentation](https://docs.google.com/document/d/1kYv2x3i_4qW8rHB3FYdN5hZz8gUzzHqb/edit)
 - [RAJAONGKIR_V2_MIGRATION.md](./RAJAONGKIR_V2_MIGRATION.md) - Initial V2 migration
 - [SHIPPING_CHECKOUT_GUIDE.md](./SHIPPING_CHECKOUT_GUIDE.md) - General shipping guide
 
-## 🎉 Summary
+##  Summary
 
 Integrasi ini memberikan:
-- ✅ **Better UX**: Cascade dropdowns lebih mudah daripada search untuk struktur data hierarkis
-- ✅ **Better Accuracy**: District-level calculation memberikan harga lebih akurat
-- ✅ **Flexibility**: User bisa pilih dropdown atau search sesuai preferensi
-- ✅ **Backward Compatible**: Alamat lama tetap berfungsi
-- ✅ **Progressive Enhancement**: User bisa upgrade alamat lama ke mode RajaOngkir
-- ✅ **Visual Feedback**: Badge jelas menunjukkan status dan akurasi perhitungan
+-  **Better UX**: Cascade dropdowns lebih mudah daripada search untuk struktur data hierarkis
+-  **Better Accuracy**: District-level calculation memberikan harga lebih akurat
+-  **Flexibility**: User bisa pilih dropdown atau search sesuai preferensi
+-  **Backward Compatible**: Alamat lama tetap berfungsi
+-  **Progressive Enhancement**: User bisa upgrade alamat lama ke mode RajaOngkir
+-  **Visual Feedback**: Badge jelas menunjukkan status dan akurasi perhitungan
 
 ---
 
 **Version**: 2.0 (Hierarchical)  
 **Last Updated**: 2024  
-**Status**: ✅ Production Ready
+**Status**:  Production Ready

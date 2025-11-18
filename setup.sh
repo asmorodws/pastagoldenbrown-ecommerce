@@ -1,24 +1,24 @@
 #!/bin/bash
 
 echo "=========================================="
-echo "  🚀 SETUP E-COMMERCE - AUTO INSTALLER"
+echo "   SETUP E-COMMERCE - AUTO INSTALLER"
 echo "=========================================="
 echo ""
 
 # Step 1: Check MySQL
-echo "📋 Step 1/5: Checking MySQL..."
+echo " Step 1/5: Checking MySQL..."
 if ! command -v mysql &> /dev/null; then
-    echo "❌ MySQL tidak terinstall!"
+    echo " MySQL tidak terinstall!"
     echo "Install MySQL terlebih dahulu:"
     echo "  sudo apt install mysql-server  # Ubuntu/Debian"
     echo "  brew install mysql             # macOS"
     exit 1
 fi
-echo "✅ MySQL terdeteksi: $(mysql --version)"
+echo " MySQL terdeteksi: $(mysql --version)"
 echo ""
 
 # Step 2: Get MySQL password
-echo "📋 Step 2/5: Setup Database MySQL"
+echo " Step 2/5: Setup Database MySQL"
 echo "Masukkan password MySQL root Anda (atau tekan Enter jika tidak ada password):"
 read -s MYSQL_PASSWORD
 
@@ -42,9 +42,9 @@ EOF
 fi
 
 if [ $DB_RESULT -eq 0 ]; then
-    echo "✅ Database ecommerce_db berhasil dibuat!"
+    echo " Database ecommerce_db berhasil dibuat!"
 else
-    echo "❌ Gagal membuat database!"
+    echo " Gagal membuat database!"
     echo "Coba manual: mysql -u root -p"
     echo "Kemudian: CREATE DATABASE ecommerce_db;"
     exit 1
@@ -52,7 +52,7 @@ fi
 echo ""
 
 # Step 3: Update .env
-echo "📋 Step 3/5: Konfigurasi Environment Variables"
+echo " Step 3/5: Konfigurasi Environment Variables"
 
 # Generate NextAuth Secret
 NEXTAUTH_SECRET=$(openssl rand -base64 32)
@@ -81,33 +81,33 @@ EMAIL_SERVER_PASSWORD="your-app-password"
 EMAIL_FROM="noreply@yourdomain.com"
 EOF
 
-echo "✅ File .env berhasil dibuat!"
+echo " File .env berhasil dibuat!"
 echo ""
 
 # Step 4: Generate Prisma & Migrate
-echo "📋 Step 4/5: Setup Database Schema"
+echo " Step 4/5: Setup Database Schema"
 echo "Generating Prisma Client..."
 npx prisma generate
 
 if [ $? -ne 0 ]; then
-    echo "❌ Gagal generate Prisma Client"
+    echo " Gagal generate Prisma Client"
     exit 1
 fi
-echo "✅ Prisma Client berhasil di-generate!"
+echo " Prisma Client berhasil di-generate!"
 echo ""
 
 echo "Running database migrations..."
 npx prisma migrate dev --name init
 
 if [ $? -ne 0 ]; then
-    echo "❌ Gagal migrate database"
+    echo " Gagal migrate database"
     exit 1
 fi
-echo "✅ Database migration berhasil!"
+echo " Database migration berhasil!"
 echo ""
 
 # Step 5: Seed Database
-echo "📋 Step 5/5: Seed Database (Data Sample)"
+echo " Step 5/5: Seed Database (Data Sample)"
 echo "Ingin mengisi database dengan data sample? (Y/n)"
 read -r response
 
@@ -115,10 +115,10 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]] || [ -z "$response" ]; then
     npm run prisma:seed
     
     if [ $? -eq 0 ]; then
-        echo "✅ Database berhasil di-seed!"
+        echo " Database berhasil di-seed!"
         echo ""
         echo "=========================================="
-        echo "  ✨ SETUP SELESAI!"
+        echo "   SETUP SELESAI!"
         echo "=========================================="
         echo ""
         echo "Default Admin Account:"
@@ -126,12 +126,12 @@ if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]] || [ -z "$response" ]; then
         echo "  Password: admin123"
         echo ""
     else
-        echo "⚠️  Seed gagal, tapi Anda bisa lanjut tanpa data sample"
+        echo "  Seed gagal, tapi Anda bisa lanjut tanpa data sample"
     fi
 fi
 
 echo "=========================================="
-echo "  🎉 READY TO RUN!"
+echo "   READY TO RUN!"
 echo "=========================================="
 echo ""
 echo "Untuk menjalankan development server:"

@@ -1,13 +1,13 @@
 # Optimasi Penyimpanan Alamat
 
-## 🎯 Masalah
+##  Masalah
 Proses penyimpanan alamat di form checkout sangat lambat karena:
 1. **Multiple Sequential Queries**: UpdateMany → Update/Create → FetchAll
 2. **No Optimistic Updates**: User menunggu sampai semua operasi selesai
 3. **Redundant Fetching**: Fetch ulang semua alamat setelah save
 4. **Callback Chain**: `onAddressChange` bisa trigger fetch tambahan
 
-## ✅ Solusi yang Diterapkan
+##  Solusi yang Diterapkan
 
 ### 1. **Optimistic UI Updates** (AddressSelector.tsx)
 ```typescript
@@ -44,7 +44,7 @@ const address = await prisma.$transaction(async (tx) => {
 **SEBELUM**:
 ```typescript
 if (res.ok) {
-  await fetchAddresses() // ❌ Fetch semua alamat lagi
+  await fetchAddresses() //  Fetch semua alamat lagi
   setShowForm(false)
 }
 ```
@@ -53,7 +53,7 @@ if (res.ok) {
 ```typescript
 if (res.ok) {
   const savedAddress = await res.json()
-  setAddresses(prev => ...) // ✅ Update local state
+  setAddresses(prev => ...) //  Update local state
   setShowForm(false)
 }
 ```
@@ -75,7 +75,7 @@ try {
 ### 5. **Prevent Double Submit**
 ```typescript
 const handleSubmit = async (e: React.FormEvent) => {
-  if (isSaving) return // ✅ Prevent double click
+  if (isSaving) return //  Prevent double click
   setIsSaving(true)
   // ...
 }
@@ -83,36 +83,36 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 **Benefit**: Prevent race conditions dan duplicate requests
 
-## 📊 Performance Improvement
+##  Performance Improvement
 
 | Metrik | Sebelum | Sesudah | Improvement |
 |--------|---------|---------|-------------|
 | Database Queries | 3-4 | 1-2 (transaction) | ~50% |
 | Network Requests | 2 (save + fetch) | 1 (save only) | 50% |
 | Perceived Latency | ~500-1000ms | <100ms | ~90% |
-| User Feedback | None | Toast notifications | ✅ |
+| User Feedback | None | Toast notifications |  |
 
-## 🔧 Technical Details
+##  Technical Details
 
 ### API Endpoint Optimizations
 
 **PUT `/api/addresses/[id]`**:
-- ✅ Transaction untuk atomic operations
-- ✅ Exclude current address dari updateMany: `NOT: { id }`
-- ✅ Return saved address untuk optimistic update
-- ✅ Proper error messages
+-  Transaction untuk atomic operations
+-  Exclude current address dari updateMany: `NOT: { id }`
+-  Return saved address untuk optimistic update
+-  Proper error messages
 
 **POST `/api/addresses`**:
-- ✅ Transaction untuk create + updateMany
-- ✅ Include cityId & provinceId untuk RajaOngkir
-- ✅ Return created address
+-  Transaction untuk create + updateMany
+-  Include cityId & provinceId untuk RajaOngkir
+-  Return created address
 
 **DELETE `/api/addresses/[id]`**:
-- ✅ Optimistic removal dari UI
-- ✅ Rollback on error
-- ✅ Auto-select next address jika default dihapus
+-  Optimistic removal dari UI
+-  Rollback on error
+-  Auto-select next address jika default dihapus
 
-## 🎨 UX Improvements
+##  UX Improvements
 
 1. **Immediate Feedback**: UI update langsung
 2. **Loading States**: `isSaving` state untuk disable form
@@ -120,14 +120,14 @@ const handleSubmit = async (e: React.FormEvent) => {
 4. **Smooth Transitions**: No flickering atau re-fetching
 5. **Prevent Double Submit**: Button disabled saat saving
 
-## 📝 Catatan untuk Production
+##  Catatan untuk Production
 
 ### Index yang Direkomendasikan (untuk nanti)
 ```prisma
 model Address {
   // ... fields
   @@index([userId])
-  @@index([userId, isDefault]) // ✅ Untuk query default address
+  @@index([userId, isDefault]) //  Untuk query default address
 }
 ```
 
@@ -148,7 +148,7 @@ console.timeEnd('address-save')
 
 Expected: <200ms untuk transaction, <100ms untuk optimistic update
 
-## 🚀 Testing Checklist
+##  Testing Checklist
 
 - [x] TypeScript compilation: `tsc --noEmit`
 - [x] Optimistic update works correctly
@@ -159,14 +159,14 @@ Expected: <200ms untuk transaction, <100ms untuk optimistic update
 - [ ] Test error scenarios
 - [ ] Test dengan banyak addresses (10+)
 
-## 📚 Related Files
+##  Related Files
 
 - `components/AddressSelector.tsx` - Client UI dengan optimistic updates
 - `app/api/addresses/route.ts` - POST endpoint dengan transaction
 - `app/api/addresses/[id]/route.ts` - PUT/DELETE endpoints dengan transaction
 - `prisma/schema.prisma` - Address model schema
 
-## 🎓 Lessons Learned
+##  Lessons Learned
 
 1. **Optimistic Updates >> Waiting**: Always update UI first
 2. **Transactions Matter**: Prevent race conditions dan data inconsistency
@@ -176,6 +176,6 @@ Expected: <200ms untuk transaction, <100ms untuk optimistic update
 
 ---
 
-**Status**: ✅ Implemented & Tested  
+**Status**:  Implemented & Tested  
 **Performance**: ~90% faster perceived latency  
 **Next**: Add composite index after disk space cleared

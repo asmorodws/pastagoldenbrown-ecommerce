@@ -26,11 +26,11 @@ Golden Brown Pasta menyediakan:
 ### Keunggulan Produk
 
 1. **Sertifikasi Lengkap**
-   - ✅ Halal MUI
-   - ✅ BPJPH (Badan Penyelenggara Jaminan Produk Halal)
-   - ✅ BPOM RI
-   - ✅ NIB (Nomor Induk Berusaha)
-   - ✅ Food Grade
+   -  Halal MUI
+   -  BPJPH (Badan Penyelenggara Jaminan Produk Halal)
+   -  BPOM RI
+   -  NIB (Nomor Induk Berusaha)
+   -  Food Grade
 
 2. **Standar Internasional**
    - Bahan pilihan berkualitas tinggi
@@ -107,10 +107,10 @@ Produk tersedia dalam berbagai ukuran:
 ## Komitmen Kami
 
 Sejak tahun 1980, kami berkomitmen untuk:
-- ✅ Memberikan kenyamanan dan keamanan bagi customer dan reseller
-- ✅ Selalu berusaha berkembang untuk meningkatkan kualitas produk
-- ✅ Menghadirkan produk yang unggul sesuai selera konsumen Indonesia
-- ✅ Mendukung pertumbuhan UMKM Indonesia
+-  Memberikan kenyamanan dan keamanan bagi customer dan reseller
+-  Selalu berusaha berkembang untuk meningkatkan kualitas produk
+-  Menghadirkan produk yang unggul sesuai selera konsumen Indonesia
+-  Mendukung pertumbuhan UMKM Indonesia
 
 ## Kontak & Informasi
 
@@ -131,10 +131,10 @@ Platform e-commerce ini dibangun khusus untuk mendukung bisnis Golden Brown Past
 ### Fitur Utama
 - 🛒 Katalog produk lengkap
 - 💳 Sistem pembayaran aman
-- 📦 Tracking pesanan
+-  Tracking pesanan
 - 👥 Registrasi mitra UMKM
-- 💰 Harga grosir khusus
-- 📱 Responsive design
+-  Harga grosir khusus
+-  Responsive design
 
 ### Teknologi
 - Next.js 16
