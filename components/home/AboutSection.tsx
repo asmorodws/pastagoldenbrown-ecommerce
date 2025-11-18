@@ -35,15 +35,13 @@ export default function AboutSection() {
               { img: "/assets/img/Bolu Green Tea.png", alt: "Bolu Green Tea" },
             ].map((item, i) => (
               <div key={i} className="break-inside-avoid mb-4">
-                <div className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group max-h-[250px]">
+                <div className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group aspect-[4/5]">
                   <Image 
                     src={item.img} 
                     alt={item.alt}
-                    width={300}
-                    height={250}
-                    style={{ width: '100%', height: 'auto', maxHeight: '250px', objectFit: 'cover' }}
+                    fill
                     sizes="(max-width: 768px) 50vw, 25vw"
-                    className="group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
                 </div>

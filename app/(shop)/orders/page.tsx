@@ -131,7 +131,7 @@ export default function OrdersPage() {
                         <div>
                           <p className="text-white/80 text-sm mb-1">Order ID</p>
                           <p className="text-xl font-bold">
-                            #{order.id.slice(0, 8).toUpperCase()}
+                            {order.orderCode || `#${order.id.slice(0, 8).toUpperCase()}`}
                           </p>
                         </div>
                       </div>

@@ -72,6 +72,7 @@ export default function AdminOrdersPage() {
   const filteredOrders = orders.filter((order) => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (order.orderCode && order.orderCode.toLowerCase().includes(searchQuery.toLowerCase())) ||
       order.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.user.email.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = !filterStatus || order.status === filterStatus
@@ -156,7 +157,7 @@ export default function AdminOrdersPage() {
                 filteredOrders.map((order) => (
                   <tr key={order.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="py-4 px-6">
-                      <span className="text-sm font-mono text-slate-900">#{order.id.slice(0, 8)}</span>
+                      <span className="text-sm font-mono text-slate-900">{order.orderCode || `#${order.id.slice(0, 8)}`}</span>
                     </td>
                     <td className="py-4 px-6">
                       <div>
@@ -218,7 +219,7 @@ export default function AdminOrdersPage() {
             <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">Detail Pesanan</h2>
-                <p className="text-sm text-slate-600 mt-1">Order ID: #{selectedOrder.id.slice(0, 8)}</p>
+                <p className="text-sm text-slate-600 mt-1">Order ID: {selectedOrder.orderCode || `#${selectedOrder.id.slice(0, 8)}`}</p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
@@ -307,9 +308,23 @@ export default function AdminOrdersPage() {
                   <div className="flex justify-between">
                     <span className="text-slate-600">Subtotal</span>
                     <span className="font-medium text-slate-900">
-                      Rp {parseFloat(selectedOrder.total).toLocaleString("id-ID")}
+                      Rp {parseFloat(selectedOrder.subtotal || selectedOrder.total).toLocaleString("id-ID")}
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Ongkos Kirim</span>
+                    <span className="font-medium text-slate-900">
+                      {selectedOrder.shippingCost > 0 ? `Rp ${parseFloat(selectedOrder.shippingCost).toLocaleString("id-ID")}` : "Gratis"}
+                    </span>
+                  </div>
+                  {selectedOrder.courier && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Kurir</span>
+                      <span className="font-medium text-slate-900">
+                        {selectedOrder.courier.toUpperCase()} - {selectedOrder.courierService || "-"}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between pt-2 border-t border-slate-200">
                     <span className="font-semibold text-slate-900">Total</span>
                     <span className="font-bold text-lg text-slate-900">

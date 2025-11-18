@@ -1,20 +1,22 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { Play, Pause } from 'lucide-react'
+import Image from 'next/image'
+import { Play, Pause, Volume2, VolumeX, Volume1 } from 'lucide-react'
 
 interface VideoPlayerProps {
   src: string
   title: string
   category: string
   color: string
+  poster?: string
 }
 
 // Global store untuk track semua video players
 const videoPlayers = new Set<HTMLVideoElement>()
 
 
-export default function VideoPlayer({ src, title, category, color }: VideoPlayerProps) {
+export default function VideoPlayer({ src, title, category, color, poster }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -24,6 +26,8 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [showControls, setShowControls] = useState(false)
+  const [volume, setVolume] = useState<number>(100)
+  const [muted, setMuted] = useState<boolean>(false)
 
   // Intersection Observer untuk lazy loading video
   useEffect(() => {
@@ -74,6 +78,32 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
     }
   }, [isInView])
 
+  // Load saved volume/mute from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('videoVolume')
+      const savedMuted = localStorage.getItem('videoMuted')
+      if (saved) setVolume(Number(saved))
+      if (savedMuted) setMuted(savedMuted === '1')
+    } catch (e) {
+      // ignore
+    }
+  }, [])
+
+  // Apply volume/muted to the video element whenever they change
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.volume = Math.max(0, Math.min(1, volume / 100))
+    video.muted = muted
+    try {
+      localStorage.setItem('videoVolume', String(volume))
+      localStorage.setItem('videoMuted', muted ? '1' : '0')
+    } catch (e) {
+      // ignore
+    }
+  }, [volume, muted])
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -85,6 +115,16 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
         videoRef.current.pause()
       }
     }
+  }
+
+  const toggleMute = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    setMuted((m) => !m)
+  }
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number(e.target.value)
+    setVolume(val)
   }
 
   const handlePlay = () => {
@@ -158,10 +198,25 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
       onMouseLeave={() => setShowControls(false)}
     >
       <div className="relative cursor-pointer h-full w-full" onClick={togglePlay}>
+        {/* Thumbnail/Poster - Always load first, hidden when video is playing */}
+        {poster && (
+          <div className={`absolute inset-0 z-[1] ${isPlaying ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+            <Image
+              src={poster}
+              alt={title}
+              fill
+              sizes="(max-width: 768px) 100vw, 295px"
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
+        
+        {/* Video element - Only load when in view */}
         {isInView ? (
           <video 
             ref={videoRef}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover relative z-[2]"
             preload="metadata"
             onPlay={handlePlay}
             onPause={handlePause}
@@ -175,14 +230,17 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
             <source src={src} type="video/mp4" />
           </video>
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <div className="text-gray-400 text-sm">Loading...</div>
-          </div>
+          // Placeholder when video not yet loaded
+          !poster && (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+              <div className="text-gray-400 text-sm">Loading...</div>
+            </div>
+          )
         )}
         
-        {/* Play Button Overlay - Hidden saat video playing */}
-        {!isPlaying && isInView && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors duration-300 pointer-events-none">
+        {/* Play Button Overlay - Show when video is not playing */}
+        {!isPlaying && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors duration-300 pointer-events-none z-[3]">
             <div className="w-16 h-16 rounded-full bg-white/90 group-hover:bg-white group-hover:scale-110 transition-all duration-300 flex items-center justify-center shadow-xl">
               <Play className="w-8 h-8 text-blue-800 ml-1" fill="currentColor" />
             </div>
@@ -200,6 +258,18 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
         {!isPlaying && !isLoading && duration > 0 && (
           <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
             {formatTime(duration)}
+          </div>
+        )}
+
+        {/* Info Section - Show title and category when not playing */}
+        {!isPlaying && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent transition-all duration-300 pointer-events-none z-[3]">
+            <div className="p-4 pb-3">
+              <span className={`inline-block px-3 py-1 text-xs font-semibold text-white ${color} rounded-full mb-2`}>
+                {category}
+              </span>
+              <p className="text-white font-semibold text-sm">{title}</p>
+            </div>
           </div>
         )}
       </div>
@@ -224,42 +294,47 @@ export default function VideoPlayer({ src, title, category, color }: VideoPlayer
           </div>
 
           {/* Time and Controls */}
-          <div className="flex items-center justify-between text-white text-xs">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  togglePlay()
-                }}
-                className="hover:text-blue-400 transition-colors p-1"
-              >
-                {isPlaying ? (
-                  <Pause className="w-4 h-4" fill="currentColor" />
-                ) : (
-                  <Play className="w-4 h-4" fill="currentColor" />
-                )}
-              </button>
-              <span className="font-medium">
+          <div className="flex flex-col gap-2">
+            {/* Controls Row */}
+            <div className="flex items-center justify-between text-white text-xs">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    togglePlay()
+                  }}
+                  className="hover:text-blue-400 transition-colors p-1"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-4 h-4" fill="currentColor" />
+                  ) : (
+                    <Play className="w-4 h-4" fill="currentColor" />
+                  )}
+                </button>
+                {/* Volume Controls */}
+                <button onClick={toggleMute} onMouseDown={(e)=>e.stopPropagation()} className="p-1 hover:text-blue-400 transition-colors">
+                  {!muted && volume > 66 ? <Volume2 className="w-4 h-4" /> : !muted && volume > 0 ? <Volume1 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={muted ? 0 : volume}
+                  onChange={(e) => { e.stopPropagation(); handleVolumeChange(e) }}
+                  className="w-16 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${muted ? 0 : volume}%, #4b5563 ${muted ? 0 : volume}%, #4b5563 100%)`
+                  }}
+                />
+              </div>
+              {/* Time Display */}
+              <span className="font-medium whitespace-nowrap">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
             </div>
           </div>
         </div>
       )}
-      
-      {/* Info Section - At bottom when paused, moves to top when playing */}
-      <div 
-        className={`absolute left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent transition-all duration-300 pointer-events-none z-10 ${
-          isPlaying ? 'top-0 from-transparent via-black/70 to-black/90 bg-gradient-to-b pb-20' : 'bottom-0'
-        }`}
-      >
-        <div className={`p-4 ${isPlaying ? 'pt-3 pb-4' : 'pb-3'}`}>
-          <span className={`inline-block px-3 py-1 text-xs font-semibold text-white ${color} rounded-full mb-2`}>
-            {category}
-          </span>
-          <p className="text-white font-semibold text-sm">{title}</p>
-        </div>
-      </div>
 
       {/* Time Indicator - Show when playing and controls hidden */}
       {isPlaying && !showControls && duration > 0 && (

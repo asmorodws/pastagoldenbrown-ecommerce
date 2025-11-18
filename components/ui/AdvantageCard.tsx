@@ -9,10 +9,10 @@ type Props = {
 export const AdvantageCard = ({ icon, title, desc }: Props) => (
   <div
     className="grid grid-rows-[auto_auto_1fr] items-start justify-items-center
-               bg-white rounded-2xl p-5
+               bg-white rounded-2xl p-6
                shadow-sm hover:shadow-md
                transition-shadow duration-300
-               h-full w-60 text-center"
+               h-full w-full max-w-xs sm:max-w-[240px] mx-auto text-center"
   >
     {/* Icon */}
     <div className="w-15 h-15 rounded-full

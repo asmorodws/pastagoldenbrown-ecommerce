@@ -15,7 +15,7 @@ export default function AdvantagesSection() {
       <div className="container mx-auto px-6 max-w-7xl text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-blue-900">Keunggulan Kami</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mt-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mt-12 justify-items-center">
           {advantages.map((a, i) => (
             <AdvantageCard key={i} icon={a.icon} title={a.title} desc={a.desc} />
           ))}

@@ -108,7 +108,7 @@ export default function OrderDetailPage() {
             Kembali ke Daftar Pesanan
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-2">Detail Pesanan</h1>
-          <p className="text-slate-600">Order ID: #{order.id.slice(0, 8).toUpperCase()}</p>
+          <p className="text-slate-600">Order ID: {order.orderCode || `#${order.id.slice(0, 8).toUpperCase()}`}</p>
         </div>
 
         {/* Status Banner */}
@@ -197,13 +197,23 @@ export default function OrderDetailPage() {
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal</span>
                   <span className="font-semibold text-slate-900">
-                    Rp {parseFloat(order.total).toLocaleString("id-ID")}
+                    Rp {parseFloat(order.subtotal || order.total).toLocaleString("id-ID")}
                   </span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>Ongkos Kirim</span>
-                  <span className="font-semibold text-green-600">Gratis</span>
+                  <span className="font-semibold text-slate-900">
+                    {order.shippingCost > 0 ? `Rp ${parseFloat(order.shippingCost).toLocaleString("id-ID")}` : "Gratis"}
+                  </span>
                 </div>
+                {order.courier && (
+                  <div className="flex justify-between text-slate-600">
+                    <span>Kurir</span>
+                    <span className="font-semibold text-slate-900">
+                      {order.courier.toUpperCase()} - {order.courierService || "-"}
+                    </span>
+                  </div>
+                )}
                 <div className="border-t border-slate-200 pt-3">
                   <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
                     <div className="flex justify-between items-center">
